@@ -52,7 +52,7 @@ class DisplayController extends Controller
             ->pluck('province')
             ->toArray();
 
-        return view('rem', [
+        return view('rem_records', [
             'totalRemDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
@@ -75,7 +75,7 @@ class DisplayController extends Controller
             ->sortBy('province_name')
             ->values();
 
-        return view('hoa', [
+        return view('hoa_records', [
             'totalHoaDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],

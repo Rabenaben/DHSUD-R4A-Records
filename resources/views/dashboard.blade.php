@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xs sm:rounded-lg">
+    <div class="py-4">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="shadow-xs overflow-hidden bg-white sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     {{ __("You're logged in!") }}
                 </div>
@@ -15,8 +15,8 @@
                 <div class="space-y-8">
 
                     <!-- Stats Grid -->
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
-            
+                    <div class="grid grid-cols-1 gap-4 p-2 md:grid-cols-3 xl:grid-cols-6">
+
                         <!-- Total Dockets -->
                         <div
                             class="bg-linear-to-r flex flex-col items-center rounded-lg from-gray-600 to-gray-900 p-2 text-white shadow">
@@ -26,7 +26,7 @@
                             </div>
                             <h2 class="text-1x1 font-bold tracking-wider">{{ $totalDockets }}</h2>
                         </div>
-            
+
                         <!-- Total REM Dockets -->
                         <div
                             class="bg-linear-to-r flex flex-col items-center rounded-lg from-blue-500 to-blue-800 p-2 text-white shadow">
@@ -36,7 +36,7 @@
                             </div>
                             <h2 class="text-1x1 font-bold tracking-wider">{{ $totalRemDockets }}</h2>
                         </div>
-            
+
                         <!-- Total HOA Dockets -->
                         <div
                             class="bg-linear-to-r flex flex-col items-center rounded-lg from-orange-400 to-orange-700 p-2 text-white shadow">
@@ -46,7 +46,7 @@
                             </div>
                             <h2 class="text-1x1 font-bold tracking-wider">{{ $totalHoaDockets }}</h2>
                         </div>
-            
+
                         <!-- On-Shelf -->
                         <div
                             class="bg-linear-to-r flex flex-col items-center rounded-lg from-green-400 to-green-700 p-2 text-white shadow">
@@ -56,7 +56,7 @@
                             </div>
                             <h2 class="text-1x1 font-bold tracking-wider">{{ $onShelf }}</h2>
                         </div>
-            
+
                         <!-- Unavailable -->
                         <div
                             class="bg-linear-to-r flex flex-col items-center rounded-lg from-yellow-300 to-yellow-600 p-2 text-black shadow">
@@ -66,7 +66,7 @@
                             </div>
                             <h2 class="text-1x1 font-bold tracking-wider">{{ $unavailable }}</h2>
                         </div>
-            
+
                         <!-- Borrowed -->
                         <div
                             class="bg-linear-to-r flex flex-col items-center rounded-lg from-red-500 to-red-800 p-2 text-white shadow">
@@ -77,11 +77,11 @@
                             <h2 class="text-1x1 font-bold tracking-wider">{{ $borrowed }}</h2>
                         </div>
                     </div>
-            
+
                     <!-- Recently Opened Documents -->
                     <div class="rounded-lg bg-white p-6 shadow-md">
                         <h2 class="mb-4 text-xl font-bold">Recently Opened Documents</h2>
-            
+
                         <div class="overflow-x-auto">
                             <table class="min-w-full border border-gray-300 text-center text-sm">
                                 <thead class="bg-gray-800 text-white">
