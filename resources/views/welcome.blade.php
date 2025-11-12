@@ -42,6 +42,8 @@
                 <h2 class="text-center text-2xl font-bold text-blue-800">DHSUD</h2>
                 <p class="mb-4 text-center text-sm text-gray-500">Region IV-A</p>
 
+                <x-auth-session-status class="mb-4" :status="session('status')" />
+
                 <!-- Laravel Login Form -->
                 <form class="space-y-3" method="POST" action="{{ route('login') }}">
                     @csrf
@@ -82,8 +84,8 @@
                         @endif
 
                         @auth
-                            <a class="rounded-xs inline-block border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                                href="{{ url('/dashboard') }}" ->
+                            <a class="focus:outline-hidden inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900"
+                                href="{{ url('/dashboard') }}">
                                 Dashboard
                             </a>
                         @else
