@@ -17,7 +17,7 @@
 
 @endphp
 
-<div class="flex flex-wrap gap-2 p-2">
+<div class="flex flex-wrap gap-2">
     <!-- Total Dockets -->
     <div class="{{ $colors['total'] }} flex-1 rounded-lg p-4 font-medium shadow">
         <div class="flex items-center justify-between">
