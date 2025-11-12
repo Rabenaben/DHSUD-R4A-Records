@@ -1,24 +1,29 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DisplayController;
-use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// 🔹 Public route
+Route::get('/', fn() => view('welcome'));
+
+// 🔹 Authenticated routes with back history prevention
+Route::middleware(['auth', 'prevent.back.history'])->group(function () {
+
+    // Dashboard routes (DisplayController)
+    Route::controller(DisplayController::class)->group(function () {
+        Route::get('/dashboard', 'index')->name('dashboard');
+        Route::get('/rem_records', 'remDashboard')->name('rem_records');
+        Route::get('/hoa_records', 'hoaDashboard')->name('hoa_records');
+        Route::get('/{theme}/folder/{province}', 'loadFolder')->name('folder.load');
+    });
+
+    // Profile routes (ProfileController)
+    Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', 'edit')->name('edit');
+        Route::patch('/', 'update')->name('update');
+        Route::delete('/', 'destroy')->name('destroy');
+    });
 });
 
-Route::get('/dashboard', [DisplayController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/rem_records', [DisplayController::class, 'remDashboard'])->middleware(['auth', 'verified'])->name('rem_records');
-Route::get('/hoa_records', [DisplayController::class, 'HoaDashboard'])->middleware(['auth', 'verified'])->name('hoa_records');
-
-Route::get('/{theme}/folder/{province}', [DisplayController::class, 'loadFolder'])
-        ->name('folder.load');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
