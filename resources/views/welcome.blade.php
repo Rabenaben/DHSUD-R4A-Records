@@ -19,7 +19,7 @@
 
     <!-- Header -->
     <header
-        class="bg-linear-to-br fixed inset-x-0 top-0 z-50 flex items-center justify-between from-cyan-100 to-blue-300 px-4 py-3 backdrop-blur-sm">
+        class="fixed inset-x-0 top-0 z-50 flex items-center justify-between bg-linear-to-b from-gray-200 to-white px-4 py-3 backdrop-blur-sm">
         <div class="flex items-center gap-3">
             <img class="h-10" src="{{ asset('images/logo2.png') }}" alt="logo">
             <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent">
@@ -37,7 +37,7 @@
 
         <!-- Login Section -->
         <div class="flex w-full items-center justify-center p-6 md:w-96">
-            <div class="w-full max-w-md rounded-2xl bg-white p-6">
+            <div class="w-full max-w-md rounded-2xl bg-white/20 backdrop-blur-md p-6">
                 <img class="mx-auto mb-4 w-28" src="{{ asset('images/logo1.png') }}" alt="logo">
                 <h2 class="text-center text-2xl font-bold text-blue-800">DHSUD</h2>
                 <p class="mb-4 text-center text-sm text-gray-500">Region IV-A</p>
@@ -115,7 +115,8 @@
                 const n = new Date();
                 el.textContent = n.toLocaleTimeString([], {
                     hour: 'numeric',
-                    minute: '2-digit'
+                    minute: '2-digit',
+                    second: '2-digit'
                 }) + ' | ' + n.toLocaleDateString([], {
                     weekday: 'short',
                     month: 'long',
