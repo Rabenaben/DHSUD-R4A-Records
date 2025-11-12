@@ -10,16 +10,24 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
 
 <body class="h-screen overflow-hidden bg-gray-50">
 
     <!-- Header -->
     <header
+<<<<<<< HEAD
         class="fixed inset-x-0 top-0 z-50 flex items-center justify-between bg-linear-to-b from-gray-200 to-white px-4 py-3 backdrop-blur-sm">
+=======
+        class="fixed inset-x-0 top-0 z-50 flex items-center justify-between bg-gradient-to-b from-gray-200 to-white px-4 py-3 backdrop-blur-sm">
+>>>>>>> 5386df9aa3e25fabb4f020afd61feaf6befc6ea3
         <div class="flex items-center gap-3">
             <img class="h-10" src="{{ asset('images/logo2.png') }}" alt="logo">
             <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent">
@@ -41,8 +49,6 @@
                 <img class="mx-auto mb-4 w-28" src="{{ asset('images/logo1.png') }}" alt="logo">
                 <h2 class="text-center text-2xl font-bold text-blue-800">DHSUD</h2>
                 <p class="mb-4 text-center text-sm text-gray-500">Region IV-A</p>
-
-                <x-auth-session-status class="mb-4" :status="session('status')" />
 
                 <!-- Laravel Login Form -->
                 <form class="space-y-3" method="POST" action="{{ route('login') }}">
@@ -84,8 +90,8 @@
                         @endif
 
                         @auth
-                            <a class="focus:outline-hidden inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900"
-                                href="{{ url('/dashboard') }}">
+                            <a class="rounded-xs inline-block border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                                href="{{ url('/dashboard') }}" ->
                                 Dashboard
                             </a>
                         @else
@@ -103,6 +109,7 @@
     </main>
 
     <!-- Scripts -->
+<<<<<<< HEAD
     <script>
         function togglePassword() {
             const p = document.getElementById('password');
@@ -123,10 +130,39 @@
                     day: 'numeric',
                     year: 'numeric'
                 });
+=======
+    <<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function togglePassword() {
+                const p = document.getElementById('password');
+                p.type = p.type === 'password' ? 'text' : 'password';
+>>>>>>> 5386df9aa3e25fabb4f020afd61feaf6befc6ea3
             }
-            upd();
-            setInterval(upd, 1000);
-        })();
+
+            function clock() {
+                const el = document.getElementById('realtime-clock');
+                if (!el) return;
+
+                function upd() {
+                    const n = new Date();
+                    el.textContent = n.toLocaleTimeString([], {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        second: '2-digit' // show seconds
+                    }) + ' | ' + n.toLocaleDateString([], {
+                        weekday: 'short',
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                }
+
+                upd();
+                setInterval(upd, 1000);
+            }
+
+            clock(); // <- Call the function here
+        });
     </script>
 </body>
 
