@@ -1,4 +1,5 @@
 import './bootstrap';
+import 'flowbite';
 import './folder'
 
 import Alpine from 'alpinejs';
