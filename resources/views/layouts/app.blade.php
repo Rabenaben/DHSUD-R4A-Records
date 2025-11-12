@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'DHSUDRECORDS') }}</title>
+    <title>{{ config('app.name', 'DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -30,20 +30,48 @@
 
             <!-- Main content wrapper (adds space beside and below navbar) -->
             <div class="mt-14 sm:ml-64">
-                @isset($header)
-                    <header class="mb-4 rounded-lg bg-gray-200 shadow-sm">
-                        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                            {{ $header }}
-                        </div>
-                    </header>
-                @endisset
+               @isset($header)
+<header class="mb-4 rounded-lg bg-gray-200 shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center justify-between">
+        <!-- Header content -->
+        {{ $header }}
 
+        <!-- Live date & time aligned vertically -->
+        <div id="realtime-clock" class="text-sm text-gray-700 text-right"></div>
+    </div>
+</header>
+@endisset
                 <main>
                     {{ $slot }}
                 </main>
             </div>
         </div>
     </div>
+    <script>
+        function togglePassword() {
+            const p = document.getElementById('password');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
+        (function clock() {
+            const el = document.getElementById('realtime-clock');
+
+            function upd() {
+                const n = new Date();
+                el.textContent = n.toLocaleTimeString([], {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }) + ' | ' + n.toLocaleDateString([], {
+                    weekday: 'short',
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+            upd();
+            setInterval(upd, 1000);
+        })();
+    </script>
 </body>
 
 </html>
