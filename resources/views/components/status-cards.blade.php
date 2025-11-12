@@ -1,10 +1,10 @@
 @php
     if (isset($theme) && $theme === 'rem') {
         $colors = [
-            'total' => 'bg-linear-to-br from-gray-100 to-gray-400 border-gray-300 border-2 text-slate-800',
-            'onShelf' => 'bg-linear-to-br from-lime-300 to-lime-600 border-gray-300 border-2 text-slate-800',
-            'unavailable' => 'bg-linear-to-br from-yellow-300 to-yellow-600 border-gray-300 border-2 text-slate-800',
-            'borrowed' => 'bg-linear-to-br from-red-400 to-red-700 border-gray-300 border-2 text-slate-800',
+            'total' => 'bg-linear-to-br from-gray-600 to-gray-900 border-gray-300 border-2 text-white',
+            'onShelf' => 'bg-linear-to-br from-green-400 to-green-700 border-gray-300 border-2 text-white',
+            'unavailable' => 'bg-linear-to-br from-yellow-300 to-yellow-600 border-gray-300 border-2 text-slate-700',
+            'borrowed' => 'bg-linear-to-br from-red-500 to-red-800 border-gray-300 border-2 text-white',
         ];
     } else {
         $colors = [
@@ -17,17 +17,56 @@
 
 @endphp
 
-<div class="flex flex-wrap gap-5 p-2">
-    <div class="{{ $colors['total'] }} min-w-40 flex-1 rounded-lg p-2 text-center font-medium shadow">
-        Total Dockets<br><strong class="text-xl">{{ $totalDockets }}</strong>
+<div class="flex flex-wrap gap-2 p-2">
+    <!-- Total Dockets -->
+    <div class="{{ $colors['total'] }} flex-1 rounded-lg p-4 font-medium shadow">
+        <div class="flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-sm font-semibold">Total Dockets</p>
+                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $totalDockets }}</h2>
+            </div>
+            <div class="shrink-0 text-4xl">
+                <i class="bi bi-folder2-open" aria-hidden="true"></i>
+            </div>
+        </div>
     </div>
-    <div class="{{ $colors['onShelf'] }} min-w-40 flex-1 rounded-lg p-2 text-center font-medium shadow">
-        On-Shelf<br><strong class="text-xl">{{ $onShelf }}</strong>
+
+    <!-- On-Shelf -->
+    <div class="{{ $colors['onShelf'] }} flex-1 rounded-lg p-4 font-medium shadow">
+        <div class="flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-sm font-semibold">On-Shelf</p>
+                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $onShelf }}</h2>
+            </div>
+            <div class="shrink-0 text-4xl">
+                <i class="bi bi-archive-fill" aria-hidden="true"></i>
+            </div>
+        </div>
     </div>
-    <div class="{{ $colors['unavailable'] }} min-w-40 flex-1 rounded-lg p-2 text-center font-medium shadow">
-        Unavailable<br><strong class="text-xl">{{ $unavailable }}</strong>
+
+    <!-- Unavailable -->
+    <div class="{{ $colors['unavailable'] }} flex-1 rounded-lg p-4 font-medium shadow">
+        <div class="flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-sm font-semibold">Unavailable</p>
+                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $unavailable }}</h2>
+            </div>
+            <div class="shrink-0 text-4xl">
+                <i class="bi bi-file-earmark-x-fill" aria-hidden="true"></i>
+            </div>
+        </div>
     </div>
-    <div class="{{ $colors['borrowed'] }} min-w-40 flex-1 rounded-lg p-2 text-center font-medium shadow">
-        Borrowed<br><strong class="text-xl">{{ $borrowed }}</strong>
+
+    <!-- Borrowed -->
+    <div class="{{ $colors['borrowed'] }} flex-1 rounded-lg p-4 font-medium shadow">
+        <div class="flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-sm font-semibold">Borrowed</p>
+                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $borrowed }}</h2>
+            </div>
+            <div class="shrink-0 text-4xl">
+                <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+            </div>
+        </div>
     </div>
 </div>

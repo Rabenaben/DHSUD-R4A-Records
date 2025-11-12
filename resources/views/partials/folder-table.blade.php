@@ -31,7 +31,7 @@
             </thead>
             <tbody id="folderTableBody">
                 @foreach ($records as $record)
-                    <tr class="data-row">
+                    <tr class="data-row transition hover:bg-blue-100">
                         <td class="border border-gray-300 px-4 py-2 text-center">{{ $record->docket_no }}</td>
                         <td class="border border-gray-300 px-4 py-2 text-center">
                             {{ $record->project_name ?? ($record->hoa_name ?? 'N/A') }}

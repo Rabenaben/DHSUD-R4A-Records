@@ -17,7 +17,7 @@
             <a class="ms-2 flex" href="{{ route('dashboard') }}">
                 <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white" />
                 <span class="ms-2 self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white">
-                    {{ config('app.name', 'Barangay System') }}
+                    {{ config('app.name', 'DHSUDRECORDS') }}
                 </span>
             </a>
         </div>
@@ -36,9 +36,9 @@
 
                 <x-slot name="content">
                     <div class="px-4 py-3">
-                        <p class="text-sm text-gray-900 dark:text-white">{{ Auth::user()->name }}</p>
-                        <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-300">
-                            {{ Auth::user()->userame }}</p>
+                        <p class="text-sm text-gray-900">{{ Auth::user()->name }}</p>
+                        <p class="truncate text-sm font-medium text-gray-700">
+                            {{ Auth::user()->username }}</p>
                     </div>
 
                     <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
