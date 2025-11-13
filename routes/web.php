@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DisplayController;
+use App\Http\Controllers\UserController;
 
 // 🔹 Public route
 Route::get('/', fn() => view('welcome'));
@@ -15,9 +16,20 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
         Route::get('/rem_records', 'remDashboard')->name('rem_records');
         Route::get('/hoa_records', 'hoaDashboard')->name('hoa_records');
-        Route::get('/accounts', fn() => view('accounts'))->name('accounts');
         Route::get('/{theme}/folder/{province}', 'loadFolder')->name('folder.load');
     });
+
+    // User management routes (UserController)
+    Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::patch('/{id}/archive', 'archive')->name('archive');
+        Route::patch('/{id}/unarchive', 'unarchive')->name('unarchive');
+        Route::patch('/{id}', 'update')->name('update');
+    });
+
+    // Accounts route
+    Route::get('/accounts', [UserController::class, 'index'])->name('accounts');
 
     // Profile routes (ProfileController)
     Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
