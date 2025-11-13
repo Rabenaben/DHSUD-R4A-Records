@@ -45,8 +45,8 @@ function showLoading(container) {
 function attachFilters(container) {
     const searchInput = container.querySelector('#searchInput, #remSearchInput');
     const statusFilter = container.querySelector('#statusFilter, #remStatusFilter');
-    const tableBody = container.querySelector('#folderTableBody, #remFolderTableBody, #remTableBody');
-    const noRecordsRow = container.querySelector('#noRecordsRow, #remNoRecordsRow, #noRemRecordsRow');
+    const tableBody = container.querySelector('#remTableBody');
+    const noRecordsRow = container.querySelector('#noRemRecordsFilterRow');
 
     if (!tableBody) return;
 
@@ -63,9 +63,11 @@ function attachFilters(container) {
             updateRowColor(row, statusCell);
             row.style.display = matchesSearch && matchesStatus ? '' : 'none';
             if (matchesSearch && matchesStatus) visibleRows++;
+
         });
 
         if (noRecordsRow) noRecordsRow.classList.toggle('hidden', visibleRows > 0);
+
     };
 
     // Attach listeners
@@ -99,6 +101,7 @@ function attachBackButton(container, originalHTML) {
     backBtn.addEventListener('click', () => {
         container.innerHTML = originalHTML; // restore original folder section
         initFolderClicks(); // reattach click events
+
     });
 }
 
