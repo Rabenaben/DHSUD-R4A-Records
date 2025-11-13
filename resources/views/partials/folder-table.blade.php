@@ -1,4 +1,11 @@
 <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
+
+    <div class="mb-4">
+        <button id="backToFolders" class="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300">
+            ← Back to Folders
+        </button>
+    </div>
+    
     <h2 class="mb-2 text-lg font-bold text-gray-800">
         {{ strtoupper($province) }} {{ strtoupper($type ?? '') }} Dockets
     </h2>

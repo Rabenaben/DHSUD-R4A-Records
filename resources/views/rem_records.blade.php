@@ -16,11 +16,12 @@
             @php $totalDockets = $totalRemDockets; @endphp
             <x-status-cards :totalDockets="$totalDockets" :onShelf="$onShelf" :unavailable="$unavailable" :borrowed="$borrowed" theme="rem" />
 
-            <!-- Folder Section -->
-            <x-folder-section :provinces="$provinces" theme="rem" />
-
-            <!-- Dynamic Folder Table -->
-            <div id="folderContent"></div>
+            <!-- Folder Container -->
+            <div id="folderContainer">
+                <div id="folderSectionWrapper">
+                    <x-folder-section :provinces="$provinces" theme="rem" />
+                </div>
+            </div>
 
             <!-- Borrowed History Table (static) -->
             <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
