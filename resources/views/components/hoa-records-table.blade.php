@@ -3,7 +3,7 @@
 <!-- HOA Records Table -->
 <div class="max-h-70 overflow-x-auto rounded-lg shadow">
     <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
-        <thead class="bg-blue-700 sticky top-0 z-10">
+        <thead class="sticky top-0 z-10 bg-blue-700">
             <tr>
                 <th class="w-2/12 px-6 py-3 text-center text-sm font-semibold text-white">Docket No</th>
                 <th class="w-2/12 px-6 py-3 text-center text-sm font-semibold text-white">HOA Name</th>
@@ -37,10 +37,15 @@
                     <td class="px-6 py-4 text-center text-sm text-gray-900">
                         {{ $record->municipality->municipality_name ?? 'N/A' }}</td>
                     <td class="w-2/12 px-6 py-4 text-center text-sm">
-                        <span
-                            class="@if ($record->status === 'ON-SHELF') bg-green-100 text-green-800
-                            @elseif($record->status === 'BORROWED') bg-yellow-100 text-yellow-800
-                            @else bg-red-100 text-red-800 @endif inline-flex rounded-full px-2 py-1 text-xs font-semibold">
+                        <span @class([
+                            'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
+                            'bg-green-100 text-green-800' => $record->status === 'ON-SHELF',
+                            'bg-yellow-100 text-yellow-800' => $record->status === 'BORROWED',
+                            'bg-red-100 text-red-800' => !in_array($record->status, [
+                                'ON-SHELF',
+                                'BORROWED',
+                            ]),
+                        ])>
                             {{ $record->status }}
                         </span>
                     </td>
@@ -51,15 +56,15 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                    <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="8">
                         No HOA records found
                     </td>
                 </tr>
             @endforelse
 
             <!-- Placeholder for No Borrowed Records -->
-            <tr id="noBorrowedRow" class="hidden">
-                <td colspan="8" class="px-6 py-4 text-center text-sm font-semibold text-gray-500">
+            <tr class="hidden" id="noBorrowedRow">
+                <td class="px-6 py-4 text-center text-sm font-semibold text-gray-500" colspan="8">
                     No Borrowed Records
                 </td>
             </tr>
