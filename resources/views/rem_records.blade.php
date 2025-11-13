@@ -23,36 +23,7 @@
                 </div>
             </div>
 
-            <!-- Borrowed History Table (static) -->
-            <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
-                <h2 class="mb-2 text-lg font-bold text-gray-800">Borrowed History</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full border border-gray-300">
-                        <thead>
-                            <tr class="bg-red-500 text-sm text-white">
-                                <th class="border border-gray-300 px-4 py-2 text-left">Borrower</th>
-                                <th class="border border-gray-300 px-4 py-2 text-left">Date Borrowed</th>
-                                <th class="border border-gray-300 px-4 py-2 text-left">Date Returned</th>
-                                <th class="border border-gray-300 px-4 py-2 text-left">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                                <td class="border px-4 py-2">&nbsp;</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
         </div>
     </div>
 </x-app-layout>

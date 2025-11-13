@@ -1,25 +1,26 @@
-<div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
+@props(['records' => []])
 
+<div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
     <div class="mb-4">
-        <button id="backToFolders" class="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300">
-            ← Back to Folders
+        <button id="backToFolders" class="rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-300">
+            &larr; Back to Folders
         </button>
     </div>
-    
-    <h2 class="mb-2 text-lg font-bold text-gray-800">
-        {{ strtoupper($province) }} {{ strtoupper($type ?? '') }} Dockets
-    </h2>
-
     <!-- Filters -->
-    <div class="mb-4 flex items-center space-x-4">
+    <div class="mb-4 flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
         <!-- Search bar -->
         <div class="flex flex-1 items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
-            <input class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
-                id="searchInput" type="text" placeholder="Search by Docket or HOA Name">
+            <input
+                class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
+                id="remSearchInput"
+                type="text"
+                placeholder="Search by Docket or Project Name">
         </div>
 
         <!-- Status Filter -->
-        <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700" id="statusFilter">
+        <select
+            class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700"
+            id="remStatusFilter">
             <option value="">All Status</option>
             <option value="ON-SHELF">ON-SHELF</option>
             <option value="BORROWED">BORROWED</option>
@@ -27,30 +28,46 @@
         </select>
     </div>
 
-    <div class="max-h-[350px] min-h-[350px] overflow-x-auto overflow-y-auto">
-        <table class="min-w-full table-fixed border border-gray-300">
-            <thead class="sticky top-0">
-                <tr class="bg-blue-700 text-sm text-white">
-                    <th class="w-1/5 border border-gray-300 px-4 py-2 text-center">Docket No</th>
-                    <th class="w-3/5 border border-gray-300 px-4 py-2 text-center">Project Name</th>
-                    <th class="w-1/5 border border-gray-300 px-4 py-2 text-center">Status</th>
+    <!-- Table -->
+    <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
+        <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
+            <thead class="bg-gray-100 sticky top-0">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Docket No</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Project Name</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Quantity</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Remarks</th>
                 </tr>
             </thead>
-            <tbody id="folderTableBody">
-                @foreach ($records as $record)
-                    <tr class="data-row transition hover:bg-blue-100">
-                        <td class="border border-gray-300 px-4 py-2 text-center">{{ $record->docket_no }}</td>
-                        <td class="border border-gray-300 px-4 py-2 text-center">
-                            {{ $record->project_name ?? ($record->hoa_name ?? 'N/A') }}
+            <tbody id="remTableBody" class="divide-y divide-gray-200">
+                @forelse($records as $record)
+                    <tr class="data-row hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->docket_no }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->project_name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                @if($record->status === 'ON-SHELF')
+                                    bg-green-100 text-green-800
+                                @elseif($record->status === 'BORROWED')
+                                    bg-yellow-100 text-yellow-800
+                                @else
+                                    bg-red-100 text-red-800
+                                @endif
+                            ">
+                                {{ $record->status }}
+                            </span>
                         </td>
-                        <td class="border border-gray-300 px-4 py-2 text-center">{{ $record->status }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->quantity ?? '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
                     </tr>
-                @endforeach
-                <tr class="hidden" id="noRecordsRow">
-                    <td class="px-4 py-6 text-center text-gray-500" colspan="3">
-                        No Records Found
-                    </td>
-                </tr>
+                @empty
+                    <tr id="noRemRecordsRow">
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No REM records found
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

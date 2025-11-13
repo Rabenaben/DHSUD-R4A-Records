@@ -43,10 +43,10 @@ function showLoading(container) {
 }
 
 function attachFilters(container) {
-    const searchInput = container.querySelector('#searchInput');
-    const statusFilter = container.querySelector('#statusFilter');
-    const tableBody = container.querySelector('#folderTableBody');
-    const noRecordsRow = container.querySelector('#noRecordsRow');
+    const searchInput = container.querySelector('#searchInput, #remSearchInput');
+    const statusFilter = container.querySelector('#statusFilter, #remStatusFilter');
+    const tableBody = container.querySelector('#folderTableBody, #remFolderTableBody, #remTableBody');
+    const noRecordsRow = container.querySelector('#noRecordsRow, #remNoRecordsRow, #noRemRecordsRow');
 
     if (!tableBody) return;
 

@@ -22,16 +22,33 @@
                 <div class="flex w-full flex-wrap justify-between gap-3">
                     @foreach (['RIV', 'STR', 'RIZAL', 'CALABARZON', 'NCR HOA', 'NCR HOA N', 'R4A'] as $region)
                         <button
-                            class="flex-1 whitespace-normal wrap-break-word rounded-md bg-white px-3 py-1 text-center shadow-sm transition hover:bg-gray-200">
+                            class="wrap-break-word flex-1 whitespace-normal rounded-md bg-white px-3 py-1 text-center shadow-sm transition hover:bg-gray-200">
                             {{ $region }}
                         </button>
                     @endforeach
                 </div>
             </div>
 
-            <!-- HOA Records Table Component -->
+            <!-- Search and Filter Bar -->
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <!-- Search bar -->
+                <div class="flex flex-1 items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
+                    <input
+                        class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
+                        id="searchInput" type="text"
+                        placeholder="Search by Docket No, HOA Name, Location, Province, or Municipality...">
+                </div>
+
+                <!-- Status Filter -->
+                <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="ON-SHELF">ON-SHELF</option>
+                    <option value="BORROWED">BORROWED</option>
+                    <option value="UNAVAILABLE">UNAVAILABLE</option>
+                </select>
+            </div>
+
+            <!-- Table Component -->
             <x-hoa-records-table :records="$hoaRecords ?? []" />
         </div>
-
-    </div>
 </x-app-layout>
