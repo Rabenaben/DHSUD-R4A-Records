@@ -1,5 +1,5 @@
 export function initFolderClicks() {
-    const folderContainer = document.getElementById('folderContent');
+    const folderContainer = document.getElementById('folderContainer'); // replaced folderContent
     if (!folderContainer) return;
 
     document.querySelectorAll('.folder').forEach(folder => {
@@ -17,7 +17,7 @@ async function loadFolderContent(folder, container) {
         if (!response.ok) throw new Error('Failed to load folder content');
 
         const html = await response.text();
-        container.innerHTML = html;
+        container.innerHTML = html; // replaces entire folder section
 
         attachFilters(container);
     } catch (error) {
