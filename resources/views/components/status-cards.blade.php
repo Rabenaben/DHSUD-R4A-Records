@@ -8,7 +8,7 @@
         ];
     } else {
         $colors = [
-            'total' => 'bg-linear-to-br from-gray-500 to-gray-900 border-gray-300 border-2 text-zinc-100',
+            'total' => 'bg-linear-to-br from-gray-600 to-gray-900 border-gray-300 border-2 text-zinc-100',
             'onShelf' => 'bg-linear-to-br from-green-400 to-green-700 border-gray-300 border-2 text-zinc-100',
             'unavailable' => 'bg-linear-to-br from-yellow-400 to-yellow-700 border-gray-300 border-2 text-zinc-100',
             'borrowed' => 'bg-linear-to-br from-red-500 to-red-800 border-gray-300 border-2 text-zinc-100',
