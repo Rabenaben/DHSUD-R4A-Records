@@ -18,7 +18,9 @@
 
             <!-- Folder Container -->
             <div id="folderContainer">
-                <x-folder-section :provinces="$provinces" theme="rem" />
+                <div id="folderSectionWrapper">
+                    <x-folder-section :provinces="$provinces" theme="rem" />
+                </div>
             </div>
 
             <!-- Borrowed History Table (static) -->

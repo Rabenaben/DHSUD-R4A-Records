@@ -1,13 +1,16 @@
 export function initFolderClicks() {
-    const folderContainer = document.getElementById('folderContainer'); // replaced folderContent
+    const folderContainer = document.getElementById('folderContainer');
     if (!folderContainer) return;
 
+    // Save original folder section HTML
+    const originalFolderHTML = folderContainer.innerHTML;
+
     document.querySelectorAll('.folder').forEach(folder => {
-        folder.addEventListener('click', () => loadFolderContent(folder, folderContainer));
+        folder.addEventListener('click', () => loadFolderContent(folder, folderContainer, originalFolderHTML));
     });
 }
 
-async function loadFolderContent(folder, container) {
+async function loadFolderContent(folder, container, originalFolderHTML) {
     const { theme, province } = folder.dataset;
 
     showLoading(container);
@@ -20,11 +23,11 @@ async function loadFolderContent(folder, container) {
         container.innerHTML = html; // replaces entire folder section
 
         attachFilters(container);
+        attachBackButton(container, originalFolderHTML);
     } catch (error) {
         console.error(error);
         container.innerHTML = `
             <div class="text-center py-6 text-red-600">
-                <i class="bi bi-exclamation-triangle me-2"></i> 
                 Failed to load content. Please try again later.
             </div>`;
     }
@@ -87,6 +90,16 @@ function updateRowColor(row, status) {
             break;
         }
     }
+}
+
+function attachBackButton(container, originalHTML) {
+    const backBtn = container.querySelector('#backToFolders');
+    if (!backBtn) return;
+
+    backBtn.addEventListener('click', () => {
+        container.innerHTML = originalHTML; // restore original folder section
+        initFolderClicks(); // reattach click events
+    });
 }
 
 document.addEventListener('DOMContentLoaded', initFolderClicks);
