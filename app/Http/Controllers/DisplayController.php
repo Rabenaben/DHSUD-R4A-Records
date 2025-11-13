@@ -67,6 +67,10 @@ class DisplayController extends Controller
     {
         $data = $this->getCounts(HoaDatabase::class);
 
+        // Get all HOA records with province and municipality relationships
+        $hoaRecords = HoaDatabase::with(['province', 'municipality'])
+            ->get();
+
         // Get unique province objects
         $provinces = HoaDatabase::with('province')
             ->get()
@@ -81,6 +85,7 @@ class DisplayController extends Controller
             'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,   // pass objects now
+            'hoaRecords' => $hoaRecords, // pass all HOA records
         ]);
     }
 
