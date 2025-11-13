@@ -15,6 +15,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
         Route::get('/rem_records', 'remDashboard')->name('rem_records');
         Route::get('/hoa_records', 'hoaDashboard')->name('hoa_records');
+        Route::get('/accounts', fn() => view('accounts'))->name('accounts');
         Route::get('/{theme}/folder/{province}', 'loadFolder')->name('folder.load');
     });
 

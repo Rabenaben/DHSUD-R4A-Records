@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT') }}</title>
+    <title>{{ config('app.name', 'DHSUD') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -30,17 +30,17 @@
 
             <!-- Main content wrapper (adds space beside and below navbar) -->
             <div class="mt-14 sm:ml-64">
-               @isset($header)
-<header class="mb-4 rounded-lg bg-gray-200 shadow-sm">
-    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center justify-between">
-        <!-- Header content -->
-        {{ $header }}
+                @isset($header)
+                    <header class="mb-4 rounded-lg bg-gray-200 shadow-sm">
+                        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
+                            <!-- Header content -->
+                            {{ $header }}
 
-        <!-- Live date & time aligned vertically -->
-        <div id="realtime-clock" class="text-sm text-gray-700 text-right"></div>
-    </div>
-</header>
-@endisset
+                            <!-- Live date & time aligned vertically -->
+                            <div class="text-right text-sm text-gray-700" id="realtime-clock"></div>
+                        </div>
+                    </header>
+                @endisset
                 <main>
                     {{ $slot }}
                 </main>
@@ -48,10 +48,6 @@
         </div>
     </div>
     <script>
-        function togglePassword() {
-            const p = document.getElementById('password');
-            p.type = p.type === 'password' ? 'text' : 'password';
-        }
         (function clock() {
             const el = document.getElementById('realtime-clock');
 
