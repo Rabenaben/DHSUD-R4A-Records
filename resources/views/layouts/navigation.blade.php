@@ -15,7 +15,8 @@
 
             <!-- App Logo -->
             <a class="ms-2 flex" href="{{ route('dashboard') }}">
-                <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white" />
+                <x-application-logo variant="bp" class="block h-8 w-auto fill-current text-gray-800 dark:text-white" />
+                <x-application-logo variant="dhsud" class="block h-8 w-auto fill-current text-gray-800 dark:text-white" />
                 <span class="ms-2 self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white">
                     {{ config('app.name', 'DHSUDRECORDS') }}
                 </span>
