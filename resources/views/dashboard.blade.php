@@ -5,9 +5,9 @@
         </h2>
     </x-slot>
 
-    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl p-4">
         <!-- Section Header Card -->
-        <div class="relative bg-transparent py-4">
+        <div class="relative bg-transparent">
             <h2 class="text-2xl font-bold tracking-wide text-black">{{ __('Documents Summary') }}</h2>
             <div class="mt-2 border-b-2 border-gray-600"></div>
         </div>
@@ -15,7 +15,7 @@
         <div class="space-y-8">
 
             <!-- Stats Grid -->
-            <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            <div class="mt-2 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
 
                 <!-- Total Dockets -->
                 <div
@@ -79,7 +79,7 @@
             </div>
 
             <!-- Recently Opened Documents -->
-            <div class="rounded-lg bg-white p-6 shadow-md">
+            <div class="rounded-lg shadow-md">
                 <h2 class="mb-4 text-xl font-bold">Recently Opened Documents</h2>
 
                 <div class="overflow-x-auto">

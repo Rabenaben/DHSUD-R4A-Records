@@ -5,8 +5,9 @@
         </h2>
     </x-slot>
 
-    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="relative bg-transparent py-4">
+    <div class="mx-auto max-w-7xl p-4">
+        <!-- Section Header Card -->
+        <div class="relative bg-transparent">
             <h2 class="text-2xl font-bold tracking-wide text-black">{{ __('REM Documents Summary') }}</h2>
             <div class="mt-2 border-b-2 border-gray-600"></div>
         </div>
@@ -22,7 +23,6 @@
                     <x-folder-section :provinces="$provinces" theme="rem" />
                 </div>
             </div>
-
 
         </div>
     </div>

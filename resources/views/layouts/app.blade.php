@@ -18,10 +18,10 @@
 </head>
 
 <body class="font-sans antialiased">
-    <div class="relative min-h-screen">
+    <div class="relative">
         <!-- Background image layer (fixed) -->
-        <div class="absolute inset-0 bg-cover bg-fixed bg-center opacity-15"
-            style="background-image: url('{{ asset('images/background.png') }}');">
+        <div class="fixed inset-0 bg-cover bg-center opacity-15"
+            style="min-height:100%; background-image: url('{{ asset('images/background.png') }}');">
         </div>
 
         <!-- Page content -->

@@ -38,12 +38,6 @@
                 </x-slot>
 
                 <x-slot name="content">
-                    <div class="px-4 py-3">
-                        <p class="text-sm text-gray-900">{{ Auth::user()->name }}</p>
-                        <p class="truncate text-sm font-medium text-gray-700">
-                            {{ Auth::user()->username }}</p>
-                    </div>
-
                     <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
