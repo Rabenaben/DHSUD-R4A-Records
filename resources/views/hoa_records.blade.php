@@ -29,11 +29,8 @@
                 </div>
             </div>
 
-            <!-- Folder Section -->
-            <x-folder-section :provinces="$provinces" theme="hoa" />
-
-            <!-- Dynamic Folder Table -->
-            <div id="folderContent"></div>
+            <!-- HOA Records Table Component -->
+            <x-hoa-records-table :records="$hoaRecords ?? []" />
         </div>
 
     </div>

@@ -23,7 +23,7 @@
         <div class="flex items-center justify-between">
             <div class="text-left">
                 <p class="text-sm font-semibold">Total Dockets</p>
-                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $totalDockets }}</h2>
+                <h2 class="text-2x1 mt-1 font-bold tracking-wider">{{ $totalDockets }}</h2>
             </div>
             <div class="shrink-0 text-4xl">
                 <i class="bi bi-folder2-open" aria-hidden="true"></i>
@@ -36,7 +36,7 @@
         <div class="flex items-center justify-between">
             <div class="text-left">
                 <p class="text-sm font-semibold">On-Shelf</p>
-                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $onShelf }}</h2>
+                <h2 class="text-2x1 mt-1 font-bold tracking-wider">{{ $onShelf }}</h2>
             </div>
             <div class="shrink-0 text-4xl">
                 <i class="bi bi-archive-fill" aria-hidden="true"></i>
@@ -49,7 +49,7 @@
         <div class="flex items-center justify-between">
             <div class="text-left">
                 <p class="text-sm font-semibold">Unavailable</p>
-                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $unavailable }}</h2>
+                <h2 class="text-2x1 mt-1 font-bold tracking-wider">{{ $unavailable }}</h2>
             </div>
             <div class="shrink-0 text-4xl">
                 <i class="bi bi-file-earmark-x-fill" aria-hidden="true"></i>
@@ -62,7 +62,7 @@
         <div class="flex items-center justify-between">
             <div class="text-left">
                 <p class="text-sm font-semibold">Borrowed</p>
-                <h2 class="mt-1 text-2x1 font-bold tracking-wider">{{ $borrowed }}</h2>
+                <h2 class="text-2x1 mt-1 font-bold tracking-wider">{{ $borrowed }}</h2>
             </div>
             <div class="shrink-0 text-4xl">
                 <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
