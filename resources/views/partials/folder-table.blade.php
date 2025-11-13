@@ -2,8 +2,8 @@
 
 <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
     <div class="mb-4">
-        <button id="backToFolders"
-            class="rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-300">
+        <button class="rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-300"
+            id="backToFolders">
             &larr; Back to Folders
         </button>
     </div>
@@ -36,16 +36,21 @@
                     <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Remarks</th>
                 </tr>
             </thead>
-            <tbody id="remTableBody" class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200" id="remTableBody">
                 @forelse($records as $record)
                     <tr class="data-row transition hover:bg-gray-50">
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $record->docket_no }}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $record->project_name ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm">
-                            <span
-                                class="@if ($record->status === 'ON-SHELF') bg-green-100 text-green-800
-                            @elseif($record->status === 'BORROWED') bg-yellow-100 text-yellow-800
-                            @else bg-red-100 text-red-800 @endif inline-flex rounded-full px-2 py-1 text-xs font-semibold">
+                            <span @class([
+                                'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
+                                'bg-green-100 text-green-800' => $record->status === 'ON-SHELF',
+                                'bg-yellow-100 text-yellow-800' => $record->status === 'BORROWED',
+                                'bg-red-100 text-red-800' => !in_array($record->status, [
+                                    'ON-SHELF',
+                                    'BORROWED',
+                                ]),
+                            ])>
                                 {{ $record->status }}
                             </span>
                         </td>
@@ -53,9 +58,8 @@
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
                     </tr>
                 @empty
-                    {{-- Table empty from DB, show no records row --}}
-                    <tr id="noRemRecordsFilterRow">
-                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                    <tr id="noRemRecordsRow">
+                        <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="5">
                             No REM records found
                         </td>
                     </tr>
