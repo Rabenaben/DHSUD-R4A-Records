@@ -16,9 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('username')->unique();
             $table->string('password');
+            $table->string('role')->default('user');
+            $table->string('status')->default('active');
+            $table->text('remarks')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            // $table->timestamp('email_verified_at')->nullable(); // Removed since email verification is not used
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

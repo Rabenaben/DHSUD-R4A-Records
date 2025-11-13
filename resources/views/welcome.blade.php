@@ -21,7 +21,7 @@
     <header
         class="bg-linear-to-b fixed inset-x-0 top-0 z-50 flex items-center justify-between from-gray-200 to-white px-4 py-3 backdrop-blur-sm">
         <div class="flex items-center gap-3">
-            <img class="h-10" src="{{ asset('images/logo2.png') }}" alt="logo">
+            <img class="h-10" src="{{ asset('images/bp.png') }}" alt="logo">
             <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent">
                 DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT
             </h1>
@@ -38,7 +38,7 @@
         <!-- Login Section -->
         <div class="flex w-full items-center justify-center p-6 md:w-96">
             <div class="w-full max-w-md rounded-2xl bg-white/20 p-6 backdrop-blur-md">
-                <img class="mx-auto mb-4 w-28" src="{{ asset('images/logo1.png') }}" alt="logo">
+                <img class="mx-auto mb-4 w-28" src="{{ asset('images/dhsudlogo.png') }}" alt="logo">
                 <h2 class="text-center text-2xl font-bold text-blue-800">DHSUD</h2>
                 <p class="mb-4 text-center text-sm text-gray-500">Region IV-A</p>
 

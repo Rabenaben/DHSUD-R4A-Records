@@ -1,6 +1,7 @@
 import './bootstrap';
 import 'flowbite';
-import './folder'
+import './folder';
+import './accounts'
 
 import Alpine from 'alpinejs';
 
