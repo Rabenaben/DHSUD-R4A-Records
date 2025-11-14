@@ -29,7 +29,7 @@
         <div class="hidden sm:flex sm:items-center">
             <!-- User Info -->
             <div class="mr-3 text-sm text-gray-700 dark:text-gray-300">
-                {{ auth()->user()->name }} | {{ auth()->user()->remarks }}
+                {{ auth()->user()->name }} | {{ auth()->user()->remarks ?? 'N/A' }}
             </div>
             <x-dropdown align="right" width="48">
                 <x-slot name="trigger">
