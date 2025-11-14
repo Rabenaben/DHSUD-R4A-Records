@@ -75,6 +75,4 @@
             </form>
         </div>
     </x-modal>
-
-    <script src="{{ asset('js/accounts.js') }}"></script>
 </x-app-layout>
