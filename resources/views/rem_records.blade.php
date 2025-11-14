@@ -20,7 +20,7 @@
             <!-- Folder Container -->
             <div id="folderContainer">
                 <div id="folderSectionWrapper">
-                    <x-folder-section :provinces="$provinces" theme="rem" />
+                    <x-folder-section :provinces="$provinces" />
                 </div>
             </div>
 

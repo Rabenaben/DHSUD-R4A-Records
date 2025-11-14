@@ -11,12 +11,12 @@ export function initFolderClicks() {
 }
 
 async function loadFolderContent(folder, container, originalFolderHTML) {
-    const { theme, province } = folder.dataset;
+    const province = folder.dataset.province;
 
     showLoading(container);
 
     try {
-        const response = await fetch(`/${theme}/folder/${province}`);
+        const response = await fetch(`/rem/folder/${province}`);
         if (!response.ok) throw new Error('Failed to load folder content');
 
         const html = await response.text();

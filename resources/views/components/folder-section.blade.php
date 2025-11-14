@@ -3,8 +3,7 @@
         @foreach ($provinces as $province)
             <div class="folder flex cursor-pointer flex-col items-center space-y-2 transition-transform duration-300 hover:scale-110"
                 data-province="{{ is_object($province) ? $province->province_id : $province }}"
-                data-province-name="{{ is_object($province) ? $province->province_name : $province }}"
-                data-theme="{{ $theme }}">
+                data-province-name="{{ is_object($province) ? $province->province_name : $province }}">
                 <svg class="h-16 w-16 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                     fill="currentColor">
                     <path

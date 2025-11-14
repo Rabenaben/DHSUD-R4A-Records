@@ -7,7 +7,6 @@ use Illuminate\View\Component;
 class FolderSection extends Component
 {
     public $provinces;
-    public $theme; // optional, e.g., 'rem' or 'hoa'
 
     /**
      * Create a new component instance.
@@ -18,7 +17,6 @@ class FolderSection extends Component
     public function __construct($provinces, $theme = null)
     {
         $this->provinces = $provinces;
-        $this->theme = $theme;
     }
 
     /**
