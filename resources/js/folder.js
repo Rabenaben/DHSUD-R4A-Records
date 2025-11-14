@@ -43,16 +43,17 @@ function showLoading(container) {
 }
 
 function attachFilters(container) {
-    const searchInput = container.querySelector('#searchInput, #remSearchInput');
-    const statusFilter = container.querySelector('#statusFilter, #remStatusFilter');
+    const searchInput = container.querySelector('#remSearchInput');
+    const statusFilter = container.querySelector('#remStatusFilter');
     const tableBody = container.querySelector('#remTableBody');
-    const noRecordsRow = container.querySelector('#noRemRecordsFilterRow');
+    const noRecordsRow = container.querySelector('#noRemRecordsRow');
 
-    if (!tableBody) return;
+    if (!tableBody || !noRecordsRow) return;
 
     const filterRows = () => {
         const searchValue = (searchInput?.value || '').trim().toLowerCase();
         const statusValue = (statusFilter?.value || '').trim().toUpperCase();
+
         let visibleRows = 0;
 
         tableBody.querySelectorAll('.data-row').forEach(row => {
@@ -60,38 +61,18 @@ function attachFilters(container) {
             const matchesSearch = [docket, project].some(text => text.toLowerCase().includes(searchValue));
             const matchesStatus = !statusValue || statusCell.toUpperCase().includes(statusValue);
 
-            updateRowColor(row, statusCell);
             row.style.display = matchesSearch && matchesStatus ? '' : 'none';
             if (matchesSearch && matchesStatus) visibleRows++;
-
         });
 
-        if (noRecordsRow) noRecordsRow.classList.toggle('hidden', visibleRows > 0);
-
+        // Toggle the empty row
+        noRecordsRow.style.display = visibleRows > 0 ? 'none' : '';
     };
 
-    // Attach listeners
     [searchInput, statusFilter].forEach(input => input?.addEventListener('input', filterRows));
     [statusFilter].forEach(input => input?.addEventListener('change', filterRows));
 
-    // Run once on load
-    filterRows();
-}
-
-function updateRowColor(row, status) {
-    const colors = {
-        'ON-SHELF': 'bg-green-100',
-        'BORROWED': 'bg-yellow-100',
-        'UNAVAILABLE': 'bg-red-100'
-    };
-
-    row.classList.remove(...Object.values(colors));
-    for (const [key, color] of Object.entries(colors)) {
-        if (status.toUpperCase().includes(key)) {
-            row.classList.add(color);
-            break;
-        }
-    }
+    filterRows(); // Run once on load
 }
 
 function attachBackButton(container, originalHTML) {

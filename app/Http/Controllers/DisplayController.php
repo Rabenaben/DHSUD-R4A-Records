@@ -24,21 +24,16 @@ class DisplayController extends Controller
         $rem = $this->getCounts(RemDatabase::class);
         $hoa = $this->getCounts(HoaDatabase::class);
 
-        $totalRemDockets = $rem['total'];
-        $totalHoaDockets = $hoa['total'];
-        $totalDockets = $rem['total'] + $hoa['total'];
-        $onShelf = $rem['onShelf'] + $hoa['onShelf'];
-        $unavailable = $rem['unavailable'] + $hoa['unavailable'];
-        $borrowed = $rem['borrowed'] + $hoa['borrowed'];
+        $cards = [
+            ['title' => 'Total Dockets', 'count' => $rem['total'] + $hoa['total'], 'from' => 'gray-600', 'to' => 'gray-900', 'text' => 'text-white', 'icon' => 'bi-folder2-open'],
+            ['title' => 'Total REM Dockets', 'count' => $rem['total'], 'from' => 'blue-500', 'to' => 'blue-800', 'text' => 'text-white', 'icon' => 'bi-gear-wide-connected'],
+            ['title' => 'Total HOA Dockets', 'count' => $hoa['total'], 'from' => 'orange-400', 'to' => 'orange-700', 'text' => 'text-white', 'icon' => 'bi-house-door-fill'],
+            ['title' => 'On-Shelf', 'count' => $rem['onShelf'] + $hoa['onShelf'], 'from' => 'green-400', 'to' => 'green-700', 'text' => 'text-white', 'icon' => 'bi-archive-fill'],
+            ['title' => 'Unavailable', 'count' => $rem['unavailable'] + $hoa['unavailable'], 'from' => 'yellow-300', 'to' => 'yellow-600', 'text' => 'text-black', 'icon' => 'bi-file-earmark-x-fill'],
+            ['title' => 'Borrowed', 'count' => $rem['borrowed'] + $hoa['borrowed'], 'from' => 'red-500', 'to' => 'red-800', 'text' => 'text-white', 'icon' => 'bi-arrow-left-right'],
+        ];
 
-        return view('dashboard', compact(
-            'totalDockets',
-            'totalRemDockets',
-            'totalHoaDockets',
-            'onShelf',
-            'unavailable',
-            'borrowed'
-        ));
+        return view('dashboard', compact('cards'));
     }
 
     // 🔹 REM Dashboard
@@ -62,7 +57,6 @@ class DisplayController extends Controller
     }
 
     // 🔹 HOA Dashboard
-    // HOA Dashboard
     public function hoaDashboard()
     {
         $data = $this->getCounts(HoaDatabase::class);

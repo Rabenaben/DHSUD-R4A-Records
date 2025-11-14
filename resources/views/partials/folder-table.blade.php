@@ -58,23 +58,15 @@
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
                     </tr>
                 @empty
-                    <tr id="noRemRecordsRow">
-                        <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="5">
-                            No REM records found
-                        </td>
-                    </tr>
                 @endforelse
 
-                {{-- Hidden row for filtering if table has records --}}
-                @if ($records->isNotEmpty())
-                    <tr id="noRemRecordsFilterRow" class="hidden">
-                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                            No REM records found
-                        </td>
-                    </tr>
-                @endif
+                <!-- This row is always present -->
+                <tr id="noRemRecordsRow">
+                    <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="5">
+                        No REM records found
+                    </td>
+                </tr>
             </tbody>
-
         </table>
     </div>
 </div>

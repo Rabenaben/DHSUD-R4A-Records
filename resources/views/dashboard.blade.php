@@ -16,66 +16,16 @@
 
             <!-- Stats Grid -->
             <div class="mt-2 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
-
-                <!-- Total Dockets -->
-                <div
-                    class="bg-linear-to-r flex h-20 items-center justify-between rounded-lg from-gray-600 to-gray-900 p-2 text-white shadow">
-                    <div class="flex flex-col text-left">
-                        <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $totalDockets }}</h2>
-                        <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">Total Dockets</p>
+                @foreach ($cards as $card)
+                    <div
+                        class="bg-linear-to-r {{ $card['text'] }} from-{{ $card['from'] }} to-{{ $card['to'] }} flex h-20 items-center justify-between rounded-lg p-2 shadow">
+                        <div class="flex flex-col text-left">
+                            <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $card['count'] }}</h2>
+                            <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">{{ $card['title'] }}</p>
+                        </div>
+                        <i class="bi {{ $card['icon'] }} text-2xl"></i>
                     </div>
-                    <i class="bi bi-folder2-open text-2xl"></i>
-                </div>
-
-                <!-- Total REM Dockets -->
-                <div
-                    class="bg-linear-to-r flex h-20 items-center justify-between rounded-lg from-blue-500 to-blue-800 p-2 text-white shadow">
-                    <div class="flex flex-col text-left">
-                        <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $totalRemDockets }}</h2>
-                        <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">Total REM Dockets</p>
-                    </div>
-                    <i class="bi bi-gear-wide-connected text-2xl"></i>
-                </div>
-
-                <!-- Total HOA Dockets -->
-                <div
-                    class="bg-linear-to-r flex h-20 items-center justify-between rounded-lg from-orange-400 to-orange-700 p-2 text-white shadow">
-                    <div class="flex flex-col text-left">
-                        <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $totalHoaDockets }}</h2>
-                        <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">Total HOA Dockets</p>
-                    </div>
-                    <i class="bi bi-house-door-fill text-2xl"></i>
-                </div>
-
-                <!-- On-Shelf -->
-                <div
-                    class="bg-linear-to-r flex h-20 items-center justify-between rounded-lg from-green-400 to-green-700 p-2 text-white shadow">
-                    <div class="flex flex-col text-left">
-                        <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $onShelf }}</h2>
-                        <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">On-Shelf</p>
-                    </div>
-                    <i class="bi bi-archive-fill text-2xl"></i>
-                </div>
-
-                <!-- Unavailable -->
-                <div
-                    class="bg-linear-to-r flex h-20 items-center justify-between rounded-lg from-yellow-300 to-yellow-600 p-2 text-black shadow">
-                    <div class="flex flex-col text-left">
-                        <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $unavailable }}</h2>
-                        <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">Unavailable</p>
-                    </div>
-                    <i class="bi bi-file-earmark-x-fill text-2xl"></i>
-                </div>
-
-                <!-- Borrowed -->
-                <div
-                    class="bg-linear-to-r flex h-20 items-center justify-between rounded-lg from-red-500 to-red-800 p-2 text-white shadow">
-                    <div class="flex flex-col text-left">
-                        <h2 class="text-lg font-bold leading-tight md:text-xl">{{ $borrowed }}</h2>
-                        <p class="mt-1 text-xs font-semibold opacity-90 md:text-sm">Borrowed</p>
-                    </div>
-                    <i class="bi bi-arrow-left-right text-2xl"></i>
-                </div>
+                @endforeach
             </div>
 
             <!-- Recently Opened Documents -->
