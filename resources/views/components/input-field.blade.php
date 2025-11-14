@@ -3,7 +3,7 @@
 <div>
     <label class="block text-sm font-medium text-gray-700" for="{{ $name }}">{{ $label }}</label>
     <input
-        id="{{ $name }}"
+        id="{{ $attributes->get('id', $name) }}"
         type="{{ $type }}"
         name="{{ $name }}"
         value="{{ old($name, $value) }}"
