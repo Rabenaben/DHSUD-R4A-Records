@@ -23,15 +23,15 @@
                 @php
                     $statusClass = $statusClasses[$record->status] ?? $statusClasses['DEFAULT'];
                 @endphp
-                <tr class="transition hover:bg-blue-100"
+                <tr class="hoa-row cursor-pointer transition hover:bg-blue-100" data-record='@json($record)'
                     @foreach (['docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'] as $col)
-                        data-{{ $col }}="{{ strtolower(
-                            $col === 'province'
-                                ? $record->province->province_name ?? ''
-                                : ($col === 'municipality'
-                                    ? $record->municipality->municipality_name ?? ''
-                                    : $record->{$col} ?? ''),
-                        ) }}" @endforeach>
+                            data-{{ $col }}="{{ strtolower(
+                                $col === 'province'
+                                    ? $record->province->province_name ?? ''
+                                    : ($col === 'municipality'
+                                        ? $record->municipality->municipality_name ?? ''
+                                        : $record->{$col} ?? ''),
+                            ) }}" @endforeach>
                     <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->docket_no }}</td>
                     <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->hoa_name }}</td>
                     <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->location }}</td>
@@ -61,30 +61,3 @@
         </tbody>
     </table>
 </div>
-
-<script>
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const tableRows = document.querySelectorAll('#hoaRecordsTable tr:not(#noBorrowedRow)');
-    const noBorrowedRow = document.getElementById('noBorrowedRow');
-
-    function filterTable() {
-        const query = searchInput.value.toLowerCase();
-        const selectedStatus = statusFilter.value.toLowerCase();
-        let anyVisible = false;
-
-        tableRows.forEach(row => {
-            const data = row.dataset;
-            const matchesSearch = Object.values(data).some(val => val.includes(query));
-            const matchesStatus = !selectedStatus || data.status === selectedStatus;
-
-            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
-            if (matchesSearch && matchesStatus) anyVisible = true;
-        });
-
-        noBorrowedRow.classList.toggle('hidden', anyVisible || selectedStatus !== 'borrowed');
-    }
-
-    searchInput.addEventListener('keyup', filterTable);
-    statusFilter.addEventListener('change', filterTable);
-</script>

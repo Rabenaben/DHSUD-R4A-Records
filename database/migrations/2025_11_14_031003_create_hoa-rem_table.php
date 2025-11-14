@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->integer('municipality_id')->nullable()->index('municipality_id');
             $table->integer('province_id')->nullable()->index('province_id');
+            $table->string('region')->nullable()->after('province_id');
 
             $table->index(['docket_no'], 'idx_hoa_docket_no');
         });

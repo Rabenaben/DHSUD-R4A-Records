@@ -1,13 +1,16 @@
 @props(['name', 'show' => false, 'maxWidth' => '2xl'])
 
 @php
-    $maxWidth = [
-        'sm' => 'sm:max-w-sm',
-        'md' => 'sm:max-w-md',
-        'lg' => 'sm:max-w-lg',
-        'xl' => 'sm:max-w-xl',
-        '2xl' => 'sm:max-w-2xl',
-    ][$maxWidth];
+    $maxWidth =
+        [
+            'sm' => 'sm:max-w-sm',
+            'md' => 'sm:max-w-md',
+            'lg' => 'sm:max-w-lg',
+            'xl' => 'sm:max-w-xl',
+            '2xl' => 'sm:max-w-2xl',
+            '3xl' => 'sm:max-w-3xl',
+            '4xl' => 'sm:max-w-4xl', // <- add this
+        ][$maxWidth] ?? 'sm:max-w-2xl'; // fallback if key not found
 @endphp
 
 <div class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 sm:px-0" x-data="{
