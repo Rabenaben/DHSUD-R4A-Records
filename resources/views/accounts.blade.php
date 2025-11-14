@@ -40,7 +40,7 @@
                         x-on:click="window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-user-modal' } }))">
                         Cancel
                     </button>
-                    <button class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600" type="submit">Add
+                    <button class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-900" type="submit">Add
                         User</button>
                 </div>
             </form>
@@ -68,7 +68,7 @@
                         x-on:click="window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'edit-user-modal' } }))">
                         Cancel
                     </button>
-                    <button class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600" type="submit">
+                    <button class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-900" type="submit">
                         Update User
                     </button>
                 </div>
