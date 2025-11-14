@@ -29,8 +29,8 @@ class DisplayController extends Controller
             ['title' => 'Total REM Dockets', 'count' => $rem['total'], 'from' => 'blue-500', 'to' => 'blue-800', 'text' => 'text-white', 'icon' => 'bi-gear-wide-connected'],
             ['title' => 'Total HOA Dockets', 'count' => $hoa['total'], 'from' => 'orange-400', 'to' => 'orange-700', 'text' => 'text-white', 'icon' => 'bi-house-door-fill'],
             ['title' => 'On-Shelf', 'count' => $rem['onShelf'] + $hoa['onShelf'], 'from' => 'green-400', 'to' => 'green-700', 'text' => 'text-white', 'icon' => 'bi-archive-fill'],
-            ['title' => 'Unavailable', 'count' => $rem['unavailable'] + $hoa['unavailable'], 'from' => 'yellow-300', 'to' => 'yellow-600', 'text' => 'text-black', 'icon' => 'bi-file-earmark-x-fill'],
-            ['title' => 'Borrowed', 'count' => $rem['borrowed'] + $hoa['borrowed'], 'from' => 'red-500', 'to' => 'red-800', 'text' => 'text-white', 'icon' => 'bi-arrow-left-right'],
+            ['title' => 'Unavailable', 'count' => $rem['unavailable'] + $hoa['unavailable'], 'from' => 'red-500', 'to' => 'red-800', 'text' => 'text-black', 'icon' => 'bi-file-earmark-x-fill'],
+            ['title' => 'Borrowed', 'count' => $rem['borrowed'] + $hoa['borrowed'], 'from' => 'yellow-300', 'to' => 'yellow-600', 'text' => 'text-white', 'icon' => 'bi-arrow-left-right'],
         ];
 
         return view('dashboard', compact('cards'));
