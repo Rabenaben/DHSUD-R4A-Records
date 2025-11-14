@@ -1,17 +1,16 @@
 <!-- Filters, Search, and Add User -->
 <div class="mt-6 flex items-center justify-between bg-white p-4 shadow-sm sm:rounded-lg">
     <div class="flex items-center space-x-4">
-        <label class="text-sm font-medium text-gray-700" for="status-filter">Filter by Status:</label>
-        <select class="rounded-md border border-gray-300 px-3 py-2 text-sm" id="status-filter">
+           <input class="rounded-md border border-gray-300 px-3 py-2 text-sm" id="search-name" type="text"
+            placeholder="Enter name...">
+        <select class="rounded-md border border-gray-300 px-7 py-2 text-sm" id="status-filter">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
         </select>
     </div>
     <div class="flex items-center space-x-4">
-        <label class="text-sm font-medium text-gray-700" for="search-name">Search by Name:</label>
-        <input class="rounded-md border border-gray-300 px-3 py-2 text-sm" id="search-name" type="text"
-            placeholder="Enter name...">
+
         <button class="ml-4 rounded bg-blue-500 px-4 py-2 text-white" id="add-user-btn">Add User</button>
     </div>
 </div>
@@ -22,8 +21,8 @@
         <table class="min-w-full divide-y divide-gray-200" id="accounts-table">
             <thead class="bg-gray-50">
                 <tr>
-                    @foreach (['Account No.', 'Name', 'Username', 'Role', 'Status', 'Action', 'Remarks', 'Actions'] as $header)
-                        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    @foreach (['Account No.', 'Name', 'Username', 'Role', 'Status', 'Action', 'Division', 'Actions'] as $header)
+                        <th class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-gray-500">
                             {{ $header }}
                         </th>
                     @endforeach

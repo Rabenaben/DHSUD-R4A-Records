@@ -22,7 +22,6 @@
         <!-- Filters, Search, and Add User -->
         @include('partials.accounts-table')
     </div>
-
     <!-- Add User Modal -->
     <x-modal name="add-user-modal" maxWidth="md" :show="$errors->any()">
         <div class="p-6">
@@ -33,8 +32,8 @@
                     <x-input-field label="Name" name="name" />
                     <x-input-field label="Username" name="username" />
                     <x-input-field label="Password" name="password" type="password" />
-                    <x-input-field label="Role" name="role" />
-                    <x-textarea-field class="md:col-span-2" label="Remarks" name="remarks" />
+                    <x-select-field label="Role" name="role" :options="['Admin', 'Staff']" />
+                    <x-select-field class="md:col-span-2" label="Division" name="remarks" :options="['HREDRD', 'RECORD SECTION', 'HOACD', 'PRLS', 'ELUPD', 'ORD']" />
                 </div>
                 <div class="mt-6 flex justify-end">
                     <button class="mr-3 rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400" type="button"
@@ -60,9 +59,8 @@
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <x-input-field id="edit-name" label="Name" name="name" required />
                     <x-input-field id="edit-username" label="Username" name="username" required />
-                    <x-input-field id="edit-role" label="Role" name="role" required />
-                    <x-textarea-field class="md:col-span-2" id="edit-remarks" label="Remarks" name="remarks"
-                        rows="3" />
+                    <x-select-field id="edit-role" label="Role" name="role" :options="['Admin', 'Staff']" required />
+                    <x-select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks" :options="['HREDRD', 'RECORD SECTION', 'HOACD', 'PRLS', 'ELUPD', 'ORD']" />
                 </div>
 
                 <div class="mt-6 flex justify-end">
@@ -77,4 +75,6 @@
             </form>
         </div>
     </x-modal>
+
+    <script src="{{ asset('js/accounts.js') }}"></script>
 </x-app-layout>
