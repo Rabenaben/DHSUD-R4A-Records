@@ -33,7 +33,7 @@
                     <x-input-field label="Username" name="username" />
                     <x-input-field label="Password" name="password" type="password" />
                     <x-select-field label="Role" name="role" :options="['Admin', 'Staff']" />
-                    <x-select-field class="md:col-span-2" label="Division" name="remarks" :options="['HREDRD', 'RECORD SECTION', 'HOACD', 'PRLS', 'ELUPD', 'ORD']" />
+                    <x-select-field class="md:col-span-2" label="Division" name="remarks" :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" />
                 </div>
                 <div class="mt-6 flex justify-end">
                     <button class="mr-3 rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400" type="button"
@@ -60,7 +60,8 @@
                     <x-input-field id="edit-name" label="Name" name="name" required />
                     <x-input-field id="edit-username" label="Username" name="username" required />
                     <x-select-field id="edit-role" label="Role" name="role" :options="['Admin', 'Staff']" required />
-                    <x-select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks" :options="['HREDRD', 'RECORD SECTION', 'HOACD', 'PRLS', 'ELUPD', 'ORD']" />
+                    <x-select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks"
+                        :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" />
                 </div>
 
                 <div class="mt-6 flex justify-end">
