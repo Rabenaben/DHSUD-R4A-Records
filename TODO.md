@@ -1,5 +1,4 @@
-# TODO: Create HOA Input Component and Update Modal
+# TODO: Maximize Form Section Width in HOA and REM Modals
 
-- [x] Create new Blade component: resources/views/components/hoa/hoa-input.blade.php
-- [x] Edit hoa-modal.blade.php to replace <input> tags in form section with <x-hoa.hoa-input> components
-- [ ] Verify the component renders correctly in the modal
+- [ ] Edit hoa-modal.blade.php: Change grid layout to flexbox, set form section to flex-2 and file section to flex-1
+- [ ] Edit rem-modal.blade.php: Change grid layout to flexbox, set form section to flex-2 and file section to flex-1

@@ -26,4 +26,6 @@
 
         </div>
     </div>
+
+    @include('rem_records.partials.rem-modal')
 </x-app-layout>

@@ -15,27 +15,48 @@
             <!-- Basic Information -->
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Basic Information</h3>
             <div class="mb-2.5 flex gap-2.5">
-                <x-hoa.hoa-input id="docket-no" placeholder="Docket No." readonly />
-                <x-hoa.hoa-input id="hoa-name" placeholder="HOA Name" readonly />
+                <div class="flex-1">
+                    <x-input-label value="Docket No." />
+                    <x-modal-input id="docket-no" placeholder="Docket No." readonly />
+                </div>
+                <div class="flex-1">
+                    <x-input-label value="HOA Name" />
+                    <x-modal-input id="hoa-name" placeholder="HOA Name" readonly />
+                </div>
             </div>
 
             <!-- Location -->
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Location</h3>
             <div class="mb-2.5 flex gap-2.5">
-                <x-hoa.hoa-input id="province" placeholder="Province" readonly />
-                <x-hoa.hoa-input id="municipality" placeholder="Municipality" readonly />
+                <div class="flex-1">
+                    <x-input-label value="Province" />
+                    <x-modal-input id="province" placeholder="Province" readonly />
+                </div>
+                <div class="flex-1">
+                    <x-input-label value="Municipality" />
+                    <x-modal-input id="municipality" placeholder="Municipality" readonly />
+                </div>
             </div>
 
             <!-- Additional Information -->
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Additional Information</h3>
             <div class="mb-2.5 flex gap-2.5">
-                <x-hoa.hoa-input id="status" placeholder="Status" readonly />
-                <x-hoa.hoa-input id="quantity" placeholder="Quantity" readonly />
+                <div class="flex-1">
+                    <x-input-label value="Status" />
+                    <x-modal-input id="status" placeholder="Status" readonly />
+                </div>
+                <div class="flex-1">
+                    <x-input-label value="Quantity" />
+                    <x-modal-input id="quantity" placeholder="Quantity" readonly />
+                </div>
             </div>
 
-            <textarea
-                class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
-                id="remarks" placeholder="Remarks" readonly></textarea>
+            <div>
+                <x-input-label value="Remarks" />
+                <textarea
+                    class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
+                    id="remarks" placeholder="Remarks" readonly></textarea>
+            </div>
 
             <button
                 class="mx-auto mt-4 block rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-green-700">EDIT</button>
