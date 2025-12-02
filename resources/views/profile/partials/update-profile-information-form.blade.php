@@ -9,8 +9,6 @@
         </p>
     </header>
 
-
-
     <form class="mt-6 space-y-6" method="post" action="{{ route('profile.update') }}">
         @csrf
         @method('patch')
