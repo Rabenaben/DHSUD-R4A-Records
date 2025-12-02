@@ -6,11 +6,11 @@
             <form class="mt-6" action="{{ route('users.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <x-input-field label="Name" name="name" />
-                    <x-input-field label="Username" name="username" />
-                    <x-input-field label="Password" name="password" type="password" />
-                    <x-select-field label="Role" name="role" :options="['Admin', 'Staff']" />
-                    <x-select-field class="md:col-span-2" label="Division" name="remarks" :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" />
+                    <x-accounts.input-field label="Name" name="name" />
+                    <x-accounts.input-field label="Username" name="username" />
+                    <x-accounts.input-field label="Password" name="password" type="password" />
+                    <x-accounts.select-field label="Role" name="role" :options="['Admin', 'Staff']" />
+                    <x-accounts.select-field class="md:col-span-2" label="Division" name="remarks" :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" />
                 </div>
                 
                 <div class="mt-6 flex justify-end">

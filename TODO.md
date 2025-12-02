@@ -1,5 +1,5 @@
-- [x] Create resources/views/rem_records/ directory
-- [x] Move rem_records.blade.php to resources/views/rem_records/rem_records.blade.php
-- [x] Move partials/folder-table.blade.php to resources/views/rem_records/folder-table.blade.php
-- [x] Update DisplayController.php view references
-- [x] Delete old rem_records.blade.php and partials/folder-table.blade.php
+# TODO: Create HOA Input Component and Update Modal
+
+- [x] Create new Blade component: resources/views/components/hoa/hoa-input.blade.php
+- [x] Edit hoa-modal.blade.php to replace <input> tags in form section with <x-hoa.hoa-input> components
+- [ ] Verify the component renders correctly in the modal

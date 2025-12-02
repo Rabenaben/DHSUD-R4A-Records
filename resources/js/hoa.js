@@ -76,6 +76,9 @@ function openFileListModal(record) {
 }
 
 function openHoaModal(record, fileName) {
+    // Store the record for back navigation
+    window.currentRecord = record;
+
     const setValue = (id, value) => {
         const el = document.getElementById(id);
         if (el) el.value = value ?? '';
@@ -94,3 +97,12 @@ function openHoaModal(record, fileName) {
 
     window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'hoa' } }));
 }
+
+// Make goBackToFileList global
+window.goBackToFileList = function() {
+    // Close hoa modal and reopen file-list modal with stored record
+    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'hoa' } }));
+    if (window.currentRecord) {
+        openFileListModal(window.currentRecord);
+    }
+};

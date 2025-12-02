@@ -9,10 +9,10 @@
                 @method('PATCH')
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <x-input-field id="edit-name" label="Name" name="name" required />
-                    <x-input-field id="edit-username" label="Username" name="username" required />
-                    <x-select-field id="edit-role" label="Role" name="role" :options="['Admin', 'Staff']" required />
-                    <x-select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks"
+                    <x-accounts.input-field id="edit-name" label="Name" name="name" required />
+                    <x-accounts.input-field id="edit-username" label="Username" name="username" required />
+                    <x-accounts.select-field id="edit-role" label="Role" name="role" :options="['Admin', 'Staff']" required />
+                    <x-accounts.select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks"
                         :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" />
                 </div>
 

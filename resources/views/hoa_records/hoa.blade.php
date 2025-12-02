@@ -46,6 +46,16 @@
                     <option value="BORROWED">BORROWED</option>
                     <option value="UNAVAILABLE">UNAVAILABLE</option>
                 </select>
+
+                <!-- Province Filter -->
+                <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700" id="provinceFilter">
+                    <option value="">All Province</option>
+                </select>
+
+                <!-- Municipality Filter -->
+                <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700" id="municipalityFilter">
+                    <option value="">All Municipality</option>
+                </select>
             </div>
 
             <!-- Table Component -->

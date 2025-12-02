@@ -31,7 +31,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach ($users as $index => $user)
-                        <x-user-row :user="$user" :index="$index" />
+                        <x-accounts.user-row :user="$user" :index="$index" />
                     @endforeach
                 </tbody>
             </table>
