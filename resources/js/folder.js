@@ -72,6 +72,15 @@ function attachFilters(container) {
     [searchInput, statusFilter].forEach(input => input?.addEventListener('input', filterRows));
     [statusFilter].forEach(input => input?.addEventListener('change', filterRows));
 
+    // Delegate click event for REM rows
+    tableBody.addEventListener('click', (e) => {
+        const row = e.target.closest('tr.data-row');
+        if (!row) return;
+
+        const record = JSON.parse(row.dataset.record);
+        openRemModal(record);
+    });
+
     filterRows(); // Run once on load
 }
 
@@ -85,5 +94,30 @@ function attachBackButton(container, originalHTML) {
 
     });
 }
+
+// Modal functions
+function openRemModal(record) {
+    const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value ?? '';
+    };
+
+    setValue('rem-docket-no', record.docket_no);
+    setValue('rem-project-name', record.project_name);
+    setValue('rem-status', record.status);
+    setValue('rem-quantity', record.quantity);
+    setValue('rem-remarks', record.remarks ?? '');
+
+    // Open modal
+    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'rem' } }));
+}
+
+function closeRemModal() {
+    // Close modal
+    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'rem' } }));
+}
+
+// Make closeRemModal global
+window.closeRemModal = closeRemModal;
 
 document.addEventListener('DOMContentLoaded', initFolderClicks);
