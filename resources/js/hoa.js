@@ -3,26 +3,68 @@ document.addEventListener('DOMContentLoaded', initHoaRecords);
 function initHoaRecords() {
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
+    const provinceFilter = document.getElementById('provinceFilter');
+    const municipalityFilter = document.getElementById('municipalityFilter');
     const tableBody = document.getElementById('hoaRecordsTable');
     const noBorrowedRow = document.getElementById('noBorrowedRow');
 
-    if (!searchInput || !statusFilter || !tableBody) return;
+    if (!searchInput || !statusFilter || !provinceFilter || !municipalityFilter || !tableBody) return;
 
     const getTableRows = () => Array.from(tableBody.querySelectorAll('tr.hoa-row'));
+
+    // Filter Municipality options based on selected Province
+    const filterMunicipalities = () => {
+        const selectedProvince = provinceFilter.value;
+        const municipalityOptions = municipalityFilter.querySelectorAll('option');
+
+        municipalityOptions.forEach(option => {
+            if (option.value === '') {
+                option.style.display = '';
+                return;
+            }
+            const optionProvince = option.getAttribute('data-province');
+            option.style.display = !selectedProvince || optionProvince === selectedProvince ? '' : 'none';
+        });
+
+        // Reset municipality if selected municipality is not in the filtered list
+        if (municipalityFilter.value) {
+            const selectedOption = municipalityFilter.querySelector(`option[value="${municipalityFilter.value}"]`);
+            if (selectedOption && selectedOption.style.display === 'none') {
+                municipalityFilter.value = '';
+            }
+        }
+    };
+
+    // Set Province when Municipality is selected
+    const setProvinceFromMunicipality = () => {
+        const selectedMunicipality = municipalityFilter.value;
+        if (selectedMunicipality) {
+            const selectedOption = municipalityFilter.querySelector(`option[value="${selectedMunicipality}"]`);
+            if (selectedOption) {
+                const province = selectedOption.getAttribute('data-province');
+                provinceFilter.value = province;
+                filterMunicipalities(); // Re-filter to show only municipalities of this province
+            }
+        }
+    };
 
     // Filter Table
     const filterTable = () => {
         const query = searchInput.value.toLowerCase();
         const selectedStatus = statusFilter.value.toLowerCase();
+        const selectedProvince = provinceFilter.value.toLowerCase();
+        const selectedMunicipality = municipalityFilter.value.toLowerCase();
         let anyVisible = false;
 
         getTableRows().forEach(row => {
             const data = row.dataset;
             const matchesSearch = Object.values(data).some(val => val.toLowerCase().includes(query));
             const matchesStatus = !selectedStatus || data.status === selectedStatus;
+            const matchesProvince = !selectedProvince || data.province.toLowerCase() === selectedProvince;
+            const matchesMunicipality = !selectedMunicipality || data.municipality.toLowerCase() === selectedMunicipality;
 
-            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
-            if (matchesSearch && matchesStatus) anyVisible = true;
+            row.style.display = matchesSearch && matchesStatus && matchesProvince && matchesMunicipality ? '' : 'none';
+            if (matchesSearch && matchesStatus && matchesProvince && matchesMunicipality) anyVisible = true;
         });
 
         if (noBorrowedRow) {
@@ -32,6 +74,17 @@ function initHoaRecords() {
 
     searchInput.addEventListener('input', filterTable);
     statusFilter.addEventListener('change', filterTable);
+    provinceFilter.addEventListener('change', () => {
+        filterMunicipalities();
+        filterTable();
+    });
+    municipalityFilter.addEventListener('change', () => {
+        setProvinceFromMunicipality();
+        filterTable();
+    });
+
+    // Initial filter of municipalities
+    filterMunicipalities();
 
     // Delegate click event for HOA rows
     tableBody.addEventListener('click', (e) => {

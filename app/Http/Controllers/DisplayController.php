@@ -73,12 +73,18 @@ class DisplayController extends Controller
             ->sortBy('province_name')
             ->values();
 
+        // Get all municipalities with province relationship
+        $municipalities = \App\Models\Municipality::with('province')
+            ->orderBy('municipality_name')
+            ->get();
+
         return view('hoa_records.hoa', [
             'totalHoaDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,   // pass objects now
+            'municipalities' => $municipalities, // pass municipalities
             'hoaRecords' => $hoaRecords, // pass all HOA records
         ]);
     }
