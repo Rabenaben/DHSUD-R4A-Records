@@ -25,7 +25,7 @@
     </select>
 
     <!-- Municipality Filter -->
-    <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700 min-w-[160px]" id="municipalityFilter">
+    <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700 min-w-40" id="municipalityFilter">
         <option value="">All Municipality</option>
         @foreach($municipalities as $municipality)
             <option value="{{ $municipality->municipality_name }}" data-province="{{ $municipality->province->province_name }}">{{ $municipality->municipality_name }}</option>
