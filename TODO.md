@@ -1,6 +1,5 @@
-# TODO: Move Login Form to Welcome Page
-
-- [x] Edit `resources/views/welcome.blade.php` to replace the "Let's get started" content with the login form, adapting the HTML for styling consistency.
-- [x] Edit `routes/auth.php` to change the GET /login route to redirect to '/' instead of showing the login view.
-- [x] Test login functionality from the welcome page.
-- [x] Verify styling and responsiveness.
+- [x] Create resources/views/rem_records/ directory
+- [x] Move rem_records.blade.php to resources/views/rem_records/rem_records.blade.php
+- [x] Move partials/folder-table.blade.php to resources/views/rem_records/folder-table.blade.php
+- [x] Update DisplayController.php view references
+- [x] Delete old rem_records.blade.php and partials/folder-table.blade.php

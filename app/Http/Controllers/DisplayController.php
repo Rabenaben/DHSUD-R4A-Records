@@ -47,7 +47,7 @@ class DisplayController extends Controller
             ->pluck('province')
             ->toArray();
 
-        return view('rem_records', [
+        return view('rem_records.rem', [
             'totalRemDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
@@ -73,7 +73,7 @@ class DisplayController extends Controller
             ->sortBy('province_name')
             ->values();
 
-        return view('hoa_records', [
+        return view('hoa_records.hoa', [
             'totalHoaDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
@@ -83,33 +83,15 @@ class DisplayController extends Controller
         ]);
     }
 
-    public function loadFolder($theme, $province)
+    public function loadFolder($province)
     {
-        if ($theme === 'rem') {
-            $records = RemDatabase::where('province', $province)->get();
-            $provinceName = $province;
-        } elseif ($theme === 'hoa') {
-            // Fetch HOA records with province & municipality
-            $records = HoaDatabase::with(['province', 'municipality'])
-                ->where('province_id', $province)
-                ->get();
+        $records = RemDatabase::where('province', $province)->get();
+        $provinceName = $province;
 
-            // If there are records, get province name from first record
-            if ($records->isNotEmpty()) {
-                $provinceName = $records->first()->province->province_name ?? 'Unknown';
-            } else {
-                // If no records, fetch province name from Provinces table directly
-                $provinceRecord = \App\Models\Province::find($province);
-                $provinceName = $provinceRecord->province_name ?? 'Unknown';
-            }
-        } else {
-            abort(404);
-        }
-
-        return view('partials.folder-table', [
+        return view('rem_records.partials.folder-table', [
             'records' => $records,
             'province' => $provinceName,
-            'type' => strtoupper($theme)
+            'type' => 'REM'
         ]);
     }
 }
