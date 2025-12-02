@@ -53,9 +53,9 @@
                 </tr>
             @endforelse
 
-            <tr class="hidden" id="noBorrowedRow">
-                <td class="px-6 py-4 text-center text-sm font-semibold text-gray-500" colspan="8">
-                    No Borrowed Records
+            <tr class="hidden" id="noRecordsRow">
+                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="8">
+                    No HOA records found
                 </td>
             </tr>
         </tbody>

@@ -6,7 +6,6 @@ function initHoaRecords() {
     const provinceFilter = document.getElementById('provinceFilter');
     const municipalityFilter = document.getElementById('municipalityFilter');
     const tableBody = document.getElementById('hoaRecordsTable');
-    const noBorrowedRow = document.getElementById('noBorrowedRow');
 
     if (!searchInput || !statusFilter || !provinceFilter || !municipalityFilter || !tableBody) return;
 
@@ -67,8 +66,13 @@ function initHoaRecords() {
             if (matchesSearch && matchesStatus && matchesProvince && matchesMunicipality) anyVisible = true;
         });
 
-        if (noBorrowedRow) {
-            noBorrowedRow.classList.toggle('hidden', anyVisible || selectedStatus !== 'borrowed');
+        const noRecordsRow = document.getElementById('noRecordsRow');
+        if (noRecordsRow) {
+            if (anyVisible) {
+                noRecordsRow.classList.add('hidden');
+            } else {
+                noRecordsRow.classList.remove('hidden');
+            }
         }
     };
 
@@ -152,7 +156,7 @@ function openHoaModal(record, fileName) {
 }
 
 // Make goBackToFileList global
-window.goBackToFileList = function() {
+window.goBackToFileList = function () {
     // Close hoa modal and reopen file-list modal with stored record
     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'hoa' } }));
     if (window.currentRecord) {
