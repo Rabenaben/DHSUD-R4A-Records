@@ -8,7 +8,7 @@
         </svg>
         Back
     </button>
-    <div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
+    <div class="flex flex-col gap-6 p-6 lg:flex-row">
 
         <!-- Form Section -->
         <div class="flex-1">
