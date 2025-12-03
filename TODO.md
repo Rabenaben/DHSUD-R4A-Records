@@ -1,4 +1,4 @@
-# TODO: Maximize Form Section Width in HOA and REM Modals
+# TODO: Move Card Design from Controller to View
 
-- [ ] Edit hoa-modal.blade.php: Change grid layout to flexbox, set form section to flex-2 and file section to flex-1
-- [ ] Edit rem-modal.blade.php: Change grid layout to flexbox, set form section to flex-2 and file section to flex-1
+- [ ] Modify DisplayController.php index() function to calculate and pass combined counts ($totalDockets, $onShelf, $unavailable, $borrowed) instead of $cards array.
+- [ ] Update dashboard.blade.php to use <x-status-cards> component for rendering the cards, removing the inline @foreach loop.
