@@ -1,11 +1,7 @@
-- [x] Copy file-list-modal.blade.php from hoa_records/partials to rem_records/partials
-- [x] Include file-list-modal in rem.blade.php after rem-modal
-- [x] Create resources/js/rem.js with initRemRecords, openFileListModal, openRemModal, goBackToFileList
-- [x] Include rem.js script in rem.blade.php
-- [x] Ensure initRemRecords is called after folder-table is loaded (check folder.js) - Changed folder.js to call openFileListModal instead of openRemModal
-- [x] Test the flow: folder click -> table -> row click -> file-list -> file click -> rem modal
-- [x] Verify back navigation
-- [x] Create toast.blade.php component with top-right positioning, green for success, red for error, slide animations
-- [x] Include toast component in app.blade.php layout
-- [x] Add showToast(message, type) function to app.js for controlling the toast
-- [x] Test toast functionality on a sample page
+# Refactor Toast Script in app.js
+
+## Tasks
+- [x] Create Toast class with configuration object for types
+- [x] Implement methods for creating toast element, setting styles, and handling animations
+- [x] Update window.showToast to use the new Toast class
+- [x] Ensure compatibility with existing API
