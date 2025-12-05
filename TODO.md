@@ -1,11 +1,8 @@
-- [x] Copy file-list-modal.blade.php from hoa_records/partials to rem_records/partials
-- [x] Include file-list-modal in rem.blade.php after rem-modal
-- [x] Create resources/js/rem.js with initRemRecords, openFileListModal, openRemModal, goBackToFileList
-- [x] Include rem.js script in rem.blade.php
-- [x] Ensure initRemRecords is called after folder-table is loaded (check folder.js) - Changed folder.js to call openFileListModal instead of openRemModal
-- [x] Test the flow: folder click -> table -> row click -> file-list -> file click -> rem modal
-- [x] Verify back navigation
-- [x] Create toast.blade.php component with top-right positioning, green for success, red for error, slide animations
-- [x] Include toast component in app.blade.php layout
-- [x] Add showToast(message, type) function to app.js for controlling the toast
-- [x] Test toast functionality on a sample page
+# TODO: Fix Add and Edit Accounts Errors
+
+## Steps to Complete
+- [x] Edit resources/js/accounts.js to change add user form submission from JSON to FormData
+- [x] Edit resources/js/accounts.js to change edit user form submission from JSON to FormData
+- [x] Change add user to update table without reload
+- [x] Change edit user to update table without reload
+- [x] Test the changes (run the application and verify add/edit work without errors)

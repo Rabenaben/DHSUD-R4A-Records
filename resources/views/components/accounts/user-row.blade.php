@@ -10,17 +10,9 @@
     <td class="px-6 py-4 text-center text-sm text-gray-500">{{ ucfirst($user->status) }}</td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">
         @if ($user->status === 'active')
-            <form class="inline" action="{{ route('users.archive', $user->id) }}" method="POST">
-                @csrf
-                @method('PATCH')
-                <button class="text-red-600 hover:text-red-900" type="submit">Archive</button>
-            </form>
+            <button class="archive-btn text-red-600 hover:text-red-900" data-id="{{ $user->id }}" data-action="archive">Archive</button>
         @else
-            <form class="inline" action="{{ route('users.unarchive', $user->id) }}" method="POST">
-                @csrf
-                @method('PATCH')
-                <button class="text-green-600 hover:text-green-900" type="submit">Unarchive</button>
-            </form>
+            <button class="archive-btn text-green-600 hover:text-green-900" data-id="{{ $user->id }}" data-action="unarchive">Unarchive</button>
         @endif
     </td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">{{ $user->remarks }}</td>
