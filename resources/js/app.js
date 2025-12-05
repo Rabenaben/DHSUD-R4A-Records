@@ -3,6 +3,7 @@ import 'flowbite';
 import './rem';
 import './accounts';
 import './hoa';
+import './borrower';
 
 import Alpine from 'alpinejs';
 

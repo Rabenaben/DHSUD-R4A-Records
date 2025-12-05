@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RemDatabase;
 use App\Models\HoaDatabase;
 use App\Models\Municipality;
+use App\Models\Borrower;
 
 class DisplayController extends Controller
 {
@@ -87,6 +88,16 @@ class DisplayController extends Controller
             'provinces' => $provinces,   // pass objects now
             'municipalities' => $municipalities, // pass municipalities
             'hoaRecords' => $hoaRecords, // pass all HOA records
+        ]);
+    }
+
+    // 🔹 Borrowers Dashboard
+    public function borrowerDashboard()
+    {
+        $borrowers = Borrower::with('recordStatus')->get();
+
+        return view('borrowers.borrower', [
+            'borrowers' => $borrowers,
         ]);
     }
 

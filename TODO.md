@@ -1,18 +1,18 @@
-<<<<<<< HEAD
-# TODO: Fix Add and Edit Accounts Errors
+# TODO: Add Search Bar to Borrowers Tab
 
 ## Steps to Complete
-- [x] Edit resources/js/accounts.js to change add user form submission from JSON to FormData
-- [x] Edit resources/js/accounts.js to change edit user form submission from JSON to FormData
-- [x] Change add user to update table without reload
-- [x] Change edit user to update table without reload
-- [x] Test the changes (run the application and verify add/edit work without errors)
-=======
-# Refactor Toast Script in app.js
 
-## Tasks
-- [x] Create Toast class with configuration object for types
-- [x] Implement methods for creating toast element, setting styles, and handling animations
-- [x] Update window.showToast to use the new Toast class
-- [x] Ensure compatibility with existing API
->>>>>>> 005de0803ab731dffe58e69efaa2b9a7892917b1
+- [ ] Edit `resources/views/borrowers/borrower.blade.php`:
+  - Add a simple search bar (input field) above the table, similar to the HOA search bar but without filters.
+  - Add `data-*` attributes to each table row for ID, Borrower Name, Status, and Remarks to enable filtering.
+  - Add a hidden "no records found" row in the table body that spans all columns and shows when no rows are visible.
+  - Include `borrower.js` script tag at the end of the file.
+
+- [ ] Create `resources/js/borrower.js`:
+  - Implement client-side filtering logic: Listen for input on the search bar, filter table rows based on matching any of the data attributes (case-insensitive), hide/show rows accordingly.
+  - Show/hide the "no records found" row based on whether any rows are visible.
+  - Initialize on DOMContentLoaded.
+
+- [ ] Test the implementation:
+  - Verify search functionality works correctly.
+  - Check "no records found" displays when no matches or no records exist.
