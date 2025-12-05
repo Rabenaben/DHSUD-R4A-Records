@@ -3,7 +3,7 @@
     <x-modal name="add-user-modal" maxWidth="md" :show="$errors->any()">
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900">Add New User</h2>
-            <form class="mt-6" action="{{ route('users.store') }}" method="POST">
+            <form class="mt-6" id="add-user-form" action="{{ route('users.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <x-accounts.input-field label="Name" name="name" />

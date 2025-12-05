@@ -23,7 +23,7 @@ class UserController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'password' => bcrypt($request->password),
@@ -32,6 +32,14 @@ class UserController extends Controller
             'remarks' => $request->remarks,
         ]);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User added successfully.',
+                'user' => $user
+            ]);
+        }
+
         return redirect()->route('accounts')->with('success', 'User added successfully.');
     }
 
@@ -39,6 +47,15 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['status' => 'inactive']);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User archived successfully.',
+                'user' => $user
+            ]);
+        }
+
         return redirect()->route('accounts')->with('success', 'User archived successfully.');
     }
 
@@ -46,6 +63,15 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['status' => 'active']);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User unarchived successfully.',
+                'user' => $user
+            ]);
+        }
+
         return redirect()->route('accounts')->with('success', 'User unarchived successfully.');
     }
 
@@ -66,6 +92,14 @@ class UserController extends Controller
             'role' => $request->role,
             'remarks' => $request->remarks,
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully.',
+                'user' => $user
+            ]);
+        }
 
         return redirect()->route('accounts')->with('success', 'User updated successfully.');
     }
