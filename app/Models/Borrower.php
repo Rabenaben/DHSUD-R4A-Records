@@ -12,10 +12,14 @@ class Borrower extends Model
     protected $table = 'borrowers';
 
     protected $fillable = [
-        'id',
         'borrower_name',
         'remarks',
         'status_id',
+        'docket_number',
+        'file_name',
+        'file_location',
+        'date_borrowed',
+        'date_returned',
     ];
 
     public function recordStatus()
