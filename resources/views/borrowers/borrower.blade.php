@@ -13,6 +13,16 @@
         </div>
 
         <div class="space-y-8">
+            <!-- Search Bar -->
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 min-w-0 flex-1">
+                    <input
+                        class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
+                        id="searchInput" type="text"
+                        placeholder="Search by ID, Borrower Name, Status, or Remarks...">
+                </div>
+            </div>
+
             <!-- Borrower Table -->
             <div class="rounded-lg bg-white p-6 shadow">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -26,13 +36,16 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($borrowers as $borrower)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->id }}</td>                            
+                        <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}" data-status="{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}" data-remarks="{{ $borrower->remarks }}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $borrower->borrower_name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->remarks }}</td>
                         </tr>
                         @endforeach
+                        <tr id="noRecordsRow" class="hidden">
+                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No records found.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
