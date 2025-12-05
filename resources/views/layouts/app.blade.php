@@ -68,6 +68,8 @@
             setInterval(upd, 1000);
         })();
     </script>
+    
+    <x-toast />
 </body>
 
 </html>

@@ -5,4 +5,7 @@
 - [x] Ensure initRemRecords is called after folder-table is loaded (check folder.js) - Changed folder.js to call openFileListModal instead of openRemModal
 - [x] Test the flow: folder click -> table -> row click -> file-list -> file click -> rem modal
 - [x] Verify back navigation
-s
+- [x] Create toast.blade.php component with top-right positioning, green for success, red for error, slide animations
+- [x] Include toast component in app.blade.php layout
+- [x] Add showToast(message, type) function to app.js for controlling the toast
+- [x] Test toast functionality on a sample page
