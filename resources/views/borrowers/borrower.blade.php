@@ -1,4 +1,5 @@
 <x-app-layout>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Borrowers') }}
@@ -21,6 +22,11 @@
                         id="searchInput" type="text"
                         placeholder="Search by ID, Borrower Name, Status, or Remarks...">
                 </div>
+                <button
+                    id="add-record-btn"
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                    Add Record
+                </button>
             </div>
 
             <!-- Borrower Table -->
@@ -36,7 +42,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($borrowers as $borrower)
-                        <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}" data-status="{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}" data-remarks="{{ $borrower->remarks }}">
+                        <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}" data-status="{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}" data-remarks="{{ $borrower->remarks }}" onclick="showBorrowerDetails({{ $borrower->id }})" style="cursor: pointer;">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $borrower->borrower_name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}</td>
@@ -51,4 +57,10 @@
             </div>
         </div>
     </div>
+
+    @include('borrowers.partials.borrower-modal', ['recordStatuses' => $recordStatuses, 'nextId' => $nextId])
+
+<script>
+window.nextId = {{ $nextId }};
+</script>
 </x-app-layout>

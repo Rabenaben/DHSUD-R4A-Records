@@ -6,6 +6,7 @@ use App\Models\RemDatabase;
 use App\Models\HoaDatabase;
 use App\Models\Municipality;
 use App\Models\Borrower;
+use App\Models\RecordStatus;
 
 class DisplayController extends Controller
 {
@@ -95,9 +96,24 @@ class DisplayController extends Controller
     public function borrowerDashboard()
     {
         $borrowers = Borrower::with('recordStatus')->get();
+        $recordStatuses = RecordStatus::all();
+        $nextId = Borrower::max('id') + 1;
 
         return view('borrowers.borrower', [
             'borrowers' => $borrowers,
+            'recordStatuses' => $recordStatuses,
+            'nextId' => $nextId,
+        ]);
+    }
+
+    // 🔹 Show Borrower Details
+    public function showBorrower($id)
+    {
+        $borrower = Borrower::with('recordStatus')->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'borrower' => $borrower
         ]);
     }
 
