@@ -12,18 +12,25 @@
             <div class="mt-2 border-b-2 border-gray-700"></div>
         </div>
 
-        @if (session('success'))
-            <div class="relative mt-4 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700"
-                role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-        @endif
-
         <!-- Filters, Search, and Add User -->
         @include('accounts.partials.accounts-table')
     </div>
     
     @include('accounts.partials.add-user')
     @include('accounts.partials.edit-user')
-    
+
+    @if (session('success'))
+        <script>
+            function showToastOnLoad() {
+                const toast = document.getElementById('toast');
+                if (toast) {
+                    showToast('{{ session('success') }}', 'success');
+                } else {
+                    setTimeout(showToastOnLoad, 100);
+                }
+            }
+            document.addEventListener('DOMContentLoaded', showToastOnLoad);
+        </script>
+    @endif
+
 </x-app-layout>
