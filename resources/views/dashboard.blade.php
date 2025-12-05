@@ -22,7 +22,7 @@
 
                         <!-- LEFT COLORED BAR -->
                         <div
-                            class="{{ $card['from'] === 'gray-600' ? 'bg-gray-900' : '' }} {{ $card['from'] === 'blue-500' ? 'bg-blue-800' : '' }} {{ $card['from'] === 'orange-400' ? 'bg-orange-500' : '' }} {{ $card['from'] === 'green-400' ? 'bg-green-700' : '' }} {{ $card['from'] === 'red-500' ? 'bg-red-800' : '' }} {{ $card['from'] === 'yellow-300' ? 'bg-yellow-600' : '' }} absolute bottom-0 left-0 top-0 w-2 rounded-l-lg">
+                            class="bg-linear-to-r {{ $card['from'] === 'gray-600' ? 'from-gray-600 to-gray-900' : '' }} {{ $card['from'] === 'blue-500' ? 'from-blue-500 to-blue-800' : '' }} {{ $card['from'] === 'orange-400' ? 'from-orange-400 to-orange-500' : '' }} {{ $card['from'] === 'green-400' ? 'from-green-400 to-green-700' : '' }} {{ $card['from'] === 'red-500' ? 'from-red-500 to-red-800' : '' }} {{ $card['from'] === 'yellow-300' ? 'from-yellow-300 to-yellow-600' : '' }} absolute bottom-0 left-0 top-0 w-2 rounded-l-lg">
                         </div>
 
                         <!-- Text Content -->
@@ -40,50 +40,50 @@
                         <i class="bi {{ $card['icon'] }} pr-1 text-2xl text-gray-700"></i>
                     </div>
                 @endforeach
-        </div>
-
-        <!-- Recently Opened Documents -->
-        <div class="rounded-lg shadow-md">
-            <h2 class="mb-4 text-xl font-bold">Recently Opened Documents</h2>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full border border-gray-300 text-center text-sm">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="border border-gray-300 px-4 py-2">File Name</th>
-                            <th class="border border-gray-300 px-4 py-2">File Type</th>
-                            <th class="border border-gray-300 px-4 py-2">File Location</th>
-                            <th class="border border-gray-300 px-4 py-2">Date &amp; Time</th>
-                            <th class="border border-gray-300 px-4 py-2">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white text-gray-700">
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                            <td class="border border-gray-300 px-4 py-2">-</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
-        </div>
 
-    </div>
+            <!-- Recently Opened Documents -->
+            <div class="rounded-lg shadow-md">
+                <h2 class="mb-4 text-xl font-bold">Recently Opened Documents</h2>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full border border-gray-300 text-center text-sm">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2">File Name</th>
+                                <th class="border border-gray-300 px-4 py-2">File Type</th>
+                                <th class="border border-gray-300 px-4 py-2">File Location</th>
+                                <th class="border border-gray-300 px-4 py-2">Date &amp; Time</th>
+                                <th class="border border-gray-300 px-4 py-2">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white text-gray-700">
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
 </x-app-layout>

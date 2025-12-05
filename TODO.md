@@ -1,4 +1,8 @@
-# TODO: Move Card Design from Controller to View
-
-- [ ] Modify DisplayController.php index() function to calculate and pass combined counts ($totalDockets, $onShelf, $unavailable, $borrowed) instead of $cards array.
-- [ ] Update dashboard.blade.php to use <x-status-cards> component for rendering the cards, removing the inline @foreach loop.
+- [x] Copy file-list-modal.blade.php from hoa_records/partials to rem_records/partials
+- [x] Include file-list-modal in rem.blade.php after rem-modal
+- [x] Create resources/js/rem.js with initRemRecords, openFileListModal, openRemModal, goBackToFileList
+- [x] Include rem.js script in rem.blade.php
+- [x] Ensure initRemRecords is called after folder-table is loaded (check folder.js) - Changed folder.js to call openFileListModal instead of openRemModal
+- [x] Test the flow: folder click -> table -> row click -> file-list -> file click -> rem modal
+- [x] Verify back navigation
+s

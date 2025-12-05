@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RemDatabase;
 use App\Models\HoaDatabase;
+use App\Models\Municipality;
 
 class DisplayController extends Controller
 {
@@ -74,7 +75,7 @@ class DisplayController extends Controller
             ->values();
 
         // Get all municipalities with province relationship
-        $municipalities = \App\Models\Municipality::with('province')
+        $municipalities = Municipality::with('province')
             ->orderBy('municipality_name')
             ->get();
 

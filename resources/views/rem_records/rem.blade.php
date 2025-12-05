@@ -28,4 +28,6 @@
     </div>
 
     @include('rem_records.partials.rem-modal')
+    @include('rem_records.partials.file-list-modal')
+
 </x-app-layout>

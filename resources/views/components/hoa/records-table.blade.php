@@ -12,7 +12,7 @@
     <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
         <thead class="sticky top-0 z-10 bg-blue-700">
             <tr>
-                @foreach (['Docket No', 'HOA Name', 'Location', 'Province', 'Municipality', 'Status', 'Quantity', 'Remarks'] as $header)
+                @foreach (['Docket No', 'HOA Name', 'Location', 'Province', 'Municipality', 'Status'] as $header)
                     <th class="px-6 py-3 text-center text-sm font-semibold text-white">{{ $header }}</th>
                 @endforeach
             </tr>
@@ -44,8 +44,6 @@
                             {{ $record->status }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->quantity }}</td>
-                    <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
                 </tr>
             @empty
                 <tr>

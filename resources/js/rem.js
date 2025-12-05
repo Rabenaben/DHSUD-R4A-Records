@@ -1,4 +1,73 @@
-export function initFolderClicks() {
+// Modal functions for REM records
+
+// openFileListModal is the same as in hoa.js
+function openFileListModal(record) {
+    const files = [
+        { name: 'REM_Document_001.pdf', dateModified: '2023-10-01' },
+        { name: 'REM_Document_002.pdf', dateModified: '2023-09-15' },
+        { name: 'REM_Document_003.pdf', dateModified: '2023-08-20' }
+    ];
+
+    const tbody = document.getElementById('file-list-body');
+    tbody.innerHTML = files.map(f => `
+        <tr class="cursor-pointer hover:bg-gray-50 file-row" data-file-name="${f.name}">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${f.name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${f.dateModified}</td>
+        </tr>
+    `).join('');
+
+    // Delegate click for file rows
+    tbody.addEventListener('click', function onFileClick(e) {
+        const row = e.target.closest('tr.file-row');
+        if (!row) return;
+
+        const fileName = row.dataset.fileName;
+        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
+        openRemModal(record, fileName);
+
+        tbody.removeEventListener('click', onFileClick); // remove listener to avoid duplicates
+    });
+
+    // Open modal
+    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'file-list' } }));
+}
+
+function openRemModal(record, fileName) {
+    // Store the record for back navigation
+    window.currentRecord = record;
+
+    const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value ?? '';
+    };
+
+    setValue('rem-docket-no', record.docket_no);
+    setValue('rem-project-name', record.project_name);
+    setValue('rem-status', record.status);
+    setValue('rem-quantity', record.quantity);
+    setValue('rem-remarks', record.remarks ?? '');
+
+    const fileLabel = document.getElementById('rem-file-label');
+    if (fileLabel) fileLabel.textContent = fileName ?? '';
+
+    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'rem' } }));
+}
+
+// Make functions global
+window.openFileListModal = openFileListModal;
+window.openRemModal = openRemModal;
+
+// Make remGoBackToFileList global
+window.remGoBackToFileList = function () {
+    // Close rem modal and reopen file-list modal with stored record
+    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'rem' } }));
+    if (window.currentRecord) {
+        openFileListModal(window.currentRecord);
+    }
+};
+
+// Folder functions moved from folder.js
+function initFolderClicks() {
     const folderContainer = document.getElementById('folderContainer');
     if (!folderContainer) return;
 
@@ -78,7 +147,7 @@ function attachFilters(container) {
         if (!row) return;
 
         const record = JSON.parse(row.dataset.record);
-        openRemModal(record);
+        openFileListModal(record);
     });
 
     filterRows(); // Run once on load
@@ -91,33 +160,7 @@ function attachBackButton(container, originalHTML) {
     backBtn.addEventListener('click', () => {
         container.innerHTML = originalHTML; // restore original folder section
         initFolderClicks(); // reattach click events
-
     });
 }
-
-// Modal functions
-function openRemModal(record) {
-    const setValue = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.value = value ?? '';
-    };
-
-    setValue('rem-docket-no', record.docket_no);
-    setValue('rem-project-name', record.project_name);
-    setValue('rem-status', record.status);
-    setValue('rem-quantity', record.quantity);
-    setValue('rem-remarks', record.remarks ?? '');
-
-    // Open modal
-    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'rem' } }));
-}
-
-function closeRemModal() {
-    // Close modal
-    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'rem' } }));
-}
-
-// Make closeRemModal global
-window.closeRemModal = closeRemModal;
 
 document.addEventListener('DOMContentLoaded', initFolderClicks);

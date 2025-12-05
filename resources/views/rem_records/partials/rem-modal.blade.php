@@ -2,11 +2,11 @@
 <x-modal name="rem" maxWidth="6xl">
     <button
         class="ml-2 mt-2 flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
-        onclick="closeRemModal()">
+        onclick="remGoBackToFileList()">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
-        Close
+        Back
     </button>
     <div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
 
@@ -45,7 +45,8 @@
                     id="rem-remarks" placeholder="Remarks" readonly></textarea>
             </div>
 
-            <button class="mx-auto mt-4 block rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-green-700">EDIT</button>
+            <button
+                class="mx-auto mt-4 block rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-green-700">EDIT</button>
         </div>
 
         <!-- File Section -->
@@ -55,9 +56,12 @@
                 style="background-image: url('https://via.placeholder.com/300x400?text=File+Preview')"></div>
             <div class="mb-4 mt-2 text-sm font-medium text-gray-800" id="rem-file-label"></div>
             <div class="flex gap-3">
-                <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700">IMPORT FILE</button>
-                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT FILE</button>
-                <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE FILE</button>
+                <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700">IMPORT
+                    FILE</button>
+                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
+                    FILE</button>
+                <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
+                    FILE</button>
             </div>
         </div>
     </div>
