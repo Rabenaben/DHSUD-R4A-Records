@@ -42,19 +42,20 @@
                 @endforeach
             </div>
 
-            <!-- Recently Opened Documents -->
+            <!-- Recent Activity Logs -->
             <div class="rounded-lg shadow-md">
-                <h2 class="mb-4 text-xl font-bold">Recently Opened Documents</h2>
+                <h2 class="mb-4 text-xl font-bold">Recent Activity Logs</h2>
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 text-center text-sm">
                         <thead class="bg-gray-800 text-white">
                             <tr>
+                                <th class="border border-gray-300 px-4 py-2">Docket No.</th>
                                 <th class="border border-gray-300 px-4 py-2">File Name</th>
-                                <th class="border border-gray-300 px-4 py-2">File Type</th>
                                 <th class="border border-gray-300 px-4 py-2">File Location</th>
                                 <th class="border border-gray-300 px-4 py-2">Date &amp; Time</th>
                                 <th class="border border-gray-300 px-4 py-2">Action</th>
+                                <th class="border border-gray-300 px-4 py-2">User</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white text-gray-700">
@@ -64,15 +65,18 @@
                                 <td class="border border-gray-300 px-4 py-2">-</td>
                                 <td class="border border-gray-300 px-4 py-2">-</td>
                                 <td class="border border-gray-300 px-4 py-2">-</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
                                 <td class="border border-gray-300 px-4 py-2">-</td>
                             </tr>
                             <tr>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">-</td>
                                 <td class="border border-gray-300 px-4 py-2">-</td>
                                 <td class="border border-gray-300 px-4 py-2">-</td>
                                 <td class="border border-gray-300 px-4 py-2">-</td>
