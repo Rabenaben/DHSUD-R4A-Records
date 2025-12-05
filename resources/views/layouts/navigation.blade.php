@@ -85,6 +85,13 @@
             </li>
 
             <li>
+                <x-nav-link :href="route('borrowers')" :active="request()->routeIs('borrowers')">
+                    <i class="bi bi-person-lines-fill h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">Borrowers</span>
+                </x-nav-link>
+            </li>
+
+            <li>
                 <x-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
                     <i class="bi bi-people h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
                     <span class="ms-3">Accounts</span>
