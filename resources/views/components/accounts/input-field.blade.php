@@ -3,9 +3,7 @@
 <div>
     <label class="block text-sm font-medium text-gray-700" for="{{ $name }}">
         {{ $label }}
-        @if ($required)
-            <span class="text-red-500">*</span>
-        @endif
+        <x-accounts.input-required-mark :required="$required" />
     </label>
 
     <input id="{{ $attributes->get('id', $name) }}" type="{{ $type }}" name="{{ $name }}"

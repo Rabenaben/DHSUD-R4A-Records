@@ -13,7 +13,7 @@
                     <x-accounts.input-field id="edit-username" label="Username" name="username" required />
                     <x-accounts.select-field id="edit-role" label="Role" name="role" :options="['Admin', 'Staff']" required />
                     <x-accounts.select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks"
-                        :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" />
+                        :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" required />
                 </div>
 
                 <div class="mt-6 flex justify-end">

@@ -34,9 +34,14 @@ class Toast {
         const toastIcon = document.getElementById('toast-icon');
         const toastMessage = document.getElementById('toast-message');
 
-        // Remove any existing top bar to avoid duplicates
-        const existingBar = toastContent.querySelector('.toast-top-bar');
-        if (existingBar) existingBar.remove();
+        // Hide any currently displayed toast to prevent stacking
+        if (!toast.classList.contains('hidden')) {
+            toast.classList.add('hidden', 'translate-x-full');
+            toast.classList.remove('translate-x-0');
+        }
+
+        // Fully reset toast content to prevent height accumulation
+        toastContent.innerHTML = '';
 
         // Create top colored bar div
         const topBar = document.createElement('div');
