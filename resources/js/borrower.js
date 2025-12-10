@@ -6,6 +6,8 @@ function initBorrowerRecords() {
     const addRecordBtn = document.getElementById('add-record-btn');
     const borrowerForm = document.getElementById('borrower-form');
     const cancelBtn = document.getElementById('cancel-btn');
+    const fileLocationSelect = document.getElementById('file-location');
+    const docketInput = document.getElementById('docket-no');
 
     if (!searchInput || !tableBody) return;
 
@@ -31,6 +33,18 @@ function initBorrowerRecords() {
             } else {
                 noRecordsRow.classList.remove('hidden');
             }
+        }
+    };
+
+    // Filter Docket List based on File Location
+    const filterDocketList = () => {
+        const selectedLocation = fileLocationSelect.value;
+        if (selectedLocation === 'HOA Records') {
+            docketInput.setAttribute('list', 'hoa-docket-list');
+        } else if (selectedLocation === 'REM Records') {
+            docketInput.setAttribute('list', 'rem-docket-list');
+        } else {
+            docketInput.removeAttribute('list');
         }
     };
 
@@ -87,6 +101,10 @@ function initBorrowerRecords() {
     };
 
     searchInput.addEventListener('input', filterTable);
+
+    if (fileLocationSelect) {
+        fileLocationSelect.addEventListener('change', filterDocketList);
+    }
 
     if (addRecordBtn) {
         addRecordBtn.addEventListener('click', openModal);
