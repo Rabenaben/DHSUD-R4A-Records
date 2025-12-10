@@ -99,10 +99,16 @@ class DisplayController extends Controller
         $recordStatuses = RecordStatus::all();
         $nextId = Borrower::max('id') + 1;
 
+        // Get unique docket numbers from HOA and REM databases
+        $hoaDockets = HoaDatabase::pluck('docket_no')->unique()->sort()->values();
+        $remDockets = RemDatabase::pluck('docket_no')->unique()->sort()->values();
+
         return view('borrowers.borrower', [
             'borrowers' => $borrowers,
             'recordStatuses' => $recordStatuses,
             'nextId' => $nextId,
+            'hoaDockets' => $hoaDockets,
+            'remDockets' => $remDockets,
         ]);
     }
 
