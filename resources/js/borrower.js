@@ -49,7 +49,7 @@ function initBorrowerRecords() {
     };
 
     // Open modal
-    const openModal = () => {
+    let openModal = () => {
         window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrower' } }));
     };
 

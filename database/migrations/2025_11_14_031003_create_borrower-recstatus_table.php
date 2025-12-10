@@ -13,16 +13,20 @@ return new class extends Migration
     {
         Schema::create('borrowers', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->string('region', 100)->nullable();
             $table->string('borrower_name')->index('idx_borrower_name');
-            $table->text('remarks')->nullable();
             $table->date('date_borrowed')->nullable();
             $table->date('date_returned')->nullable();
             $table->string('docket_number', 100)->nullable()->index('idx_borrower_docket');
             $table->integer('status_id')->nullable()->index('idx_borrower_status');
+            $table->string('file_location')->nullable();
         });
 
         Schema::create('record_status', function (Blueprint $table) {
+            $table->integer('id', true);
+            $table->string('status_name', 100);
+        });
+
+        Schema::create('borrower_status', function (Blueprint $table) {
             $table->integer('id', true);
             $table->string('status_name', 100);
         });
@@ -35,5 +39,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('borrowers');
         Schema::dropIfExists('record_status');
+        Schema::dropIfExists('borrower_status');
     }
 };

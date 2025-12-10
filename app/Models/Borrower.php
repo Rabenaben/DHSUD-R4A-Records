@@ -22,8 +22,8 @@ class Borrower extends Model
         'date_returned',
     ];
 
-    public function recordStatus()
+    public function borrowerStatus()
     {
-        return $this->belongsTo(RecordStatus::class, 'status_id');
+        return $this->belongsTo(BorrowerStatus::class, 'status_id');
     }
 }

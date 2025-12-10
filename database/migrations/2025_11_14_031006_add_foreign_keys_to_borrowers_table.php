@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('borrowers', function (Blueprint $table) {
-            $table->foreign(['status_id'], 'borrowers_ibfk_1')->references(['id'])->on('record_status')->onUpdate('no action')->onDelete('no action');
+            $table->foreign(['status_id'], 'borrowers_ibfk_1')->references(['id'])->on('borrower_status')->onUpdate('no action')->onDelete('no action');
             $table->foreign(['docket_number'], 'borrowers_ibfk_2')->references(['docket_no'])->on('hoa_database')->onUpdate('no action')->onDelete('no action');
         });
     }
