@@ -8,12 +8,9 @@
     <div class="mx-auto max-w-7xl p-4">
 
         <!-- Section Header Card -->
-        <div class="relative bg-transparent">
-            <h2 class="text-2xl font-bold tracking-wide text-black">{{ __('Documents Summary') }}</h2>
-            <div class="mt-2 border-b-2 border-gray-600"></div>
-        </div>
+        <x-section-header :title="__('Documents Summary')" />
 
-        <div class="space-y-8">
+        <div class="space-y-4">
 
             <!-- Stats Grid -->
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">

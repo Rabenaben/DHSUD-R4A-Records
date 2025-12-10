@@ -1,4 +1,4 @@
-<div class="rounded-xl border border-gray-300 bg-amber-50 p-6 shadow">
+<div class="rounded-xl border border-gray-300 bg-amber-50 p-2 shadow">
     <div class="grid grid-cols-2 justify-items-center gap-4 sm:grid-cols-3 md:grid-cols-6">
         @foreach ($provinces as $province)
             <div class="folder flex cursor-pointer flex-col items-center space-y-2 transition-transform duration-300 hover:scale-110"

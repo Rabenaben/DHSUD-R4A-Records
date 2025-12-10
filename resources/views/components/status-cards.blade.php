@@ -14,7 +14,7 @@
     ];
 @endphp
 
-<div class="mt-2 flex flex-wrap gap-2">
+<div class="mt-3 flex flex-wrap gap-2">
     @foreach ($cards as $key => $card)
         <div class="flex flex-1 rounded-lg bg-white shadow"> <!-- ← added bg-white -->
             <!-- Colored left bar -->
