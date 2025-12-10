@@ -14,9 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch { showToast('Network error', 'error'); return null; }
     };
 
-    const getActionBtn = user => user.status === 'active'
-        ? `<button class="archive-btn text-red-600 hover:text-red-900" data-id="${user.id}" data-action="archive">Archive</button>`
-        : `<button class="archive-btn text-green-600 hover:text-green-900" data-id="${user.id}" data-action="unarchive">Unarchive</button>`;
+
 
     const updateRow = (row, user) => {
         const cells = row.cells;
@@ -24,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cells[2].textContent = user.username;
         cells[3].textContent = user.role;
         cells[4].textContent = user.status.charAt(0).toUpperCase() + user.status.slice(1);
-        cells[5].innerHTML = getActionBtn(user);
-        cells[6].textContent = user.remarks || '';
+        cells[5].textContent = user.remarks || '';
         row.setAttribute('data-user', JSON.stringify(user));
     };
 
@@ -42,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <td class="px-6 py-4 text-center text-sm text-gray-500">${user.username}</td>
             <td class="px-6 py-4 text-center text-sm text-gray-500">${user.role}</td>
             <td class="px-6 py-4 text-center text-sm text-gray-500">${status}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${getActionBtn(user)}</td>
             <td class="px-6 py-4 text-center text-sm text-gray-500">${user.remarks || ''}</td>
             <td class="px-6 py-4 text-center text-sm text-gray-500">
                 <button class="edit-btn text-blue-600 hover:text-blue-900" data-id="${user.id}">Edit</button>
@@ -105,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (table) table.addEventListener('click', async e => {
         const editBtn = e.target.closest('.edit-btn');
-        const archiveBtn = e.target.closest('.archive-btn');
         if (editBtn) {
             const user = JSON.parse(editBtn.closest('tr').dataset.user);
             document.getElementById('edit-name').value = user.name;
@@ -113,13 +108,25 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('edit-role').value = user.role;
             document.getElementById('edit-remarks').value = user.remarks ?? '';
             document.getElementById('edit-user-form').action = `/users/${user.id}`;
+            const archiveBtn = document.getElementById('archive-btn');
+            archiveBtn.textContent = user.status === 'active' ? 'Archive' : 'Unarchive';
+            archiveBtn.dataset.id = user.id;
+            archiveBtn.dataset.action = user.status === 'active' ? 'archive' : 'unarchive';
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'edit-user-modal' } }));
-        } else if (archiveBtn) {
-            const id = archiveBtn.dataset.id;
-            const action = archiveBtn.dataset.action;
-            const row = archiveBtn.closest('tr');
-            const result = await sendAjaxRequest(`/users/${id}/${action}`, 'PATCH');
-            if (result) updateRow(row, result.user);
+        }
+    });
+
+    const archiveBtn = document.getElementById('archive-btn');
+    if (archiveBtn) archiveBtn.addEventListener('click', async () => {
+        const id = archiveBtn.dataset.id;
+        const action = archiveBtn.dataset.action;
+        const result = await sendAjaxRequest(`/users/${id}/${action}`, 'PATCH');
+        if (result) {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (row) updateRow(row, result.user);
+            // Update button text and action
+            archiveBtn.textContent = result.user.status === 'active' ? 'Archive' : 'Unarchive';
+            archiveBtn.dataset.action = result.user.status === 'active' ? 'archive' : 'unarchive';
         }
     });
 

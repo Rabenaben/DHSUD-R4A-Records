@@ -21,6 +21,9 @@
                         x-on:click="window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'edit-user-modal' } }))">
                         Cancel
                     </button>
+                    <button id="archive-btn" class="mr-3 rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-900" type="button">
+                        Archive
+                    </button>
                     <button class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-900" type="submit">
                         Update User
                     </button>
