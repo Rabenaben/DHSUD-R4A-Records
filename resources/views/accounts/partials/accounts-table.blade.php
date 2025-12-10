@@ -1,6 +1,6 @@
 <section>
     <!-- Filters, Search, and Add User -->
-    <div class="mt-6 flex items-center justify-between bg-white p-4 shadow-sm sm:rounded-lg">
+    <div class="mt-2 flex items-center justify-between bg-white p-4 shadow-sm sm:rounded-lg">
         <div class="flex items-center space-x-4">
             <input class="rounded-md border border-gray-300 px-3 py-2 text-sm" id="search-name" type="text"
                 placeholder="Enter name...">

@@ -7,10 +7,7 @@
 
     <div class="mx-auto max-w-7xl p-4">
         <!-- Section Header Card -->
-        <div class="relative bg-transparent">
-            <h2 class="text-2xl font-bold tracking-wide text-black">{{ __('List of Accounts') }}</h2>
-            <div class="mt-2 border-b-2 border-gray-700"></div>
-        </div>
+        <x-section-header :title="__('List of Accounts')" />
 
         <!-- Filters, Search, and Add User -->
         @include('accounts.partials.accounts-table')

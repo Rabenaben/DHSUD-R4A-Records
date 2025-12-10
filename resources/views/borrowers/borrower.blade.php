@@ -8,14 +8,11 @@
 
     <div class="mx-auto max-w-7xl p-4">
         <!-- Section Header Card -->
-        <div class="relative bg-transparent">
-            <h2 class="text-2xl font-bold tracking-wide text-black">{{ __('Borrower Records') }}</h2>
-            <div class="mt-2 border-b-2 border-gray-600"></div>
-        </div>
+        <x-section-header :title="__('Borrower Records')" />
 
-        <div class="space-y-8">
+        <div class="space-y-4">
             <!-- Search Bar -->
-            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="mb-4 mt-2 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 min-w-0 flex-1">
                     <input
                         class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
