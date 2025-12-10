@@ -20,7 +20,7 @@
                     <input
                         class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
                         id="searchInput" type="text"
-                        placeholder="Search by ID, Borrower Name, Status, or Remarks...">
+                        placeholder="Search by ID, Borrower Name...">
                 </div>
                 <button
                     id="add-record-btn"
@@ -36,21 +36,17 @@
                         <tr>
                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Borrower Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($borrowers as $borrower)
-                        <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}" data-status="{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}" data-remarks="{{ $borrower->remarks }}" onclick="showBorrowerDetails({{ $borrower->id }})" style="cursor: pointer;">
+                        <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}" onclick="showBorrowerDetails({{ $borrower->id }})" style="cursor: pointer;">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $borrower->borrower_name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->recordStatus ? $borrower->recordStatus->status_name : 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $borrower->remarks }}</td>
                         </tr>
                         @endforeach
                         <tr id="noRecordsRow" class="hidden">
-                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No records found.</td>
+                            <td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500">No records found.</td>
                         </tr>
                     </tbody>
                 </table>
