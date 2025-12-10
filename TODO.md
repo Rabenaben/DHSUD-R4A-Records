@@ -1,1 +1,1 @@
-- [ ] Edit `resources/views/components/status-cards.blade.php` to add hover effect classes (`hover:transform hover:-translate-y-2 transition-transform duration-200`) to the card div for upward movement on hover.
+- [x] Add custom confirmation modal for archive/unarchive in edit-user.blade.php and update JS to use it

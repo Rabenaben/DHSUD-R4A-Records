@@ -31,4 +31,21 @@
             </form>
         </div>
     </x-modal>
+
+    <!-- Confirm Archive/Unarchive Modal -->
+    <x-modal name="confirm-archive-modal" maxWidth="sm">
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900">Confirm Action</h2>
+            <p id="confirm-message" class="mt-4 text-sm text-gray-600">Are you sure you want to archive this user?</p>
+            <div class="mt-6 flex justify-end">
+                <button class="mr-3 rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400" type="button"
+                    x-on:click="window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-modal' } }))">
+                    No
+                </button>
+                <button id="confirm-yes-btn" class="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-900" type="button">
+                    Yes
+                </button>
+            </div>
+        </div>
+    </x-modal>
 </section>
