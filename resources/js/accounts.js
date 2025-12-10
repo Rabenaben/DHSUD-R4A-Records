@@ -117,7 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const archiveBtn = document.getElementById('archive-btn');
-    if (archiveBtn) archiveBtn.addEventListener('click', async () => {
+    if (archiveBtn) archiveBtn.addEventListener('click', () => {
+        const id = archiveBtn.dataset.id;
+        const action = archiveBtn.dataset.action;
+        const confirmMessage = `Are you sure you want to ${action} this user?`;
+        document.getElementById('confirm-message').textContent = confirmMessage;
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-archive-modal' } }));
+    });
+
+    const confirmYesBtn = document.getElementById('confirm-yes-btn');
+    if (confirmYesBtn) confirmYesBtn.addEventListener('click', async () => {
         const id = archiveBtn.dataset.id;
         const action = archiveBtn.dataset.action;
         const result = await sendAjaxRequest(`/users/${id}/${action}`, 'PATCH');
@@ -127,6 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update button text and action
             archiveBtn.textContent = result.user.status === 'active' ? 'Archive' : 'Unarchive';
             archiveBtn.dataset.action = result.user.status === 'active' ? 'archive' : 'unarchive';
+            // Close both modals after successful action
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-modal' } }));
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'edit-user-modal' } }));
         }
     });
 
