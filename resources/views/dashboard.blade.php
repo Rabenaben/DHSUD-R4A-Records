@@ -15,7 +15,7 @@
             <!-- Stats Grid -->
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
                 @foreach ($cards as $card)
-                    <div class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow">
+                    <div class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow hover:transform hover:-translate-y-2 transition-transform duration-200">
 
                         <!-- LEFT COLORED BAR -->
                         <div
