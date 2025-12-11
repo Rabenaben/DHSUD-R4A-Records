@@ -26,7 +26,10 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     // Borrower routes (BorrowerController)
     Route::controller(BorrowerController::class)->group(function () {
         Route::get('/borrowers/{id}', 'showBorrower')->name('borrowers.show');
+        Route::get('/borrowers/history/{borrowerName}', 'getBorrowerHistory')->name('borrowers.history');
         Route::post('/borrowers', 'storeBorrower')->name('borrowers.store');
+        Route::patch('/borrowers/{id}', 'updateBorrower')->name('borrowers.update');
+        Route::patch('/borrowers/{id}/return', 'updateReturnedDate')->name('borrowers.update.return');
     });
 
     // User management routes (UserController)

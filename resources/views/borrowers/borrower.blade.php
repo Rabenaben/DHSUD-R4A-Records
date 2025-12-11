@@ -43,7 +43,9 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @forelse ($borrowers as $borrower)
                             <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
-                                onclick="showBorrowerDetails({{ $borrower->id }})" style="cursor: pointer;">
+                                data-docket-number="{{ $borrower->docket_number }}" data-file-location="{{ $borrower->file_location }}"
+                                data-date-borrowed="{{ $borrower->date_borrowed }}" data-date-returned="{{ $borrower->date_returned }}"
+                                data-status="{{ $borrower->status }}">
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $borrower->id }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                                     {{ $borrower->borrower_name }}</td>
@@ -64,6 +66,11 @@
 
     @include('borrowers.partials.borrower-modal', [
         'nextId' => $nextId,
+        'hoaDockets' => $hoaDockets,
+        'remDockets' => $remDockets,
+    ])
+
+    @include('borrowers.partials.borrower-record-history-modal', [
         'hoaDockets' => $hoaDockets,
         'remDockets' => $remDockets,
     ])
