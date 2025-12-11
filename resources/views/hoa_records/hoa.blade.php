@@ -32,7 +32,8 @@
             <x-hoa.records-table :records="$hoaRecords ?? []" />
         </div>
 
-        @include('hoa_records.partials.file-list-modal')
         @include('hoa_records.partials.hoa-modal')
-        @include('hoa_records.partials.add-file-modal')
+        <x-add-file-modal />
+        <x-file-list-modal />
+        
 </x-app-layout>
