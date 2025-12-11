@@ -122,5 +122,9 @@ class DisplayController extends Controller
         ]);
     }
 
-
+    // 🔹 Archived Files Dashboard
+    public function archivedDashboard()
+    {
+        return view('archive.archive');
+    }
 }
