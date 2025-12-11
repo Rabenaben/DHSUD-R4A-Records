@@ -134,4 +134,10 @@ class DisplayController extends Controller
             'type' => 'REM'
         ]);
     }
+
+    // 🔹 Archived Files Dashboard
+    public function archivedDashboard()
+    {
+        return view('archive.archive');
+    }
 }
