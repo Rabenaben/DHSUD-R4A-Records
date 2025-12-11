@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BorrowerController;
 
 // 🔹 Public route
 Route::get('/', fn() => view('welcome'));
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/hoa_records', 'hoaDashboard')->name('hoa_records');
         Route::get('/borrowers', 'borrowerDashboard')->name('borrowers');
         Route::get('/rem/folder/{province}', 'loadFolder')->name('folder.load');
+    });
+
+    // Borrower routes (BorrowerController)
+    Route::controller(BorrowerController::class)->group(function () {
+        Route::get('/borrowers/{id}', 'showBorrower')->name('borrowers.show');
+        Route::post('/borrowers', 'storeBorrower')->name('borrowers.store');
     });
 
     // User management routes (UserController)

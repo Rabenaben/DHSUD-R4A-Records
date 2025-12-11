@@ -7,10 +7,17 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    const ROLES = ['Admin', 'Staff'];
+    const DIVISIONS = ['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD'];
+    
     public function index()
     {
         $users = User::all();
-        return view('accounts.user', compact('users'));
+        return view('accounts.user', [
+            'users' => $users,
+            'roles' => self::ROLES,
+            'divisions' => self::DIVISIONS
+        ]);
     }
 
     public function store(Request $request)

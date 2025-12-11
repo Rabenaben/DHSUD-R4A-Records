@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch { showToast('Network error', 'error'); return null; }
     };
 
-
-
     const updateRow = (row, user) => {
         const cells = row.cells;
         cells[1].textContent = user.name;
@@ -26,24 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
         row.setAttribute('data-user', JSON.stringify(user));
     };
 
+    const showToastOnLoad = () => {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            const successMessage = document.body.dataset.successMessage;
+            if (successMessage) {
+                showToast(successMessage, 'success');
+            }
+        } else {
+            setTimeout(showToastOnLoad, 100);
+        }
+    };
+
     const addNewRow = user => {
         const tbody = table.querySelector('tbody');
         const accountNo = String(tbody.rows.length + 1).padStart(3, '0');
-        const status = user.status.charAt(0).toUpperCase() + user.status.slice(1);
         const newRow = document.createElement('tr');
         newRow.setAttribute('data-id', user.id);
         newRow.setAttribute('data-user', JSON.stringify(user));
-        newRow.innerHTML = `
-            <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${accountNo}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.name}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.username}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.role}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${status}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.remarks || ''}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">
-                <button class="edit-btn text-blue-600 hover:text-blue-900" data-id="${user.id}">Edit</button>
-            </td>
-        `;
+        newRow.innerHTML = createUserRowHTML(user, accountNo);
         tbody.appendChild(newRow);
     };
 
@@ -60,6 +59,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!regex.test(password)) return showToast('Password must be at least 8 characters and include uppercase, lowercase, number, and special character', 'error'), false;
         }
         return true;
+    };
+
+    const createUserRowHTML = (user, accountNo) => {
+        const status = user.status.charAt(0).toUpperCase() + user.status.slice(1);
+        return `
+            <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${accountNo}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.name}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.username}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.role}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-500">${status}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.remarks || ''}</td>
+            <td class="px-6 py-4 text-center text-sm text-gray-500">
+                <button class="edit-btn text-blue-600 hover:text-blue-900" data-id="${user.id}">Edit</button>
+            </td>
+        `;
     };
 
     if (statusFilter && searchInput && table) {
@@ -143,4 +157,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (addUserBtn) addUserBtn.addEventListener('click', () => window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-user-modal' } })));
+
+    // Initialize password strength checker for add-user modal
+    const initPasswordStrengthChecker = () => {
+        const pwInput = document.getElementById('password-input');
+        if (!pwInput) return;
+        const bar = document.getElementById('password-strength-bar');
+        const items = Array.from(document.querySelectorAll('#password-requirements li'));
+        const rules = [
+            { rule: 'length', regex: /.{8,}/ },
+            { rule: 'uppercase', regex: /[A-Z]/ },
+            { rule: 'lowercase', regex: /[a-z]/ },
+            { rule: 'number', regex: /[0-9]/ },
+            { rule: 'special', regex: /[!@#$%^&*(),.?":{}|<>]/ }
+        ];
+        const getColor = (count) => {
+            if (count === 0) return 'bg-gray-400';
+            if (count === 1) return 'bg-red-500';
+            if (count === 2) return 'bg-yellow-500';
+            if (count === 3 || count === 4) return 'bg-blue-500';
+            return 'bg-green-600';
+        };
+        pwInput.addEventListener('input', () => {
+            let passed = 0;
+            items.forEach(item => {
+                const ok = rules.find(r => r.rule === item.dataset.rule).regex.test(pwInput.value);
+                if (ok) passed++;
+                item.textContent = (ok ? '✅' : '●') + ' ' + item.dataset.text;
+                item.className = ok ? 'text-green-600 text-xs' : 'text-gray-500 text-xs';
+            });
+            bar.style.width = `${(passed / rules.length) * 100}%`;
+            bar.className = `h-2 rounded transition-all duration-300 ${getColor(passed)}`;
+        });
+    };
+
+    initPasswordStrengthChecker();
+
+    // Show toast on page load if success message exists
+    document.addEventListener('DOMContentLoaded', showToastOnLoad);
 });

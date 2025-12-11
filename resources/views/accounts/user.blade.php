@@ -17,17 +17,7 @@
     @include('accounts.partials.edit-user')
 
     @if (session('success'))
-        <script>
-            function showToastOnLoad() {
-                const toast = document.getElementById('toast');
-                if (toast) {
-                    showToast('{{ session('success') }}', 'success');
-                } else {
-                    setTimeout(showToastOnLoad, 100);
-                }
-            }
-            document.addEventListener('DOMContentLoaded', showToastOnLoad);
-        </script>
+        <body data-success-message="{{ session('success') }}">
     @endif
 
 </x-app-layout>

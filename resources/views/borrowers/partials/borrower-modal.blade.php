@@ -2,7 +2,7 @@
 <x-modal name="borrower" maxWidth="4xl">
     <div class="relative p-6">
         <h2 class="mb-4 text-xl font-semibold" id="modal-title">Add New Borrower Record</h2>
-        <form id="borrower-form">
+        <form id="borrower-form" method="POST" action="{{ route('borrowers.store') }}">
             @csrf
             <!-- Borrower's Name -->
             <div class="mb-4 flex gap-4">

@@ -63,7 +63,6 @@
     </div>
 
     @include('borrowers.partials.borrower-modal', [
-        'recordStatuses' => $recordStatuses,
         'nextId' => $nextId,
         'hoaDockets' => $hoaDockets,
         'remDockets' => $remDockets,
