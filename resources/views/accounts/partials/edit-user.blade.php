@@ -11,9 +11,9 @@
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <x-accounts.input-field id="edit-name" label="Name" name="name" required />
                     <x-accounts.input-field id="edit-username" label="Username" name="username" required />
-                    <x-accounts.select-field id="edit-role" label="Role" name="role" :options="['Admin', 'Staff']" required />
+                    <x-accounts.select-field id="edit-role" label="Role" name="role" :options="$roles" required />
                     <x-accounts.select-field class="md:col-span-2" id="edit-remarks" label="Division" name="remarks"
-                        :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']" required />
+                        :options="$divisions" required />
                 </div>
 
                 <div class="mt-6 flex justify-end">
@@ -21,7 +21,8 @@
                         x-on:click="window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'edit-user-modal' } }))">
                         Cancel
                     </button>
-                    <button id="archive-btn" class="mr-3 rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-900" type="button">
+                    <button class="mr-3 rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-900" id="archive-btn"
+                        type="button">
                         Archive
                     </button>
                     <button class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-900" type="submit">
@@ -36,13 +37,14 @@
     <x-modal name="confirm-archive-modal" maxWidth="sm">
         <div class="p-6">
             <h2 class="text-lg font-medium text-gray-900">Confirm Action</h2>
-            <p id="confirm-message" class="mt-4 text-sm text-gray-600">Are you sure you want to archive this user?</p>
+            <p class="mt-4 text-sm text-gray-600" id="confirm-message">Are you sure you want to archive this user?</p>
             <div class="mt-6 flex justify-end">
                 <button class="mr-3 rounded-md bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400" type="button"
                     x-on:click="window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-modal' } }))">
                     No
                 </button>
-                <button id="confirm-yes-btn" class="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-900" type="button">
+                <button class="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-900" id="confirm-yes-btn"
+                    type="button">
                     Yes
                 </button>
             </div>

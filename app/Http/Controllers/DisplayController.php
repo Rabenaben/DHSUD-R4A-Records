@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\RemDatabase;
 use App\Models\HoaDatabase;
 use App\Models\Municipality;
 use App\Models\Borrower;
-use App\Models\RecordStatus;
 
 class DisplayController extends Controller
 {
@@ -59,6 +59,18 @@ class DisplayController extends Controller
         ]);
     }
 
+    public function loadFolder($province)
+    {
+        $records = RemDatabase::where('province', $province)->get();
+        $provinceName = $province;
+
+        return view('rem_records.partials.folder-table', [
+            'records' => $records,
+            'province' => $provinceName,
+            'type' => 'REM'
+        ]);
+    }
+
     // 🔹 HOA Dashboard
     public function hoaDashboard()
     {
@@ -95,8 +107,7 @@ class DisplayController extends Controller
     // 🔹 Borrowers Dashboard
     public function borrowerDashboard()
     {
-        $borrowers = Borrower::with('recordStatus')->get();
-        $recordStatuses = RecordStatus::all();
+        $borrowers = Borrower::get();
         $nextId = Borrower::max('id') + 1;
 
         // Get unique docket numbers from HOA and REM databases
@@ -105,33 +116,9 @@ class DisplayController extends Controller
 
         return view('borrowers.borrower', [
             'borrowers' => $borrowers,
-            'recordStatuses' => $recordStatuses,
             'nextId' => $nextId,
             'hoaDockets' => $hoaDockets,
             'remDockets' => $remDockets,
-        ]);
-    }
-
-    // 🔹 Show Borrower Details
-    public function showBorrower($id)
-    {
-        $borrower = Borrower::with('recordStatus')->findOrFail($id);
-
-        return response()->json([
-            'success' => true,
-            'borrower' => $borrower
-        ]);
-    }
-
-    public function loadFolder($province)
-    {
-        $records = RemDatabase::where('province', $province)->get();
-        $provinceName = $province;
-
-        return view('rem_records.partials.folder-table', [
-            'records' => $records,
-            'province' => $provinceName,
-            'type' => 'REM'
         ]);
     }
 

@@ -7,18 +7,18 @@
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 
                     <x-accounts.input-field label="Name" name="name" required />
-                    <x-accounts.select-field label="Role" name="role" :options="['Admin', 'Staff']" required />
+                    <x-accounts.select-field label="Role" name="role" :options="$roles" required />
                     <x-accounts.input-field label="Username" name="username" required />
-                    <x-accounts.select-field class="md:col-span-2" label="Division" name="remarks" :options="['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD']"
+                    <x-accounts.select-field class="md:col-span-2" label="Division" name="remarks" :options="$divisions"
                         required />
                     <div class="flex flex-col md:col-span-2">
-                    <x-accounts.input-field label="Password" name="password" type="password" id="password-input"
+                        <x-accounts.input-field id="password-input" label="Password" name="password" type="password"
                             required />
 
                         <!-- Strength Bar -->
                         <div class="mt-2 h-2 w-full rounded bg-gray-200">
-                            <div id="password-strength-bar"
-                                class="h-2 w-0 rounded bg-gray-400 transition-all duration-300"></div>
+                            <div class="h-2 w-0 rounded bg-gray-400 transition-all duration-300"
+                                id="password-strength-bar"></div>
                         </div>
 
                         <!-- Password Requirements -->
@@ -46,53 +46,4 @@
         </div>
     </x-modal>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const pwInput = document.getElementById('password-input');
-            const bar = document.getElementById('password-strength-bar');
-            const items = Array.from(document.querySelectorAll('#password-requirements li'));
-            const rules = [{
-                    rule: 'length',
-                    regex: /.{8,}/
-                },
-                {
-                    rule: 'uppercase',
-                    regex: /[A-Z]/
-                },
-                {
-                    rule: 'lowercase',
-                    regex: /[a-z]/
-                },
-                {
-                    rule: 'number',
-                    regex: /[0-9]/
-                },
-                {
-                    rule: 'special',
-                    regex: /[!@#$%^&*(),.?":{}|<>]/
-                }
-            ];
-
-            function getColor(count) {
-                if (count === 0) return 'bg-gray-400';
-                if (count === 1) return 'bg-red-500';
-                if (count === 2) return 'bg-yellow-500';
-                if (count === 3 || count === 4) return 'bg-blue-500';
-                return 'bg-green-600';
-            }
-
-            pwInput.addEventListener('input', () => {
-                let passed = 0;
-                items.forEach(item => {
-                    const ok = rules.find(r => r.rule === item.dataset.rule).regex.test(pwInput
-                        .value);
-                    if (ok) passed++;
-                    item.textContent = (ok ? '✅' : '●') + ' ' + item.dataset.text;
-                    item.className = ok ? 'text-green-600 text-xs' : 'text-gray-500 text-xs';
-                });
-                bar.style.width = `${(passed/rules.length)*100}%`;
-                bar.className = `h-2 rounded transition-all duration-300 ${getColor(passed)}`;
-            });
-        });
-    </script>
 </section>

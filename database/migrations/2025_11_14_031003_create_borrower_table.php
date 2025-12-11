@@ -17,18 +17,9 @@ return new class extends Migration
             $table->date('date_borrowed')->nullable();
             $table->date('date_returned')->nullable();
             $table->string('docket_number', 100)->nullable()->index('idx_borrower_docket');
-            $table->integer('status_id')->nullable()->index('idx_borrower_status');
+            $table->string('status')->nullable();
             $table->string('file_location')->nullable();
-        });
-
-        Schema::create('record_status', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('status_name', 100);
-        });
-
-        Schema::create('borrower_status', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('status_name', 100);
+            $table->timestamps();
         });
     }
 
@@ -38,7 +29,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('borrowers');
-        Schema::dropIfExists('record_status');
-        Schema::dropIfExists('borrower_status');
     }
 };

@@ -13,17 +13,13 @@ class Borrower extends Model
 
     protected $fillable = [
         'borrower_name',
-        'remarks',
-        'status_id',
+        'status',
         'docket_number',
-        'file_name',
         'file_location',
         'date_borrowed',
         'date_returned',
     ];
 
-    public function borrowerStatus()
-    {
-        return $this->belongsTo(BorrowerStatus::class, 'status_id');
-    }
+
+
 }

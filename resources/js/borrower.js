@@ -64,11 +64,7 @@ function initBorrowerRecords() {
 
         const formData = new FormData(borrowerForm);
         const data = Object.fromEntries(formData.entries());
-
-        // Convert status_id to integer
-        if (data.status_id) {
-            data.status_id = parseInt(data.status_id);
-        }
+        data.status = 'Borrowed';
 
         try {
             const response = await fetch('/borrowers', {
@@ -79,6 +75,10 @@ function initBorrowerRecords() {
                 },
                 body: JSON.stringify(data)
             });
+
+            if (!response.ok) {
+                throw new Error('HTTP error ' + response.status);
+            }
 
             const result = await response.json();
 
@@ -91,6 +91,8 @@ function initBorrowerRecords() {
                 if (result.borrower) {
                     addRecordToTable(result.borrower);
                 }
+                // Show success toast
+                window.showToast(result.message, 'success');
             } else {
                 alert('Error saving record: ' + (result.message || 'Unknown error'));
             }
@@ -140,16 +142,16 @@ function initBorrowerRecords() {
         const newRow = document.createElement('tr');
         newRow.setAttribute('data-id', borrower.id);
         newRow.setAttribute('data-borrower-name', borrower.borrower_name);
-        newRow.setAttribute('data-status', borrower.recordStatus ? borrower.recordStatus.status_name : 'N/A');
-        newRow.setAttribute('data-remarks', borrower.remarks || '');
+        newRow.setAttribute('data-status', borrower.status || 'N/A');
         newRow.setAttribute('onclick', `showBorrowerDetails(${borrower.id})`);
         newRow.style.cursor = 'pointer';
 
         newRow.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${borrower.id}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${borrower.recordStatus ? borrower.recordStatus.status_name : 'N/A'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${borrower.remarks || ''}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower(${borrower.id})">Edit</button>
+            </td>
         `;
 
         // Insert at the top of the table
