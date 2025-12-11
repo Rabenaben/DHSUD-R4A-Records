@@ -128,6 +128,23 @@ function openFileListModal(record) {
         tbody.removeEventListener('click', onFileClick); // remove listener to avoid duplicates
     });
 
+    // Add File Button
+    const addFileBtn = document.getElementById('add-file-btn');
+    if (addFileBtn) {
+        addFileBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-file' } }));
+        });
+    }
+
+    // Cancel Add File Button
+    const cancelAddFileBtn = document.getElementById('cancel-add-file-btn');
+    if (cancelAddFileBtn) {
+        cancelAddFileBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
+        });
+    }
+
     // Open modal
     window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'file-list' } }));
 }
