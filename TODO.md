@@ -1,1 +1,2 @@
-- [x] Add custom confirmation modal for archive/unarchive in edit-user.blade.php and update JS to use it
+- [ ] Add file input field to add-file-modal.blade.php for PDF uploads
+- [ ] Verify the modal form handles file uploads correctly

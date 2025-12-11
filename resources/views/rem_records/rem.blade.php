@@ -26,5 +26,6 @@
 
     @include('rem_records.partials.rem-modal')
     @include('rem_records.partials.file-list-modal')
+    @include('rem_records.partials.add-file-modal')
 
 </x-app-layout>
