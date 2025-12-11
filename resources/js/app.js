@@ -4,6 +4,7 @@ import './rem';
 import './accounts';
 import './hoa';
 import './borrower';
+import './archive';
 
 import Alpine from 'alpinejs';
 

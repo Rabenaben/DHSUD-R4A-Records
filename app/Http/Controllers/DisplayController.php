@@ -62,7 +62,7 @@ class DisplayController extends Controller
 
     public function loadFolder($province)
     {
-        $records = RemDatabase::where('province', $province)->get();
+        $records = RemDatabase::where('province', $province)->where('status', '!=', 'ARCHIVED')->get();
         $provinceName = $province;
 
         return view('rem_records.partials.folder-table', [
@@ -138,9 +138,33 @@ class DisplayController extends Controller
     public function archiveRecord($type, $id)
     {
         if ($type === 'hoa') {
-            HoaDatabase::where('id', $id)->update(['status' => 'ARCHIVED']);
+            $record = HoaDatabase::find($id);
+            if ($record) {
+                $record->update([
+                    'previous_status' => $record->status,
+                    'status' => 'ARCHIVED'
+                ]);
+            }
         } elseif ($type === 'rem') {
-            RemDatabase::where('id', $id)->update(['status' => 'ARCHIVED']);
+            $record = RemDatabase::find($id);
+            if ($record) {
+                $record->update([
+                    'previous_status' => $record->status,
+                    'status' => 'ARCHIVED'
+                ]);
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    // 🔹 Unarchive Record
+    public function unarchiveRecord($type, $id)
+    {
+        if ($type === 'hoa') {
+            HoaDatabase::where('id', $id)->update(['status' => 'ON-SHELF']);
+        } elseif ($type === 'rem') {
+            RemDatabase::where('id', $id)->update(['status' => 'ON-SHELF']);
         }
 
         return response()->json(['success' => true]);

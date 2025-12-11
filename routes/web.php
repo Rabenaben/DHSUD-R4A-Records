@@ -21,6 +21,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/archive', 'archivedDashboard')->name('archive');
         Route::get('/rem/folder/{province}', 'loadFolder')->name('folder.load');
         Route::patch('/{type}/{id}/archive', 'archiveRecord')->name('records.archive');
+        Route::patch('/{type}/{id}/unarchive', 'unarchiveRecord')->name('records.unarchive');
     });
 
     // Borrower routes (BorrowerController)
