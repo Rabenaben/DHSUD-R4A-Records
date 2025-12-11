@@ -60,7 +60,7 @@
                     FILE</button>
                 <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
                     FILE</button>
-                <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
+                <button id="archive-rem-btn" class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
                     FILE</button>
             </div>
         </div>

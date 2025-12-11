@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('status', 100)->nullable()->index('idx_rem_status');
             $table->double('quantity')->nullable();
             $table->text('remarks')->nullable();
+            $table->timestamps();
         });
     }
 

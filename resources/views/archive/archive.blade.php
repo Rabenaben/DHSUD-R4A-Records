@@ -9,57 +9,48 @@
         <!-- Section Header Card -->
         <x-section-header :title="__('Archived Documents Summary')" />
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <!-- Left Panel -->
-            <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
-                <h3 class="mb-4 text-lg font-semibold text-red-600">REM Records</h3>
-                <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
-                    <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
-                        <thead class="sticky top-0 bg-red-600">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Docket No</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Project Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Quantity</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-red-50">
-                            <!-- Archived records would go here -->
-                            <tr>
-                                <td class="px-6 py-4 text-center text-sm text-gray-500 italic" colspan="5">
-                                    No archived records found
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
+            <h3 class="mb-4 text-lg font-semibold text-black-600">Archived Records</h3>
+            <!-- Search Filter Bar -->
+            <div class="mb-4 flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
+                <input
+                    class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
+                    id="archiveSearchInput" type="text"
+                    placeholder="Search by Type, Docket No. or Name...">
             </div>
-
-            <!-- Right Panel -->
-            <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
-                <h3 class="mb-4 text-lg font-semibold text-black-600">HOA Records</h3>
-                <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
-                    <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
-                        <thead class="sticky top-0 bg-red-600">
+            <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
+                <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
+                    <thead class="sticky top-0 bg-red-600">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Type</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Docket No</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Name</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-red-50">
+                        @foreach($remArchived ?? [] as $record)
                             <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Docket No</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Project Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Quantity</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Remarks</th>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">REM</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $record->docket_no }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $record->project_name }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-red-50">
-                            <!-- Archived records would go here -->
+                        @endforeach
+                        @foreach($hoaArchived ?? [] as $record)
                             <tr>
-                                <td class="px-6 py-4 text-center text-sm text-gray-500 italic" colspan="5">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">HOA</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $record->docket_no }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $record->hoa_name }}</td>
+                            </tr>
+                        @endforeach
+                        @if(empty($remArchived) && empty($hoaArchived))
+                            <tr>
+                                <td class="px-6 py-4 text-center text-sm text-gray-500 italic" colspan="3">
                                     No archived records found
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                </div>
+                        @endif
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

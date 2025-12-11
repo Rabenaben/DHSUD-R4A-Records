@@ -9,6 +9,8 @@ class HoaDatabase extends Model
     protected $table = 'hoa_database'; // your table name
     protected $primaryKey = 'id';      // primary key
 
+    protected $fillable = ['status'];
+
     public function province()
     {
         return $this->belongsTo(Province::class, 'province_id', 'province_id');

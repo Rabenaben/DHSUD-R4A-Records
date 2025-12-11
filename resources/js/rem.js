@@ -68,6 +68,12 @@ function openRemModal(record, fileName) {
     if (fileLabel) fileLabel.textContent = fileName ?? '';
 
     window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'rem' } }));
+
+    // Attach archive button event
+    const archiveBtn = document.getElementById('archive-rem-btn');
+    if (archiveBtn) {
+        archiveBtn.addEventListener('click', () => archiveRecord('rem', record.id));
+    }
 }
 
 // Make functions global
@@ -177,6 +183,31 @@ function attachBackButton(container, originalHTML) {
     backBtn.addEventListener('click', () => {
         container.innerHTML = originalHTML; // restore original folder section
         initFolderClicks(); // reattach click events
+    });
+}
+
+// Archive record function
+function archiveRecord(type, id) {
+    if (!confirm('Are you sure you want to archive this record?')) return;
+
+    fetch(`/${type}/${id}/archive`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Record archived successfully!');
+        } else {
+            alert('Failed to archive record.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while archiving the record.');
     });
 }
 

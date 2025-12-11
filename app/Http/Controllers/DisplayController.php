@@ -44,8 +44,9 @@ class DisplayController extends Controller
     {
         $data = $this->getCounts(RemDatabase::class);
 
-        // Get all unique provinces from REM table
+        // Get all unique provinces from REM table, excluding archived
         $provinces = RemDatabase::select('province')
+            ->where('status', '!=', 'ARCHIVED')
             ->distinct()
             ->pluck('province')
             ->toArray();
@@ -76,12 +77,14 @@ class DisplayController extends Controller
     {
         $data = $this->getCounts(HoaDatabase::class);
 
-        // Get all HOA records with province and municipality relationships
+        // Get all HOA records with province and municipality relationships, excluding archived
         $hoaRecords = HoaDatabase::with(['province', 'municipality'])
+            ->where('status', '!=', 'ARCHIVED')
             ->get();
 
-        // Get unique province objects
+        // Get unique province objects from non-archived records
         $provinces = HoaDatabase::with('province')
+            ->where('status', '!=', 'ARCHIVED')
             ->get()
             ->pluck('province')
             ->unique('province_id')
@@ -125,6 +128,21 @@ class DisplayController extends Controller
     // 🔹 Archived Files Dashboard
     public function archivedDashboard()
     {
-        return view('archive.archive');
+        $hoaArchived = HoaDatabase::where('status', 'ARCHIVED')->get();
+        $remArchived = RemDatabase::where('status', 'ARCHIVED')->get();
+
+        return view('archive.archive', compact('hoaArchived', 'remArchived'));
+    }
+
+    // 🔹 Archive Record
+    public function archiveRecord($type, $id)
+    {
+        if ($type === 'hoa') {
+            HoaDatabase::where('id', $id)->update(['status' => 'ARCHIVED']);
+        } elseif ($type === 'rem') {
+            RemDatabase::where('id', $id)->update(['status' => 'ARCHIVED']);
+        }
+
+        return response()->json(['success' => true]);
     }
 }
