@@ -49,12 +49,14 @@ function initBorrowerRecords() {
     };
 
     // Open modal
-    let openModal = () => {
+    let openModal = (fromHistory = false, borrowerName = null) => {
+        resetModalForAdding(fromHistory, borrowerName);
         window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrower' } }));
     };
 
     // Close modal
     const closeModal = () => {
+        borrowerForm.reset();
         window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'borrower' } }));
     };
 
@@ -93,6 +95,8 @@ function initBorrowerRecords() {
                 }
                 // Show success toast
                 window.showToast(result.message, 'success');
+                // Open the record history modal for the created borrower
+                window.editBorrower(result.borrower.id);
             } else {
                 alert('Error saving record: ' + (result.message || 'Unknown error'));
             }
@@ -109,7 +113,7 @@ function initBorrowerRecords() {
     }
 
     if (addRecordBtn) {
-        addRecordBtn.addEventListener('click', openModal);
+        addRecordBtn.addEventListener('click', () => openModal(false));
     }
 
     if (borrowerForm) {
@@ -199,7 +203,7 @@ function initBorrowerRecords() {
     };
 
     // Function to reset modal for adding new record
-    const resetModalForAdding = () => {
+    const resetModalForAdding = (fromHistory = false, borrowerName = null) => {
         // Change modal title back
         const modalTitle = document.getElementById('modal-title');
         if (modalTitle) {
@@ -224,6 +228,16 @@ function initBorrowerRecords() {
             }
         });
 
+        // If from history, set borrower name to the provided borrower name and make it readonly
+        if (fromHistory && borrowerName) {
+            const borrowerNameField = document.getElementById('borrower-name');
+            if (borrowerNameField) {
+                borrowerNameField.value = borrowerName;
+                borrowerNameField.setAttribute('readonly', 'readonly');
+                borrowerNameField.classList.add('bg-gray-100');
+            }
+        }
+
         // Show save button, change cancel to Cancel
         const saveBtn = document.getElementById('save-btn');
         const cancelBtn = document.getElementById('cancel-btn');
@@ -231,12 +245,7 @@ function initBorrowerRecords() {
         if (cancelBtn) cancelBtn.textContent = 'Cancel';
     };
 
-    // Override open modal to reset for adding
-    const originalOpenModal = openModal;
-    openModal = () => {
-        resetModalForAdding();
-        originalOpenModal();
-    };
+
 
     // Function to edit borrower (now shows history)
     window.editBorrower = async (id) => {
@@ -259,8 +268,8 @@ function initBorrowerRecords() {
             const result = await response.json();
 
             if (result.success) {
-                populateHistoryModal(result.borrower_name, result.history);
                 window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrower-record-history' } }));
+                setTimeout(() => populateHistoryModal(result.borrower_name, result.history), 100);
             } else {
                 alert('Error loading borrower history: ' + (result.message || 'Unknown error'));
             }
@@ -289,6 +298,15 @@ function initBorrowerRecords() {
 
         // Set borrower name in form
         document.getElementById('history-borrower-name').value = borrowerName;
+
+        // Add event listener for add new record button
+        const addNewRecordBtn = document.getElementById('add-new-record-btn');
+        if (addNewRecordBtn) {
+            addNewRecordBtn.addEventListener('click', () => {
+                closeHistoryModal();
+                openModal(true, borrowerName); // Pass borrowerName from history
+            });
+        }
     };
 
     // Function to render history table with current page

@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('region')->nullable();
 
             $table->index(['docket_no'], 'idx_hoa_docket_no');
+
+            $table->timestamps();
         });
 
         // Create rem table

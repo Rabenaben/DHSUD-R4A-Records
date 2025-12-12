@@ -92,16 +92,16 @@
             </li>
 
             <li>
-                <x-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
-                    <i class="bi bi-people h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
-                    <span class="ms-3">Accounts</span>
+                <x-nav-link :href="route('archive')" :active="request()->routeIs('archive')">
+                    <i class="bi bi-archive h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">Archived Files</span>
                 </x-nav-link>
             </li>
 
             <li>
-                <x-nav-link :href="route('archive')" :active="request()->routeIs('archive')">
-                    <i class="bi bi-archive h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
-                    <span class="ms-3">Archived Files</span>
+                <x-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
+                    <i class="bi bi-people h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">Accounts</span>
                 </x-nav-link>
             </li>
         </ul>

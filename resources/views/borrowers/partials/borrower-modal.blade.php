@@ -11,6 +11,7 @@
                     <x-modal-input id="borrower-name" name="borrower_name" placeholder="Borrower's Name" required />
                 </div>
             </div>
+            <input type="hidden" id="existing-borrower-name" value="">
 
             <!-- Docket No. and File Location -->
             <div class="mb-4 flex gap-4">

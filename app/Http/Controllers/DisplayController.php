@@ -110,7 +110,7 @@ class DisplayController extends Controller
     // 🔹 Borrowers Dashboard
     public function borrowerDashboard()
     {
-        $borrowers = Borrower::get();
+        $borrowers = Borrower::orderBy('date_borrowed', 'desc')->get()->unique('borrower_name');
         $nextId = Borrower::max('id') + 1;
 
         // Get unique docket numbers from HOA and REM databases
@@ -131,42 +131,6 @@ class DisplayController extends Controller
         $hoaArchived = HoaDatabase::where('status', 'ARCHIVED')->get();
         $remArchived = RemDatabase::where('status', 'ARCHIVED')->get();
 
-        return view('archive.archive', compact('hoaArchived', 'remArchived'));
-    }
-
-    // 🔹 Archive Record
-    public function archiveRecord($type, $id)
-    {
-        if ($type === 'hoa') {
-            $record = HoaDatabase::find($id);
-            if ($record) {
-                $record->update([
-                    'previous_status' => $record->status,
-                    'status' => 'ARCHIVED'
-                ]);
-            }
-        } elseif ($type === 'rem') {
-            $record = RemDatabase::find($id);
-            if ($record) {
-                $record->update([
-                    'previous_status' => $record->status,
-                    'status' => 'ARCHIVED'
-                ]);
-            }
-        }
-
-        return response()->json(['success' => true]);
-    }
-
-    // 🔹 Unarchive Record
-    public function unarchiveRecord($type, $id)
-    {
-        if ($type === 'hoa') {
-            HoaDatabase::where('id', $id)->update(['status' => 'ON-SHELF']);
-        } elseif ($type === 'rem') {
-            RemDatabase::where('id', $id)->update(['status' => 'ON-SHELF']);
-        }
-
-        return response()->json(['success' => true]);
+        return view('archived.archive', compact('hoaArchived', 'remArchived'));
     }
 }

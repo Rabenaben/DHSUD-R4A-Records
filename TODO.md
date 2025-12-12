@@ -1,3 +1,4 @@
-- [x] Add missing unarchive route in routes/web.php for DisplayController
-- [x] Update unarchiveRecord method in DisplayController.php to restore to previous_status
-- [ ] Test the unarchive functionality
+# TODO: Display One Borrower Record Per User
+
+- [ ] Modify DisplayController.php to fetch unique borrowers by borrower_name, using the latest record (ordered by date_borrowed desc)
+- [ ] Test the borrower table to ensure only one record per borrower is displayed

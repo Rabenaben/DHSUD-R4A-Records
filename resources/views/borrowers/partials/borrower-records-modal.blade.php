@@ -15,6 +15,7 @@
         <!-- Borrower's Name -->
         <div class="mb-6">
             <h3 class="text-lg font-medium text-gray-900" id="borrower-name-display">Borrower's Name</h3>
+            <input type="hidden" id="history-borrower-name" name="borrower_name">
         </div>
 
         <!-- Borrowing History Table -->
@@ -56,58 +57,16 @@
             </div>
         </div>
 
-        <!-- Add New Record Form -->
+        <!-- Add New Borrowing Record Button -->
         <div class="border-t pt-6">
-            <h4 class="text-md font-medium text-gray-700 mb-4">Add New Borrowing Record</h4>
-            <form id="borrower-history-form" method="POST" action="/borrowers">
-                @csrf
-                <input type="hidden" id="history-borrower-name" name="borrower_name">
-
-                <!-- Docket No. and File Location -->
-                <div class="mb-4 flex gap-4">
-                    <div class="flex-1">
-                        <x-input-label value="Docket No." />
-                        <x-modal-input id="history-docket-no" name="docket_number" placeholder="Docket No." list="history-hoa-docket-list" required />
-                        <datalist id="history-hoa-docket-list">
-                            @foreach($hoaDockets as $docket)
-                                <option value="{{ $docket }}">
-                            @endforeach
-                        </datalist>
-                        <datalist id="history-rem-docket-list">
-                            @foreach($remDockets as $docket)
-                                <option value="{{ $docket }}">
-                            @endforeach
-                        </datalist>
-                    </div>
-                    <div class="flex-1">
-                        <x-input-label value="File Location" />
-                        <select
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            id="history-file-location" name="file_location" required>
-                            <option value="">Select File Location</option>
-                            <option value="REM Records">REM Records</option>
-                            <option value="HOA Records">HOA Records</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Date Borrowed -->
-                <div class="mb-4">
-                    <x-input-label value="Date Borrowed" />
-                    <input
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        id="history-date-borrowed" type="datetime-local" name="date_borrowed" required />
-                </div>
-
-                <!-- Buttons -->
-                <div class="flex justify-end gap-4">
-                    <button class="rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-400"
-                        id="history-cancel-btn" type="button">Cancel</button>
-                    <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                        id="history-save-btn" type="submit">Add Record</button>
-                </div>
-            </form>
+            <div class="flex justify-end">
+                <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    id="add-new-record-btn" type="button">
+                    Add New Borrowing Record
+                </button>
+            </div>
         </div>
+
     </div>
 </x-modal>
 

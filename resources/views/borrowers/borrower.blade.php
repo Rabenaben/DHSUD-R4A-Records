@@ -70,7 +70,7 @@
         'remDockets' => $remDockets,
     ])
 
-    @include('borrowers.partials.borrower-record-history-modal', [
+    @include('borrowers.partials.borrower-records-modal', [
         'hoaDockets' => $hoaDockets,
         'remDockets' => $remDockets,
     ])

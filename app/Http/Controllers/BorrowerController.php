@@ -22,7 +22,7 @@ class BorrowerController extends Controller
     public function storeBorrower(Request $request)
     {
         $validated = $request->validate([
-            'borrower_name' => 'required|string|max:255|unique:borrowers,borrower_name',
+            'borrower_name' => 'required|string|max:255',
             'docket_number' => 'required|string|max:100',
             'file_location' => 'required|string|max:255',
             'date_borrowed' => 'required|date',
