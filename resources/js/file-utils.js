@@ -357,3 +357,41 @@ function exportFile(type) {
 
 // Initialize file upload handler if form exists
 handleFileUpload();
+
+// Reset add-file form when modal opens
+window.addEventListener('open-modal', (e) => {
+    if (e.detail.name === 'add-file') {
+        const form = document.getElementById('add-file-form');
+        if (form) {
+            form.reset();
+            // Reset file display
+            const fileDisplay = document.getElementById('file-display');
+            if (fileDisplay) fileDisplay.textContent = 'No file chosen';
+            // Ensure file input is cleared by cloning and replacing
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput) {
+                const newFileInput = fileInput.cloneNode(true);
+                fileInput.parentNode.replaceChild(newFileInput, fileInput);
+                // Re-attach change listener to new input
+                attachFileChangeListener(newFileInput);
+            }
+        }
+    }
+});
+
+// Function to attach file change listener
+function attachFileChangeListener(fileInput) {
+    fileInput.addEventListener('change', (e) => {
+        const fileDisplay = document.getElementById('file-display');
+        if (fileDisplay) {
+            const file = e.target.files[0];
+            fileDisplay.textContent = file ? file.name : 'No file chosen';
+        }
+    });
+}
+
+// Attach listener on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('file-upload');
+    if (fileInput) attachFileChangeListener(fileInput);
+});
