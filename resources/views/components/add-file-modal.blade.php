@@ -13,9 +13,14 @@
 
             <div class="mb-4">
                 <x-input-label value="Upload PDF File" />
-                <input type="file" id="file-upload" name="file" accept=".pdf"
-                    class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
-                    required />
+                <div class="relative">
+                    <input type="file" id="file-upload" name="file" accept=".pdf"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        required />
+                    <div id="file-display" class="w-full rounded-lg border border-gray-300 p-2 bg-white cursor-pointer">
+                        No file chosen
+                    </div>
+                </div>
             </div>
 
 
