@@ -46,10 +46,10 @@
                                 data-docket-number="{{ $borrower->docket_number }}" data-file-location="{{ $borrower->file_location }}"
                                 data-date-borrowed="{{ $borrower->date_borrowed }}" data-date-returned="{{ $borrower->date_returned }}"
                                 data-status="{{ $borrower->status }}">
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $borrower->id }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">{{ $borrower->id }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-gray-900">
                                     {{ $borrower->borrower_name }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
                                     <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower({{ $borrower->id }})">Edit</button>
                                 </td>
                             </tr>

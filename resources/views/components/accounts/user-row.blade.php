@@ -7,8 +7,12 @@
     <td class="px-6 py-4 text-center text-sm text-gray-500">{{ $user->name }}</td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">{{ $user->username }}</td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">{{ $user->role }}</td>
-    <td class="px-6 py-4 text-center text-sm text-gray-500">{{ ucfirst($user->status) }}</td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">{{ $user->remarks }}</td>
+    <td class="px-6 py-4 text-center text-sm text-gray-500">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white {{ $user->status === 'active' ? 'bg-green-500' : 'bg-red-500' }}">
+            {{ ucfirst($user->status) }}
+        </span>
+    </td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">
         <button class="edit-btn text-blue-600 hover:text-blue-900" data-id="{{ $user->id }}">Edit</button>
     </td>
