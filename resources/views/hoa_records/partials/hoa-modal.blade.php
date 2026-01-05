@@ -57,9 +57,6 @@
                     class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                     id="remarks" placeholder="Remarks" readonly></textarea>
             </div>
-
-            <button
-                class="mx-auto mt-4 block rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-green-700">EDIT</button>
         </div>
 
         <!-- File Section -->
@@ -70,8 +67,7 @@
             </div>
             <div class="mb-4 mt-2 text-sm font-medium text-gray-800" id="file-label"></div>
             <div class="flex gap-3">
-                <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700">IMPORT
-                    FILE</button>
+                <button class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700">EDIT</button>
                 <button onclick="exportHoaFile()" class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
                     FILE</button>
                 <button id="archive-hoa-btn" class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
