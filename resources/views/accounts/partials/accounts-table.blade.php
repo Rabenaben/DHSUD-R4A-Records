@@ -22,7 +22,7 @@
             <table class="min-w-full divide-y divide-blue-400" id="accounts-table">
                 <thead class="bg-gray-50">
                     <tr>
-                        @foreach (['Account No.', 'Name', 'Username', 'Role', 'Status', 'Division', 'Edit User'] as $header)
+                        @foreach (['Account No.', 'Name', 'Username', 'Role', 'Division', 'Status', 'Edit User'] as $header)
                             <th class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
                                 {{ $header }}
                             </th>

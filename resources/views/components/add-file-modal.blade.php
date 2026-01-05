@@ -18,12 +18,7 @@
                     required />
             </div>
 
-            <div class="mb-6">
-                <x-input-label value="Date Added" />
-                <input type="date" id="date-added" name="date_added"
-                    class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
-                    required />
-            </div>
+
 
             <div class="flex justify-end gap-3">
                 <button type="button" id="cancel-add-file-btn"

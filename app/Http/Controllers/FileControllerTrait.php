@@ -35,7 +35,6 @@ trait FileControllerTrait
         $request->validate([
             'file_name' => 'required|string|max:255',
             'file' => 'required|file|mimes:pdf|max:10240', // 10MB max
-            'date_added' => 'required|date',
         ]);
 
         $record = $this->model::where('docket_no', $docketNo)->first();
@@ -56,7 +55,7 @@ trait FileControllerTrait
         $files[] = [
             'name' => $request->file_name,
             'path' => $path,
-            'date_added' => $request->date_added,
+            'date_added' => now('Asia/Manila')->toDateTimeString(),
             'original_name' => $file->getClientOriginalName(),
         ];
 
