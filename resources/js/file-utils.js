@@ -27,6 +27,9 @@ window.exportFile = exportFile;
  * @param {string} type - The type of record ('hoa' or 'rem').
  */
 function openFileListModal(record, type) {
+    window.currentRecord = record;
+    window.currentRecordType = type;
+
     // Set dynamic title
     const titleEl = document.getElementById('file-list-title');
     const recordName = type === 'hoa' ? record.hoa_name : record.project_name;
@@ -73,7 +76,7 @@ function renderFileList(files, record, type) {
     tbody.innerHTML = files.map(f => `
         <tr class="cursor-pointer hover:bg-gray-50 file-row" data-file-index="${f.index}">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${f.name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${f.dateModified}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(f.date_added).toLocaleString()}</td>
         </tr>
     `).join('');
 
@@ -134,7 +137,7 @@ function handleFileUpload() {
         e.preventDefault();
         const formData = new FormData(addFileForm);
         const docketNo = formData.get('docket_no');
-        const type = window.location.pathname.includes('/hoa_records') ? 'hoa' : 'rem';
+        const type = window.currentRecordType;
 
         fetch(`/${type}/${docketNo}/upload-file`, {
             method: 'POST',
@@ -143,23 +146,23 @@ function handleFileUpload() {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.showToast('File uploaded successfully!', 'success');
-                window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
-                // Refresh the file list - need to get current record
-                if (window.currentRecord) {
-                    openFileListModal(window.currentRecord, type);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.showToast('File uploaded successfully!', 'success');
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
+                    // Refresh the file list - need to get current record
+                    if (window.currentRecord) {
+                        openFileListModal(window.currentRecord, type);
+                    }
+                } else {
+                    window.showToast('Failed to upload file.', 'error');
                 }
-            } else {
-                window.showToast('Failed to upload file.', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.showToast('An error occurred while uploading the file.', 'error');
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                window.showToast('An error occurred while uploading the file.', 'error');
+            });
     });
 }
 
@@ -182,18 +185,18 @@ function archiveRecord(type, id) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.showToast('Record archived successfully!', 'success');
-        } else {
-            window.showToast('Failed to archive record.', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        window.showToast('An error occurred while archiving the record.', 'error');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.showToast('Record archived successfully!', 'success');
+            } else {
+                window.showToast('Failed to archive record.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.showToast('An error occurred while archiving the record.', 'error');
+        });
 }
 
 // =========================================
