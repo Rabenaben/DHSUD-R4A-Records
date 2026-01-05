@@ -1,10 +1,11 @@
 import './bootstrap';
 import 'flowbite';
+import './file-utils';
 import './rem';
-import './accounts';
 import './hoa';
 import './borrower';
 import './archive';
+import './accounts';
 
 import Alpine from 'alpinejs';
 

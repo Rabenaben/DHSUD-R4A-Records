@@ -6,6 +6,8 @@ use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\HoaController;
+use App\Http\Controllers\RemController;
 
 // 🔹 Public route
 Route::get('/', fn() => view('welcome'));
@@ -24,10 +26,13 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     });
 
     // Archive routes (ArchiveController)
-    Route::controller(ArchiveController::class)->group(function () {
-        Route::patch('/{type}/{id}/archive', 'archiveRecord')->name('records.archive');
-        Route::patch('/{type}/{id}/unarchive', 'unarchiveRecord')->name('records.unarchive');
-    });
+    Route::controller(ArchiveController::class)
+        ->prefix('records')
+        ->name('records.')
+        ->group(function () {
+            Route::patch('/{type}/{id}/archive', 'archiveRecord');
+            Route::patch('/{type}/{id}/unarchive', 'unarchiveRecord');
+        });
 
     // Borrower routes (BorrowerController)
     Route::controller(BorrowerController::class)->group(function () {
@@ -55,6 +60,22 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/', 'edit')->name('edit');
         Route::patch('/', 'update')->name('update');
         Route::delete('/', 'destroy')->name('destroy');
+    });
+
+    // HOA routes (HoaController)
+    Route::controller(HoaController::class)->prefix('hoa')->name('hoa.')->group(function () {
+        Route::get('/{docketNo}/files', 'getFiles')->name('files');
+        Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file');
+        Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file');
+        Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file');
+    });
+
+    // REM routes (RemController)
+    Route::controller(RemController::class)->prefix('rem')->name('rem.')->group(function () {
+        Route::get('/{docketNo}/files', 'getFiles')->name('files');
+        Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file');
+        Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file');
+        Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file');
     });
 });
 

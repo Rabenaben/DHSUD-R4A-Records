@@ -1,95 +1,44 @@
-// Modal functions for REM records
+// =========================================
+// Global Function Exports
+// =========================================
 
-// openFileListModal is the same as in hoa.js
-function openFileListModal(record) {
-    const files = [
-        { name: 'REM_Document_001.pdf', dateModified: '2023-10-01' },
-        { name: 'REM_Document_002.pdf', dateModified: '2023-09-15' },
-        { name: 'REM_Document_003.pdf', dateModified: '2023-08-20' }
-    ];
-
-    const tbody = document.getElementById('file-list-body');
-    tbody.innerHTML = files.map(f => `
-        <tr class="cursor-pointer hover:bg-gray-50 file-row" data-file-name="${f.name}">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${f.name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${f.dateModified}</td>
-        </tr>
-    `).join('');
-
-    // Delegate click for file rows
-    tbody.addEventListener('click', function onFileClick(e) {
-        const row = e.target.closest('tr.file-row');
-        if (!row) return;
-
-        const fileName = row.dataset.fileName;
-        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
-        openRemModal(record, fileName);
-
-        tbody.removeEventListener('click', onFileClick); // remove listener to avoid duplicates
-    });
-
-    // Add File Button
-    const addFileBtn = document.getElementById('add-file-btn');
-    if (addFileBtn) {
-        addFileBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-file' } }));
-        });
-    }
-
-    // Cancel Add File Button
-    const cancelAddFileBtn = document.getElementById('cancel-add-file-btn');
-    if (cancelAddFileBtn) {
-        cancelAddFileBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
-        });
-    }
-
-    // Open modal
-    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'file-list' } }));
-}
-
-function openRemModal(record, fileName) {
-    // Store the record for back navigation
-    window.currentRecord = record;
-
-    const setValue = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.value = value ?? '';
-    };
-
-    setValue('rem-docket-no', record.docket_no);
-    setValue('rem-project-name', record.project_name);
-    setValue('rem-status', record.status);
-    setValue('rem-quantity', record.quantity);
-    setValue('rem-remarks', record.remarks ?? '');
-
-    const fileLabel = document.getElementById('rem-file-label');
-    if (fileLabel) fileLabel.textContent = fileName ?? '';
-
-    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'rem' } }));
-
-    // Attach archive button event
-    const archiveBtn = document.getElementById('archive-rem-btn');
-    if (archiveBtn) {
-        archiveBtn.addEventListener('click', () => archiveRecord('rem', record.id));
-    }
-}
-
-// Make functions global
-window.openFileListModal = openFileListModal;
+// Make functions global for external access
 window.openRemModal = openRemModal;
-
-// Make remGoBackToFileList global
 window.remGoBackToFileList = function () {
-    // Close rem modal and reopen file-list modal with stored record
-    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'rem' } }));
-    if (window.currentRecord) {
-        openFileListModal(window.currentRecord);
-    }
+    window.goBackToFileList('rem');
+};
+window.exportRemFile = function () {
+    exportFile('rem');
 };
 
-// Folder functions moved from folder.js
+// =========================================
+// Modal Functions
+// =========================================
+
+/**
+ * Opens the REM modal for a specific record and file index.
+ * @param {Object} record - The record data.
+ * @param {number} fileIndex - The index of the file.
+ */
+function openRemModal(record, fileIndex) {
+    const fieldConfig = {
+        docket_no: 'rem-docket-no',
+        project_name: 'rem-project-name',
+        status: 'rem-status',
+        quantity: 'rem-quantity',
+        remarks: 'rem-remarks'
+    };
+
+    openRecordModal('rem', record, fileIndex, fieldConfig, ['rem-file-label', 'rem-file-preview', 'rem-file-placeholder']);
+}
+
+// =========================================
+// Folder Management Functions
+// =========================================
+
+/**
+ * Initializes click events for folder elements.
+ */
 function initFolderClicks() {
     const folderContainer = document.getElementById('folderContainer');
     if (!folderContainer) return;
@@ -102,6 +51,12 @@ function initFolderClicks() {
     });
 }
 
+/**
+ * Loads folder content asynchronously for a given province.
+ * @param {HTMLElement} folder - The folder element.
+ * @param {HTMLElement} container - The container to update.
+ * @param {string} originalFolderHTML - The original HTML to restore.
+ */
 async function loadFolderContent(folder, container, originalFolderHTML) {
     const province = folder.dataset.province;
 
@@ -112,7 +67,7 @@ async function loadFolderContent(folder, container, originalFolderHTML) {
         if (!response.ok) throw new Error('Failed to load folder content');
 
         const html = await response.text();
-        container.innerHTML = html; // replaces entire folder section
+        container.innerHTML = html; // Replaces entire folder section
 
         attachFilters(container);
         attachBackButton(container, originalFolderHTML);
@@ -125,6 +80,10 @@ async function loadFolderContent(folder, container, originalFolderHTML) {
     }
 }
 
+/**
+ * Displays a loading spinner in the container.
+ * @param {HTMLElement} container - The container to show loading in.
+ */
 function showLoading(container) {
     container.innerHTML = `
         <div class="flex justify-center items-center py-8">
@@ -134,6 +93,10 @@ function showLoading(container) {
     `;
 }
 
+/**
+ * Attaches search and status filters to the table.
+ * @param {HTMLElement} container - The container holding the table.
+ */
 function attachFilters(container) {
     const searchInput = container.querySelector('#remSearchInput');
     const statusFilter = container.querySelector('#remStatusFilter');
@@ -170,45 +133,31 @@ function attachFilters(container) {
         if (!row) return;
 
         const record = JSON.parse(row.dataset.record);
-        openFileListModal(record);
+        openFileListModal(record, 'rem');
     });
 
     filterRows(); // Run once on load
 }
 
+/**
+ * Attaches back button functionality to restore original folder view.
+ * @param {HTMLElement} container - The container to update.
+ * @param {string} originalHTML - The original HTML to restore.
+ */
 function attachBackButton(container, originalHTML) {
     const backBtn = container.querySelector('#backToFolders');
     if (!backBtn) return;
 
     backBtn.addEventListener('click', () => {
-        container.innerHTML = originalHTML; // restore original folder section
-        initFolderClicks(); // reattach click events
+        container.innerHTML = originalHTML; // Restore original folder section
+        initFolderClicks(); // Reattach click events
     });
 }
 
-// Archive record function
-function archiveRecord(type, id) {
-    if (!confirm('Are you sure you want to archive this record?')) return;
-
-    fetch(`/${type}/${id}/archive`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Record archived successfully!');
-        } else {
-            alert('Failed to archive record.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while archiving the record.');
-    });
-}
+// =========================================
+// Initialization
+// =========================================
 
 document.addEventListener('DOMContentLoaded', initFolderClicks);
+
+

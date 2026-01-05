@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(url, { method, headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body });
             const result = await response.json();
-            showToast(result.success ? result.message : 'Error: ' + (result.message || 'Unknown error'), result.success ? 'success' : 'error');
+        window.showToast(result.success ? result.message : 'Error: ' + (result.message || 'Unknown error'), result.success ? 'success' : 'error');
             return result.success ? result : null;
-        } catch { showToast('Network error', 'error'); return null; }
+    } catch { window.showToast('Network error', 'error'); return null; }
     };
 
     const updateRow = (row, user) => {
@@ -22,18 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cells[4].textContent = user.status.charAt(0).toUpperCase() + user.status.slice(1);
         cells[5].textContent = user.remarks || '';
         row.setAttribute('data-user', JSON.stringify(user));
-    };
-
-    const showToastOnLoad = () => {
-        const toast = document.getElementById('toast');
-        if (toast) {
-            const successMessage = document.body.dataset.successMessage;
-            if (successMessage) {
-                showToast(successMessage, 'success');
-            }
-        } else {
-            setTimeout(showToastOnLoad, 100);
-        }
     };
 
     const addNewRow = user => {
@@ -49,14 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const validateForm = (form, isAdd) => {
         const name = form.querySelector('[name="name"]').value.trim();
         const username = form.querySelector('[name="username"]').value.trim();
-        if (!/^[A-Za-z\s]+$/.test(name)) return showToast('Name can only contain letters', 'error'), false;
-        if (!/^[A-Za-z0-9]+$/.test(username)) return showToast('Username can only contain letters and numbers', 'error'), false;
+        if (!/^[A-Za-z\s]+$/.test(name)) return window.showToast('Name can only contain letters', 'error'), false;
+        if (!/^[A-Za-z0-9]+$/.test(username)) return window.showToast('Username can only contain letters and numbers', 'error'), false;
         const existing = Array.from(table.querySelectorAll('tbody tr td:nth-child(3)')).map(td => td.textContent.toLowerCase());
-        if (isAdd && existing.includes(username.toLowerCase())) return showToast('Username already exists', 'error'), false;
+        if (isAdd && existing.includes(username.toLowerCase())) return window.showToast('Username already exists', 'error'), false;
         if (isAdd) {
             const password = form.querySelector('[name="password"]').value;
             const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-            if (!regex.test(password)) return showToast('Password must be at least 8 characters and include uppercase, lowercase, number, and special character', 'error'), false;
+            if (!regex.test(password)) return window.showToast('Password must be at least 8 characters and include uppercase, lowercase, number, and special character', 'error'), false;
         }
         return true;
     };
@@ -192,7 +180,4 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     initPasswordStrengthChecker();
-
-    // Show toast on page load if success message exists
-    document.addEventListener('DOMContentLoaded', showToastOnLoad);
 });

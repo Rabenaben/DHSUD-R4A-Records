@@ -2,7 +2,7 @@
 <x-modal name="hoa" maxWidth="6xl">
     <button
         class="ml-2 mt-2 flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
-        onclick="goBackToFileList()">
+        onclick="hoaGoBackToFileList()">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
@@ -64,14 +64,15 @@
 
         <!-- File Section -->
         <div class="flex flex-1 flex-col items-center">
-            <div class="h-[340px] w-[90%] rounded-lg border border-gray-300 bg-gray-100 bg-contain bg-center bg-no-repeat"
-                id="file-preview"
-                style="background-image: url('https://via.placeholder.com/300x400?text=File+Preview')"></div>
+            <div class="h-[340px] w-[90%] rounded-lg border border-gray-300 bg-gray-100" id="file-preview-container">
+                <iframe id="file-preview" class="w-full h-full" style="display: none;"></iframe>
+                <div id="file-placeholder" class="flex items-center justify-center h-full text-gray-500">No file selected</div>
+            </div>
             <div class="mb-4 mt-2 text-sm font-medium text-gray-800" id="file-label"></div>
             <div class="flex gap-3">
                 <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700">IMPORT
                     FILE</button>
-                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
+                <button onclick="exportHoaFile()" class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
                     FILE</button>
                 <button id="archive-hoa-btn" class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
                     FILE</button>

@@ -1,5 +1,50 @@
-document.addEventListener('DOMContentLoaded', initHoaRecords);
+// =========================================
+// Global Function Exports
+// =========================================
 
+// Make functions global for external access
+window.openHoaModal = openHoaModal;
+window.hoaGoBackToFileList = function () {
+    window.goBackToFileList('hoa');
+};
+window.exportHoaFile = function () {
+    exportFile('hoa');
+};
+
+// =========================================
+// Modal Functions
+// =========================================
+
+/**
+ * Opens the HOA modal for a specific record and file index.
+ * @param {Object} record - The record data.
+ * @param {number} fileIndex - The index of the file.
+ */
+function openHoaModal(record, fileIndex) {
+    const fieldConfig = {
+        docket_no: 'docket-no',
+        hoa_name: 'hoa-name',
+        province: 'province',
+        municipality: 'municipality',
+        status: 'status',
+        quantity: 'quantity',
+        remarks: 'remarks'
+    };
+
+    // Handle nested province and municipality
+    record.province = record.province?.province_name ?? 'N/A';
+    record.municipality = record.municipality?.municipality_name ?? 'N/A';
+
+    openRecordModal('hoa', record, fileIndex, fieldConfig, ['file-label', 'file-preview', 'file-placeholder']);
+}
+
+// =========================================
+// Table Filtering Functions
+// =========================================
+
+/**
+ * Initializes HOA records table with filtering and event listeners.
+ */
 function initHoaRecords() {
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
@@ -11,7 +56,9 @@ function initHoaRecords() {
 
     const getTableRows = () => Array.from(tableBody.querySelectorAll('tr.hoa-row'));
 
-    // Filter Municipality options based on selected Province
+    /**
+     * Filters municipality options based on the selected province.
+     */
     const filterMunicipalities = () => {
         const selectedProvince = provinceFilter.value;
         const municipalityOptions = municipalityFilter.querySelectorAll('option');
@@ -34,7 +81,9 @@ function initHoaRecords() {
         }
     };
 
-    // Set Province when Municipality is selected
+    /**
+     * Sets the province filter when a municipality is selected.
+     */
     const setProvinceFromMunicipality = () => {
         const selectedMunicipality = municipalityFilter.value;
         if (selectedMunicipality) {
@@ -47,7 +96,9 @@ function initHoaRecords() {
         }
     };
 
-    // Filter Table
+    /**
+     * Filters the table rows based on search input and filter selections.
+     */
     const filterTable = () => {
         const query = searchInput.value.toLowerCase();
         const selectedStatus = statusFilter.value.toLowerCase();
@@ -76,6 +127,7 @@ function initHoaRecords() {
         }
     };
 
+    // Attach event listeners
     searchInput.addEventListener('input', filterTable);
     statusFilter.addEventListener('change', filterTable);
     provinceFilter.addEventListener('change', () => {
@@ -96,118 +148,14 @@ function initHoaRecords() {
         if (!row) return;
 
         const record = JSON.parse(row.dataset.record);
-        openFileListModal(record);
+        openFileListModal(record, 'hoa');
     });
 }
 
-// Modal functions
-function openFileListModal(record) {
-    const files = [
-        { name: 'HOA_Document_001.pdf', dateModified: '2023-10-01' },
-        { name: 'HOA_Document_002.pdf', dateModified: '2023-09-15' },
-        { name: 'HOA_Document_003.pdf', dateModified: '2023-08-20' }
-    ];
+// =========================================
+// Initialization
+// =========================================
 
-    const tbody = document.getElementById('file-list-body');
-    tbody.innerHTML = files.map(f => `
-        <tr class="cursor-pointer hover:bg-gray-50 file-row" data-file-name="${f.name}">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${f.name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${f.dateModified}</td>
-        </tr>
-    `).join('');
+document.addEventListener('DOMContentLoaded', initHoaRecords);
 
-    // Delegate click for file rows
-    tbody.addEventListener('click', function onFileClick(e) {
-        const row = e.target.closest('tr.file-row');
-        if (!row) return;
 
-        const fileName = row.dataset.fileName;
-        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
-        openHoaModal(record, fileName);
-
-        tbody.removeEventListener('click', onFileClick); // remove listener to avoid duplicates
-    });
-
-    // Add File Button
-    const addFileBtn = document.getElementById('add-file-btn');
-    if (addFileBtn) {
-        addFileBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-file' } }));
-        });
-    }
-
-    // Cancel Add File Button
-    const cancelAddFileBtn = document.getElementById('cancel-add-file-btn');
-    if (cancelAddFileBtn) {
-        cancelAddFileBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
-        });
-    }
-
-    // Open modal
-    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'file-list' } }));
-}
-
-function openHoaModal(record, fileName) {
-    // Store the record for back navigation
-    window.currentRecord = record;
-
-    const setValue = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.value = value ?? '';
-    };
-
-    setValue('docket-no', record.docket_no);
-    setValue('hoa-name', record.hoa_name);
-    setValue('province', record.province?.province_name ?? 'N/A');
-    setValue('municipality', record.municipality?.municipality_name ?? 'N/A');
-    setValue('status', record.status);
-    setValue('quantity', record.quantity);
-    setValue('remarks', record.remarks ?? '');
-
-    const fileLabel = document.getElementById('file-label');
-    if (fileLabel) fileLabel.textContent = fileName ?? '';
-
-    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'hoa' } }));
-
-    // Attach archive button event
-    const archiveBtn = document.getElementById('archive-hoa-btn');
-    if (archiveBtn) {
-        archiveBtn.addEventListener('click', () => archiveRecord('hoa', record.id));
-    }
-}
-
-// Make goBackToFileList global
-window.goBackToFileList = function () {
-    // Close hoa modal and reopen file-list modal with stored record
-    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'hoa' } }));
-    if (window.currentRecord) {
-        openFileListModal(window.currentRecord);
-    }
-};
-
-// Archive record function
-function archiveRecord(type, id) {
-    if (!confirm('Are you sure you want to archive this record?')) return;
-
-    fetch(`/${type}/${id}/archive`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Record archived successfully!');
-        } else {
-            alert('Failed to archive record.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while archiving the record.');
-    });
-}

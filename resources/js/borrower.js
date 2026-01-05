@@ -98,11 +98,11 @@ function initBorrowerRecords() {
                 // Open the record history modal for the created borrower
                 window.editBorrower(result.borrower.id);
             } else {
-                alert('Error saving record: ' + (result.message || 'Unknown error'));
+                window.showToast('Error saving record: ' + (result.message || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error saving record. Please try again.');
+            window.showToast('Error saving record. Please try again.', 'error');
         }
     };
 
@@ -251,7 +251,7 @@ function initBorrowerRecords() {
     window.editBorrower = async (id) => {
         const row = document.querySelector(`tr[data-id="${id}"]`);
         if (!row) {
-            alert('Borrower record not found.');
+            window.showToast('Borrower record not found.', 'error');
             return;
         }
 
@@ -271,11 +271,11 @@ function initBorrowerRecords() {
                 window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrower-record-history' } }));
                 setTimeout(() => populateHistoryModal(result.borrower_name, result.history), 100);
             } else {
-                alert('Error loading borrower history: ' + (result.message || 'Unknown error'));
+                window.showToast('Error loading borrower history: ' + (result.message || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error loading borrower history. Please try again.');
+            window.showToast('Error loading borrower history. Please try again.', 'error');
         }
     };
 
@@ -477,11 +477,11 @@ function initBorrowerRecords() {
                 // Show success toast
                 window.showToast(result.message, 'success');
             } else {
-                alert('Error adding record: ' + (result.message || 'Unknown error'));
+                window.showToast('Error adding record: ' + (result.message || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error adding record. Please try again.');
+            window.showToast('Error adding record. Please try again.', 'error');
         }
     };
 
@@ -523,11 +523,11 @@ function initBorrowerRecords() {
                 // Show success toast
                 window.showToast('Returned date updated successfully.', 'success');
             } else {
-                alert('Error updating returned date: ' + (result.message || 'Unknown error'));
+                window.showToast('Error updating returned date: ' + (result.message || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error updating returned date. Please try again.');
+            window.showToast('Error updating returned date. Please try again.', 'error');
         }
     };
 

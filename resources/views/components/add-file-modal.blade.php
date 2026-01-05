@@ -4,6 +4,8 @@
         <h2 class="mb-4 text-lg font-semibold text-gray-900">Add New File</h2>
 
         <form id="add-file-form" enctype="multipart/form-data">
+            <input type="hidden" id="docket-no-hidden" name="docket_no" />
+
             <div class="mb-4">
                 <x-input-label value="File Name" />
                 <x-modal-input id="file-name" name="file_name" placeholder="Enter file name" required />

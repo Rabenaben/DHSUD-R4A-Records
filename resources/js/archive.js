@@ -64,7 +64,7 @@ function unarchiveRecord(type, id, button) {
         if (data.success) {
             // Remove the row from the table
             button.closest('tr').remove();
-            showToast('Record unarchived successfully!', 'success');
+            window.showToast('Record unarchived successfully!', 'success');
 
             // Check if table is empty and show no records message
             const tableBody = document.querySelector('#archiveTable tbody');
@@ -75,14 +75,14 @@ function unarchiveRecord(type, id, button) {
                 noRecordsRow.style.display = '';
             }
         } else {
-            showToast('Failed to unarchive record.', 'error');
+            window.showToast('Failed to unarchive record.', 'error');
             button.disabled = false;
             button.textContent = 'Unarchive';
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('An error occurred while unarchiving the record.', 'error');
+        window.showToast('An error occurred while unarchiving the record.', 'error');
         button.disabled = false;
         button.textContent = 'Unarchive';
     });

@@ -51,14 +51,15 @@
 
         <!-- File Section -->
         <div class="flex flex-1 flex-col items-center">
-            <div class="h-[340px] w-[90%] rounded-lg border border-gray-300 bg-gray-100 bg-contain bg-center bg-no-repeat"
-                id="rem-file-preview"
-                style="background-image: url('https://via.placeholder.com/300x400?text=File+Preview')"></div>
+            <div class="h-[340px] w-[90%] rounded-lg border border-gray-300 bg-gray-100" id="rem-file-preview-container">
+                <iframe id="rem-file-preview" class="w-full h-full" style="display: none;"></iframe>
+                <div id="rem-file-placeholder" class="flex items-center justify-center h-full text-gray-500">No file selected</div>
+            </div>
             <div class="mb-4 mt-2 text-sm font-medium text-gray-800" id="rem-file-label"></div>
             <div class="flex gap-3">
                 <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700">IMPORT
                     FILE</button>
-                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
+                <button onclick="exportRemFile()" class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
                     FILE</button>
                 <button id="archive-rem-btn" class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
                     FILE</button>
