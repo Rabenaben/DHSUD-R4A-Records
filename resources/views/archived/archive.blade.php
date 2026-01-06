@@ -24,39 +24,33 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">Type</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">Docket No</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Name</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Record Name</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">File Name</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Date Added</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-white">Last Updated By</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-red-50">
-                        @foreach($remArchived ?? [] as $record)
-                            <tr class="archive-row" data-type="REM" data-docket="{{ $record->docket_no }}" data-name="{{ $record->project_name }}" data-id="{{ $record->id }}">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">REM - {{ $record->province }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $record->docket_no }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $record->project_name }}</td>
+                        @foreach($archivedFiles ?? [] as $file)
+                            <tr class="archive-row" data-type="{{ strtoupper($file['type']) }}" data-docket="{{ $file['docket_no'] }}" data-name="{{ $file['record_name'] }}" data-file="{{ $file['file_name'] }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ strtoupper($file['type']) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $file['docket_no'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['record_name'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['file_name'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['date_added'] ? \Carbon\Carbon::parse($file['date_added'])->format('M d, Y H:i') : 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['last_updated_by'] ?? 'Unknown' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <button class="unarchive-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs" data-type="rem" data-id="{{ $record->id }}">
+                                    <button class="unarchive-file-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs" data-type="{{ $file['type'] }}" data-docket="{{ $file['docket_no'] }}" data-file-index="{{ $file['file_index'] }}">
                                         Unarchive
                                     </button>
                                 </td>
                             </tr>
                         @endforeach
-                        @foreach($hoaArchived ?? [] as $record)
-                            <tr class="archive-row" data-type="HOA" data-docket="{{ $record->docket_no }}" data-name="{{ $record->hoa_name }}" data-id="{{ $record->id }}">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">HOA</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $record->docket_no }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $record->hoa_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <button class="unarchive-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs" data-type="hoa" data-id="{{ $record->id }}">
-                                        Unarchive
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                        @if(empty($remArchived) && empty($hoaArchived))
+                        @if(empty($archivedFiles))
                             <tr id="no-archived-records-row">
-                                <td class="px-6 py-4 text-center text-sm text-gray-500 italic" colspan="4">
-                                    No archived records found
+                                <td class="px-6 py-4 text-center text-sm text-gray-500 italic" colspan="7">
+                                    No archived files found
                                 </td>
                             </tr>
                         @endif

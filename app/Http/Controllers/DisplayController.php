@@ -128,9 +128,46 @@ class DisplayController extends Controller
     // 🔹 Archived Files Dashboard
     public function archivedDashboard()
     {
-        $hoaArchived = HoaDatabase::where('status', 'ARCHIVED')->get();
-        $remArchived = RemDatabase::where('status', 'ARCHIVED')->get();
+        $archivedFiles = [];
 
-        return view('archived.archive', compact('hoaArchived', 'remArchived'));
+        // Collect archived files from HOA records
+        $hoaRecords = HoaDatabase::all();
+        foreach ($hoaRecords as $record) {
+            $files = json_decode($record->files, true) ?? [];
+            foreach ($files as $index => $file) {
+                if (isset($file['archived']) && $file['archived']) {
+                    $archivedFiles[] = [
+                        'type' => 'hoa',
+                        'docket_no' => $record->docket_no,
+                        'record_name' => $record->hoa_name,
+                        'file_name' => $file['name'] ?? 'Unknown',
+                        'file_index' => $index,
+                        'date_added' => $file['date_added'] ?? null,
+                        'last_updated_by' => $file['last_updated_by'] ?? null,
+                    ];
+                }
+            }
+        }
+
+        // Collect archived files from REM records
+        $remRecords = RemDatabase::all();
+        foreach ($remRecords as $record) {
+            $files = json_decode($record->files, true) ?? [];
+            foreach ($files as $index => $file) {
+                if (isset($file['archived']) && $file['archived']) {
+                    $archivedFiles[] = [
+                        'type' => 'rem',
+                        'docket_no' => $record->docket_no,
+                        'record_name' => $record->project_name,
+                        'file_name' => $file['name'] ?? 'Unknown',
+                        'file_index' => $index,
+                        'date_added' => $file['date_added'] ?? null,
+                        'last_updated_by' => $file['last_updated_by'] ?? null,
+                    ];
+                }
+            }
+        }
+
+        return view('archived.archive', compact('archivedFiles'));
     }
 }

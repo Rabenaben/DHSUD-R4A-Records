@@ -10,7 +10,6 @@
 window.openFileListModal = openFileListModal;
 window.renderFileList = renderFileList;
 window.handleFileUpload = handleFileUpload;
-window.archiveRecord = archiveRecord;
 window.loadFilePreview = loadFilePreview;
 window.setValue = setValue;
 window.openRecordModal = openRecordModal;
@@ -187,20 +186,22 @@ function handleFileUpload() {
 // =========================================
 
 /**
- * Archives a record of the specified type.
+ * Archives a file of the specified type and docket.
  * @param {string} type - The type of record ('hoa' or 'rem').
- * @param {number} id - The record ID.
+ * @param {string} docketNo - The docket number.
+ * @param {number} fileIndex - The index of the file to archive.
  */
-function archiveRecord(type, id) {
+function archiveFile(type, docketNo, fileIndex) {
     // Set the confirm message
     const confirmMessageEl = document.getElementById('confirm-archive-file-message');
     if (confirmMessageEl) {
-        confirmMessageEl.textContent = `Are you sure you want to archive this ${type.toUpperCase()} record?`;
+        confirmMessageEl.textContent = `Are you sure you want to archive this file?`;
     }
 
-    // Store the type and id for later use
+    // Store the type, docketNo, and fileIndex for later use
     window.pendingArchiveType = type;
-    window.pendingArchiveId = id;
+    window.pendingArchiveDocketNo = docketNo;
+    window.pendingArchiveFileIndex = fileIndex;
 
     // Open the confirmation modal
     window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-archive-file-modal' } }));
@@ -211,13 +212,14 @@ function archiveRecord(type, id) {
         confirmYesBtn.dataset.listenerAttached = 'true';
         confirmYesBtn.addEventListener('click', () => {
             const type = window.pendingArchiveType;
-            const id = window.pendingArchiveId;
+            const docketNo = window.pendingArchiveDocketNo;
+            const fileIndex = window.pendingArchiveFileIndex;
 
             // Close the modal
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
 
             // Proceed with archiving
-            fetch(`/records/${type}/${id}/archive`, {
+            fetch(`/records/${type}/${docketNo}/files/${fileIndex}/archive`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -227,16 +229,19 @@ function archiveRecord(type, id) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.showToast('Record archived successfully!', 'success');
-                        // Optionally refresh the page or update the UI
-                        location.reload();
+                        window.showToast('File archived successfully!', 'success');
+                        // Close the current modal and refresh the file list
+                        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: type } }));
+                        if (window.currentRecord) {
+                            openFileListModal(window.currentRecord, type);
+                        }
                     } else {
-                        window.showToast('Failed to archive record.', 'error');
+                        window.showToast('Failed to archive file.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    window.showToast('An error occurred while archiving the record.', 'error');
+                    window.showToast('An error occurred while archiving the file.', 'error');
                 });
         });
     }
@@ -368,7 +373,7 @@ function openRecordModal(type, record, fileIndex, fieldConfig, previewIds) {
     // Attach archive button event
     const archiveBtn = document.getElementById(`archive-${type}-btn`);
     if (archiveBtn) {
-        archiveBtn.addEventListener('click', () => archiveRecord(type, record.id));
+        archiveBtn.addEventListener('click', () => archiveFile(type, record.docket_no, window.currentFileIndex));
     }
 }
 

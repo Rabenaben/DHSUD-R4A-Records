@@ -36,20 +36,22 @@ function initArchiveSearch() {
 // Unarchive functionality
 function initUnarchiveButtons() {
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('unarchive-btn')) {
+        if (e.target.classList.contains('unarchive-file-btn')) {
             const button = e.target;
             const type = button.dataset.type;
-            const id = button.dataset.id;
+            const docketNo = button.dataset.docket;
+            const fileIndex = button.dataset.fileIndex;
 
             // Set the confirm message
             const confirmMessageEl = document.getElementById('confirm-archive-file-message');
             if (confirmMessageEl) {
-                confirmMessageEl.textContent = `Are you sure you want to unarchive this ${type.toUpperCase()} record?`;
+                confirmMessageEl.textContent = `Are you sure you want to unarchive this file?`;
             }
 
-            // Store the type and id for later use
+            // Store the type, docketNo, and fileIndex for later use
             window.pendingUnarchiveType = type;
-            window.pendingUnarchiveId = id;
+            window.pendingUnarchiveDocketNo = docketNo;
+            window.pendingUnarchiveFileIndex = fileIndex;
             window.pendingUnarchiveButton = button;
 
             // Open the confirmation modal
@@ -57,29 +59,30 @@ function initUnarchiveButtons() {
 
             // Attach event listener to the yes button if not already attached
             const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
-            if (confirmYesBtn && !confirmYesBtn.dataset.unarchiveListenerAttached) {
-                confirmYesBtn.dataset.unarchiveListenerAttached = 'true';
+            if (confirmYesBtn && !confirmYesBtn.dataset.unarchiveFileListenerAttached) {
+                confirmYesBtn.dataset.unarchiveFileListenerAttached = 'true';
                 confirmYesBtn.addEventListener('click', () => {
                     const type = window.pendingUnarchiveType;
-                    const id = window.pendingUnarchiveId;
+                    const docketNo = window.pendingUnarchiveDocketNo;
+                    const fileIndex = window.pendingUnarchiveFileIndex;
                     const button = window.pendingUnarchiveButton;
 
                     // Close the modal
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
 
                     // Proceed with unarchiving
-                    unarchiveRecord(type, id, button);
+                    unarchiveFile(type, docketNo, fileIndex, button);
                 });
             }
         }
     });
 }
 
-function unarchiveRecord(type, id, button) {
+function unarchiveFile(type, docketNo, fileIndex, button) {
     button.disabled = true;
     button.textContent = 'Unarchiving...';
 
-    fetch(`/records/${type}/${id}/unarchive`, {
+    fetch(`/records/${type}/${docketNo}/files/${fileIndex}/unarchive`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -91,7 +94,7 @@ function unarchiveRecord(type, id, button) {
         if (data.success) {
             // Remove the row from the table
             button.closest('tr').remove();
-            window.showToast('Record unarchived successfully!', 'success');
+            window.showToast('File unarchived successfully!', 'success');
 
             // Check if table is empty and show no records message
             const tableBody = document.querySelector('#archiveTable tbody');
@@ -102,14 +105,14 @@ function unarchiveRecord(type, id, button) {
                 noRecordsRow.style.display = '';
             }
         } else {
-            window.showToast('Failed to unarchive record.', 'error');
+            window.showToast('Failed to unarchive file.', 'error');
             button.disabled = false;
             button.textContent = 'Unarchive';
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        window.showToast('An error occurred while unarchiving the record.', 'error');
+        window.showToast('An error occurred while unarchiving the file.', 'error');
         button.disabled = false;
         button.textContent = 'Unarchive';
     });

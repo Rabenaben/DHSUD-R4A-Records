@@ -8,38 +8,56 @@ use App\Models\RemDatabase;
 
 class ArchiveController extends Controller
 {
-    // 🔹 Archive Record
-    public function archiveRecord($type, $id)
+    // 🔹 Archive File
+    public function archiveFile($type, $docketNo, $fileIndex)
     {
         if ($type === 'hoa') {
-            $record = HoaDatabase::find($id);
-            if ($record) {
-                $record->update([
-                    'previous_status' => $record->status,
-                    'status' => 'ARCHIVED'
-                ]);
-            }
+            $record = HoaDatabase::where('docket_no', $docketNo)->first();
         } elseif ($type === 'rem') {
-            $record = RemDatabase::find($id);
-            if ($record) {
-                $record->update([
-                    'previous_status' => $record->status,
-                    'status' => 'ARCHIVED'
-                ]);
-            }
+            $record = RemDatabase::where('docket_no', $docketNo)->first();
         }
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => 'Record not found.']);
+        }
+
+        $files = json_decode($record->files, true) ?? [];
+
+        if (!isset($files[$fileIndex])) {
+            return response()->json(['success' => false, 'message' => 'File not found.']);
+        }
+
+        $files[$fileIndex]['archived'] = true;
+
+        $record->files = json_encode($files);
+        $record->save();
 
         return response()->json(['success' => true]);
     }
 
-    // 🔹 Unarchive Record
-    public function unarchiveRecord($type, $id)
+    // 🔹 Unarchive File
+    public function unarchiveFile($type, $docketNo, $fileIndex)
     {
         if ($type === 'hoa') {
-            HoaDatabase::where('id', $id)->update(['status' => 'ON-SHELF']);
+            $record = HoaDatabase::where('docket_no', $docketNo)->first();
         } elseif ($type === 'rem') {
-            RemDatabase::where('id', $id)->update(['status' => 'ON-SHELF']);
+            $record = RemDatabase::where('docket_no', $docketNo)->first();
         }
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => 'Record not found.']);
+        }
+
+        $files = json_decode($record->files, true) ?? [];
+
+        if (!isset($files[$fileIndex])) {
+            return response()->json(['success' => false, 'message' => 'File not found.']);
+        }
+
+        $files[$fileIndex]['archived'] = false;
+
+        $record->files = json_encode($files);
+        $record->save();
 
         return response()->json(['success' => true]);
     }

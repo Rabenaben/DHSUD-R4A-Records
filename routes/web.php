@@ -30,8 +30,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         ->prefix('records')
         ->name('records.')
         ->group(function () {
-            Route::patch('/{type}/{id}/archive', 'archiveRecord');
-            Route::patch('/{type}/{id}/unarchive', 'unarchiveRecord');
+            Route::patch('/{type}/{docketNo}/files/{fileIndex}/archive', 'archiveFile');
+            Route::patch('/{type}/{docketNo}/files/{fileIndex}/unarchive', 'unarchiveFile');
         });
 
     // Borrower routes (BorrowerController)

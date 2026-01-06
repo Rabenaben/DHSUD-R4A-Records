@@ -1,4 +1,7 @@
-# TODO: Center align table and add scrollable max height to file-list-modal
+# TODO: Fix ArchiveController to Display Archived Files
 
-- [x] Modify resources/views/components/file-list-modal.blade.php to center the table and add max height with vertical scrolling
-- [ ] Test the modal with many files to ensure scrolling works and alignment is correct
+- [x] Add `unarchiveFile` method to ArchiveController to unarchive individual files.
+- [x] Add route for unarchiveFile in web.php.
+- [x] Modify DisplayController::archivedDashboard to collect archived files from all HOA and REM records.
+- [x] Update archive.blade.php to display archived files instead of records.
+- [x] Update archive.js to handle unarchive file action.

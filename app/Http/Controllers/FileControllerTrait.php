@@ -22,11 +22,16 @@ trait FileControllerTrait
 
         $files = json_decode($record->files, true) ?? [];
 
+        // Filter out archived files
+        $filteredFiles = array_filter($files, function ($file) {
+            return !isset($file['archived']) || !$file['archived'];
+        });
+
         // Add index to each file for safe identification
         $filesWithIndex = array_map(function ($file, $index) {
             $file['index'] = $index;
             return $file;
-        }, $files, array_keys($files));
+        }, $filteredFiles, array_keys($filteredFiles));
 
         return response()->json(['files' => $filesWithIndex]);
     }
