@@ -65,4 +65,6 @@
             </div>
         </div>
     </div>
+
+    <x-confirm-archive-file-modal />
 </x-app-layout>

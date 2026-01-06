@@ -41,8 +41,35 @@ function initUnarchiveButtons() {
             const type = button.dataset.type;
             const id = button.dataset.id;
 
-            if (confirm('Are you sure you want to unarchive this record?')) {
-                unarchiveRecord(type, id, button);
+            // Set the confirm message
+            const confirmMessageEl = document.getElementById('confirm-archive-file-message');
+            if (confirmMessageEl) {
+                confirmMessageEl.textContent = `Are you sure you want to unarchive this ${type.toUpperCase()} record?`;
+            }
+
+            // Store the type and id for later use
+            window.pendingUnarchiveType = type;
+            window.pendingUnarchiveId = id;
+            window.pendingUnarchiveButton = button;
+
+            // Open the confirmation modal
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-archive-file-modal' } }));
+
+            // Attach event listener to the yes button if not already attached
+            const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
+            if (confirmYesBtn && !confirmYesBtn.dataset.unarchiveListenerAttached) {
+                confirmYesBtn.dataset.unarchiveListenerAttached = 'true';
+                confirmYesBtn.addEventListener('click', () => {
+                    const type = window.pendingUnarchiveType;
+                    const id = window.pendingUnarchiveId;
+                    const button = window.pendingUnarchiveButton;
+
+                    // Close the modal
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
+
+                    // Proceed with unarchiving
+                    unarchiveRecord(type, id, button);
+                });
             }
         }
     });
@@ -52,7 +79,7 @@ function unarchiveRecord(type, id, button) {
     button.disabled = true;
     button.textContent = 'Unarchiving...';
 
-    fetch(`/${type}/${id}/unarchive`, {
+    fetch(`/records/${type}/${id}/unarchive`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
