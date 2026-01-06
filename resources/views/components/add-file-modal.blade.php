@@ -7,20 +7,16 @@
             <input type="hidden" id="docket-no-hidden" name="docket_no" />
 
             <div class="mb-4">
-                <x-input-label value="File Name" />
-                <x-modal-input id="file-name" name="file_name" placeholder="Enter file name" required />
-            </div>
-
-            <div class="mb-4">
-                <x-input-label value="Upload PDF File" />
+                <x-input-label value="Upload PDF Files (Bulk)" />
                 <div class="relative">
-                    <input type="file" id="file-upload" name="file" accept=".pdf"
+                    <input type="file" id="file-upload" name="files[]" accept=".pdf" multiple
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         required />
                     <div id="file-display" class="w-full rounded-lg border border-gray-300 p-2 bg-white cursor-pointer">
-                        No file chosen
+                        No files chosen
                     </div>
                 </div>
+                <div id="selected-files" class="mt-2 text-sm text-gray-600"></div>
             </div>
 
 

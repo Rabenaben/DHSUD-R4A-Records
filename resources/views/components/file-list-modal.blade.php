@@ -13,14 +13,16 @@
             </button>
         </div>
     </div>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto overflow-y-auto max-h-96 flex justify-center">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
                         File Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
                         Date Modified</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                        Last Updated By</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white" id="file-list-body">

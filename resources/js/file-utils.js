@@ -73,29 +73,41 @@ function openFileListModal(record, type) {
  */
 function renderFileList(files, record, type) {
     const tbody = document.getElementById('file-list-body');
-    tbody.innerHTML = files.map(f => `
-        <tr class="cursor-pointer hover:bg-gray-50 file-row" data-file-index="${f.index}">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${f.name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(f.date_added).toLocaleString()}</td>
-        </tr>
-    `).join('');
 
-    // Delegate click for file rows
-    tbody.addEventListener('click', function onFileClick(e) {
-        const row = e.target.closest('tr.file-row');
-        if (!row) return;
+    if (files.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                    No file uploaded yet
+                </td>
+            </tr>
+        `;
+    } else {
+        tbody.innerHTML = files.map(f => `
+            <tr class="cursor-pointer hover:bg-gray-50 file-row" data-file-index="${f.index}">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">${f.name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${new Date(f.date_added).toLocaleString()}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${f.last_updated_by || 'Unknown'}</td>
+            </tr>
+        `).join('');
 
-        const fileIndex = parseInt(row.dataset.fileIndex);
-        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
+        // Delegate click for file rows
+        tbody.addEventListener('click', function onFileClick(e) {
+            const row = e.target.closest('tr.file-row');
+            if (!row) return;
 
-        if (type === 'hoa') {
-            openHoaModal(record, fileIndex);
-        } else if (type === 'rem') {
-            openRemModal(record, fileIndex);
-        }
+            const fileIndex = parseInt(row.dataset.fileIndex);
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
 
-        tbody.removeEventListener('click', onFileClick); // Remove listener to avoid duplicates
-    });
+            if (type === 'hoa') {
+                openHoaModal(record, fileIndex);
+            } else if (type === 'rem') {
+                openRemModal(record, fileIndex);
+            }
+
+            tbody.removeEventListener('click', onFileClick); // Remove listener to avoid duplicates
+        });
+    }
 
     // Add File Button
     const addFileBtn = document.getElementById('add-file-btn');
@@ -116,6 +128,10 @@ function renderFileList(files, record, type) {
     if (cancelAddFileBtn) {
         cancelAddFileBtn.addEventListener('click', () => {
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
+            // Reopen the file-list modal
+            if (window.currentRecord && window.currentRecordType) {
+                openFileListModal(window.currentRecord, window.currentRecordType);
+            }
         });
     }
 }
@@ -149,19 +165,19 @@ function handleFileUpload() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.showToast('File uploaded successfully!', 'success');
+                    window.showToast(data.message, 'success');
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
                     // Refresh the file list - need to get current record
                     if (window.currentRecord) {
                         openFileListModal(window.currentRecord, type);
                     }
                 } else {
-                    window.showToast('Failed to upload file.', 'error');
+                    window.showToast('Failed to upload files.', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                window.showToast('An error occurred while uploading the file.', 'error');
+                window.showToast('An error occurred while uploading the files.', 'error');
             });
     });
 }
@@ -365,8 +381,7 @@ window.addEventListener('open-modal', (e) => {
         if (form) {
             form.reset();
             // Reset file display
-            const fileDisplay = document.getElementById('file-display');
-            if (fileDisplay) fileDisplay.textContent = 'No file chosen';
+            updateSelectedFilesDisplay();
             // Ensure file input is cleared by cloning and replacing
             const fileInput = document.getElementById('file-upload');
             if (fileInput) {
@@ -379,14 +394,33 @@ window.addEventListener('open-modal', (e) => {
     }
 });
 
+// Function to update the display of selected files
+function updateSelectedFilesDisplay() {
+    const fileInput = document.getElementById('file-upload');
+    const fileDisplay = document.getElementById('file-display');
+    const selectedFilesDiv = document.getElementById('selected-files');
+
+    if (fileDisplay && selectedFilesDiv) {
+        const files = fileInput.files;
+        if (files.length === 0) {
+            fileDisplay.textContent = 'No files chosen';
+            selectedFilesDiv.innerHTML = '';
+        } else if (files.length === 1) {
+            fileDisplay.textContent = files[0].name;
+            selectedFilesDiv.innerHTML = '';
+        } else {
+            fileDisplay.textContent = `${files.length} files selected`;
+            selectedFilesDiv.innerHTML = '<ul class="list-disc list-inside">' +
+                Array.from(files).map(file => `<li>${file.name}</li>`).join('') +
+                '</ul>';
+        }
+    }
+}
+
 // Function to attach file change listener
 function attachFileChangeListener(fileInput) {
     fileInput.addEventListener('change', (e) => {
-        const fileDisplay = document.getElementById('file-display');
-        if (fileDisplay) {
-            const file = e.target.files[0];
-            fileDisplay.textContent = file ? file.name : 'No file chosen';
-        }
+        updateSelectedFilesDisplay();
     });
 }
 

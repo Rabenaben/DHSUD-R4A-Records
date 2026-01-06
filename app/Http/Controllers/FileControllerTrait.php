@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 trait FileControllerTrait
 {
@@ -33,8 +34,8 @@ trait FileControllerTrait
     public function uploadFile(Request $request, $docketNo)
     {
         $request->validate([
-            'file_name' => 'required|string|max:255',
-            'file' => 'required|file|mimes:pdf|max:10240', // 10MB max
+            'files' => 'required|array',
+            'files.*' => 'required|file|mimes:pdf|max:10240', // 10MB max per file
         ]);
 
         $record = $this->model::where('docket_no', $docketNo)->first();
@@ -43,27 +44,43 @@ trait FileControllerTrait
             return response()->json(['success' => false, 'message' => $this->recordType . ' record not found.']);
         }
 
-        // Store the file
-        $file = $request->file('file');
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs($this->folder, $fileName, 'local');
-
         // Get existing files
         $files = json_decode($record->files, true) ?? [];
 
-        // Add new file
-        $files[] = [
-            'name' => $request->file_name,
-            'path' => $path,
-            'date_added' => now('Asia/Manila')->toDateTimeString(),
-            'original_name' => $file->getClientOriginalName(),
-        ];
+        $uploadedFiles = [];
+        $errors = [];
+
+        // Process each uploaded file
+        foreach ($request->file('files') as $file) {
+            try {
+                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs($this->folder, $fileName, 'local');
+
+                // Add new file
+                $files[] = [
+                    'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                    'path' => $path,
+                    'date_added' => now('Asia/Manila')->toDateTimeString(),
+                    'original_name' => $file->getClientOriginalName(),
+                    'last_updated_by' => Auth::check() ? Auth::user()->name : 'Unknown',
+                ];
+
+                $uploadedFiles[] = $file->getClientOriginalName();
+            } catch (\Exception $e) {
+                $errors[] = $file->getClientOriginalName() . ': ' . $e->getMessage();
+            }
+        }
 
         // Update the record
         $record->files = json_encode($files);
         $record->save();
 
-        return response()->json(['success' => true, 'message' => 'File uploaded successfully.']);
+        $message = count($uploadedFiles) . ' file(s) uploaded successfully.';
+        if (!empty($errors)) {
+            $message .= ' Errors: ' . implode(', ', $errors);
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
     public function downloadFile($docketNo, $fileIndex)
