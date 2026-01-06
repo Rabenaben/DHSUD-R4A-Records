@@ -25,28 +25,25 @@
             </div>
 
             <!-- Borrower Table -->
-            <div class="rounded-lg bg-white p-4 shadow">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th
-                                class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
-                                ID</th>
-                            <th
-                                class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Borrower Name</th>
-                            <th
-                                class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Action</th>
-                        </tr>
-                    </thead>
+            <div class="mt-4 overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                <div class="border-b border-gray-200 bg-white p-6">
+                    <table class="min-w-full divide-y divide-blue-400" id="borrowers-table">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                @foreach (['ID', 'Borrower Name', 'Action'] as $header)
+                                    <th class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                                        {{ $header }}
+                                    </th>
+                                @endforeach
+                            </tr>
+                        </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        @forelse ($borrowers as $borrower)
+                        @forelse ($borrowers as $index => $borrower)
                             <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
                                 data-docket-number="{{ $borrower->docket_number }}" data-file-location="{{ $borrower->file_location }}"
                                 data-date-borrowed="{{ $borrower->date_borrowed }}" data-date-returned="{{ $borrower->date_returned }}"
                                 data-status="{{ $borrower->status }}">
-                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">{{ $borrower->id }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">{{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-gray-900">
                                     {{ $borrower->borrower_name }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
