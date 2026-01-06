@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Borrower;
+use App\Models\RemDatabase;
+use App\Models\HoaDatabase;
 
 class BorrowerController extends Controller
 {
