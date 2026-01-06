@@ -27,5 +27,6 @@
     @include('rem_records.partials.rem-modal')
     <x-add-file-modal />
     <x-file-list-modal />
+    <x-confirm-archive-file-modal />
 
 </x-app-layout>

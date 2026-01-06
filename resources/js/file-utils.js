@@ -192,27 +192,54 @@ function handleFileUpload() {
  * @param {number} id - The record ID.
  */
 function archiveRecord(type, id) {
-    if (!confirm('Are you sure you want to archive this record?')) return;
+    // Set the confirm message
+    const confirmMessageEl = document.getElementById('confirm-archive-file-message');
+    if (confirmMessageEl) {
+        confirmMessageEl.textContent = `Are you sure you want to archive this ${type.toUpperCase()} record?`;
+    }
 
-    fetch(`/${type}/${id}/archive`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.showToast('Record archived successfully!', 'success');
-            } else {
-                window.showToast('Failed to archive record.', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.showToast('An error occurred while archiving the record.', 'error');
+    // Store the type and id for later use
+    window.pendingArchiveType = type;
+    window.pendingArchiveId = id;
+
+    // Open the confirmation modal
+    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-archive-file-modal' } }));
+
+    // Attach event listener to the yes button if not already attached
+    const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
+    if (confirmYesBtn && !confirmYesBtn.dataset.listenerAttached) {
+        confirmYesBtn.dataset.listenerAttached = 'true';
+        confirmYesBtn.addEventListener('click', () => {
+            const type = window.pendingArchiveType;
+            const id = window.pendingArchiveId;
+
+            // Close the modal
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
+
+            // Proceed with archiving
+            fetch(`/records/${type}/${id}/archive`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.showToast('Record archived successfully!', 'success');
+                        // Optionally refresh the page or update the UI
+                        location.reload();
+                    } else {
+                        window.showToast('Failed to archive record.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.showToast('An error occurred while archiving the record.', 'error');
+                });
         });
+    }
 }
 
 // =========================================

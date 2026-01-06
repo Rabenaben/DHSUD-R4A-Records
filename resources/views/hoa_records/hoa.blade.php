@@ -35,5 +35,6 @@
         @include('hoa_records.partials.hoa-modal')
         <x-add-file-modal />
         <x-file-list-modal />
-        
+        <x-confirm-archive-file-modal />
+
 </x-app-layout>
