@@ -30,7 +30,33 @@ class BorrowerController extends Controller
             'date_borrowed' => 'required|date',
         ]);
 
-        $borrower = Borrower::create(array_merge($validated, ['status' => 'Borrowed']));
+        // Check if docket is already borrowed
+        if ($validated['file_location'] === 'REM Records') {
+            $docket = RemDatabase::where('docket_no', $validated['docket_number'])->first();
+            if ($docket && $docket->status === 'BORROWED') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This docket is already borrowed. Choose another.'
+                ]);
+            }
+        } elseif ($validated['file_location'] === 'HOA Records') {
+            $docket = HoaDatabase::where('docket_no', $validated['docket_number'])->first();
+            if ($docket && $docket->status === 'BORROWED') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This docket is already borrowed. Choose another.'
+                ]);
+            }
+        }
+
+        $borrower = Borrower::create($validated);
+
+        // Update docket status to BORROWED
+        if ($validated['file_location'] === 'REM Records') {
+            RemDatabase::where('docket_no', $validated['docket_number'])->update(['status' => 'BORROWED']);
+        } elseif ($validated['file_location'] === 'HOA Records') {
+            HoaDatabase::where('docket_no', $validated['docket_number'])->update(['status' => 'BORROWED']);
+        }
 
         return response()->json([
             'success' => true,
@@ -50,10 +76,17 @@ class BorrowerController extends Controller
             'file_location' => 'required|string|max:255',
             'date_borrowed' => 'required|date',
             'date_returned' => 'nullable|date',
-            'status' => 'required|string|in:Borrowed,Returned',
         ]);
 
         $borrower->update($validated);
+
+        // Update docket status based on date_returned
+        $docketStatus = $borrower->fresh()->date_returned ? 'ON-SHELF' : 'BORROWED';
+        if ($validated['file_location'] === 'REM Records') {
+            RemDatabase::where('docket_no', $validated['docket_number'])->update(['status' => $docketStatus]);
+        } elseif ($validated['file_location'] === 'HOA Records') {
+            HoaDatabase::where('docket_no', $validated['docket_number'])->update(['status' => $docketStatus]);
+        }
 
         return response()->json([
             'success' => true,
@@ -67,14 +100,16 @@ class BorrowerController extends Controller
     {
         $borrowers = Borrower::where('borrower_name', $borrowerName)->orderBy('date_borrowed', 'desc')->get();
 
-        // Ensure status is correct based on date_returned
+        // Add status from docket tables
         foreach ($borrowers as $borrower) {
-            if ($borrower->date_returned && $borrower->status !== 'Returned') {
-                $borrower->status = 'Returned';
-                $borrower->save();
-            } elseif (!$borrower->date_returned && $borrower->status !== 'Borrowed') {
-                $borrower->status = 'Borrowed';
-                $borrower->save();
+            if ($borrower->file_location === 'REM Records') {
+                $docket = RemDatabase::where('docket_no', $borrower->docket_number)->first();
+                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
+            } elseif ($borrower->file_location === 'HOA Records') {
+                $docket = HoaDatabase::where('docket_no', $borrower->docket_number)->first();
+                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
+            } else {
+                $borrower->status = 'Unknown';
             }
         }
 
@@ -97,9 +132,13 @@ class BorrowerController extends Controller
         // Update the borrower with the new date_returned
         $borrower->update($validated);
 
-        // Automatically set status based on date_returned
-        $status = $borrower->fresh()->date_returned ? 'Returned' : 'Borrowed';
-        $borrower->update(['status' => $status]);
+        // Update docket status based on date_returned
+        $docketStatus = $borrower->fresh()->date_returned ? 'ON-SHELF' : 'BORROWED';
+        if ($borrower->file_location === 'REM Records') {
+            RemDatabase::where('docket_no', $borrower->docket_number)->update(['status' => $docketStatus]);
+        } elseif ($borrower->file_location === 'HOA Records') {
+            HoaDatabase::where('docket_no', $borrower->docket_number)->update(['status' => $docketStatus]);
+        }
 
         return response()->json([
             'success' => true,

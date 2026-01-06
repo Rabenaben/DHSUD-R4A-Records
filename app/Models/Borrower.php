@@ -13,7 +13,6 @@ class Borrower extends Model
 
     protected $fillable = [
         'borrower_name',
-        'status',
         'docket_number',
         'file_location',
         'date_borrowed',

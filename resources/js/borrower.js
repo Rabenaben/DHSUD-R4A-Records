@@ -66,7 +66,6 @@ function initBorrowerRecords() {
 
         const formData = new FormData(borrowerForm);
         const data = Object.fromEntries(formData.entries());
-        data.status = 'Borrowed';
 
         try {
             const response = await fetch('/borrowers', {
@@ -98,7 +97,7 @@ function initBorrowerRecords() {
                 // Open the record history modal for the created borrower
                 window.editBorrower(result.borrower.id);
             } else {
-                window.showToast('Error saving record: ' + (result.message || 'Unknown error'), 'error');
+                window.showToast(result.message || 'Unknown error', 'error');
             }
         } catch (error) {
             console.error('Error:', error);

@@ -126,9 +126,24 @@ class DisplayController extends Controller
         $borrowers = Borrower::orderBy('date_borrowed', 'desc')->get()->unique('borrower_name');
         $nextId = Borrower::max('id') + 1;
 
-        // Get unique docket numbers from HOA and REM databases
-        $hoaDockets = HoaDatabase::pluck('docket_no')->unique()->sort()->values();
-        $remDockets = RemDatabase::pluck('docket_no')->unique()->sort()->values();
+        // Get unique docket numbers from HOA and REM databases, excluding borrowed ones
+        $hoaDockets = HoaDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
+        $remDockets = RemDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
+
+        // Attach status from docket tables to borrowers
+        foreach ($borrowers as $borrower) {
+            // Get the latest borrower record for this name to determine status
+            $latestBorrower = Borrower::where('borrower_name', $borrower->borrower_name)->orderBy('date_borrowed', 'desc')->first();
+            if ($latestBorrower->file_location === 'REM Records') {
+                $docket = RemDatabase::where('docket_no', $latestBorrower->docket_number)->first();
+                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
+            } elseif ($latestBorrower->file_location === 'HOA Records') {
+                $docket = HoaDatabase::where('docket_no', $latestBorrower->docket_number)->first();
+                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
+            } else {
+                $borrower->status = 'Unknown';
+            }
+        }
 
         return view('borrowers.borrower', [
             'borrowers' => $borrowers,
