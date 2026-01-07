@@ -9,5 +9,13 @@ class RemDatabase extends Model
     protected $table = 'rem'; // your table name
     protected $primaryKey = 'id';      // primary key
 
-    protected $fillable = ['status', 'files'];
+    protected $fillable = [
+        'docket_no',
+        'project_name',
+        'province',
+        'status',
+        'quantity',
+        'remarks',
+        'files'
+    ];
 }

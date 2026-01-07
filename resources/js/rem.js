@@ -60,6 +60,9 @@ function initFolderClicks() {
 async function loadFolderContent(folder, container, originalFolderHTML) {
     const province = folder.dataset.province;
 
+    // Set current province for reload after save
+    window.currentProvince = province;
+
     showLoading(container);
 
     try {
@@ -136,6 +139,22 @@ function attachFilters(container) {
         openFileListModal(record, 'rem');
     });
 
+    // Add Docket Button Event Listener
+    const addRemDocketBtn = container.querySelector('#addRemDocketBtn');
+    if (addRemDocketBtn) {
+        addRemDocketBtn.addEventListener('click', () => {
+            // Hide province section and set province if we're in a folder
+            const provinceSection = document.querySelector('#add-rem-record-form .province-section');
+            const provinceInput = document.getElementById('add-rem-province');
+            if (provinceSection && provinceInput && window.currentProvince) {
+                provinceSection.style.display = 'none';
+                provinceInput.value = window.currentProvince;
+                provinceInput.disabled = true;
+            }
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-rem-record' } }));
+        });
+    }
+
     filterRows(); // Run once on load
 }
 
@@ -158,6 +177,100 @@ function attachBackButton(container, originalHTML) {
 // Initialization
 // =========================================
 
-document.addEventListener('DOMContentLoaded', initFolderClicks);
+document.addEventListener('DOMContentLoaded', () => {
+    initFolderClicks();
+    initAddRemRecordModal();
+});
+
+// =========================================
+// Add Record Modal Functions
+// =========================================
+
+/**
+ * Initializes the add REM record modal functionality.
+ */
+function initAddRemRecordModal() {
+    // Event listeners for modal buttons (these exist on page load)
+    const addRemRecordForm = document.getElementById('add-rem-record-form');
+    const cancelAddRemRecordBtn = document.getElementById('cancel-add-rem-record-btn');
+    const addRemRecordSubmitBtn = document.getElementById('add-rem-record-submit-btn');
+    const confirmSaveBtn = document.getElementById('confirm-save-record-yes-btn');
+
+    if (cancelAddRemRecordBtn) {
+        cancelAddRemRecordBtn.addEventListener('click', () => {
+            if (addRemRecordForm) {
+                addRemRecordForm.reset();
+                // Re-enable and show province section when canceling
+                const provinceSection = document.querySelector('#add-rem-record-form .province-section');
+                const provinceInput = document.getElementById('add-rem-province');
+                if (provinceSection) provinceSection.style.display = '';
+                if (provinceInput) provinceInput.disabled = false;
+            }
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-rem-record' } }));
+        });
+    }
+
+    if (addRemRecordSubmitBtn) {
+        addRemRecordSubmitBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
+            // Update confirmation message for REM records after modal opens
+            setTimeout(() => {
+                const confirmText = document.querySelector('#confirm-save-record-modal p');
+                if (confirmText) {
+                    confirmText.textContent = 'Are you sure you want to save this REM record?';
+                }
+            }, 100);
+        });
+    }
+
+    if (confirmSaveBtn) {
+        confirmSaveBtn.addEventListener('click', async () => {
+            const form = document.getElementById('add-rem-record-form');
+            if (!form) return;
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Ensure province is included even if disabled
+            const provinceInput = document.getElementById('add-rem-province');
+            if (provinceInput && provinceInput.disabled && provinceInput.value) {
+                data.province = provinceInput.value;
+            }
+
+            try {
+                const response = await fetch('/rem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-save-record-modal' } }));
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-rem-record' } }));
+                    window.showToast('REM record added successfully!', 'success');
+                    // Reload current province folder instead of full page
+                    if (window.currentProvince) {
+                        // Reload the current folder content
+                        const folderContainer = document.getElementById('folderContainer');
+                        if (folderContainer) {
+                            loadFolderContent({ dataset: { province: window.currentProvince } }, folderContainer, folderContainer.innerHTML);
+                        }
+                    } else {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                } else {
+                    const errorData = await response.json();
+                    window.showToast(errorData.message || 'Error adding record', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.showToast('Error adding record. Please try again.', 'error');
+            }
+        });
+    }
+}
 
 
