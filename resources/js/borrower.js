@@ -150,10 +150,10 @@ function initBorrowerRecords() {
         newRow.style.cursor = 'pointer';
 
         newRow.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${borrower.id}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.id}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                 <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower(${borrower.id})">Edit</button>
             </td>
         `;
