@@ -31,4 +31,7 @@
             <option value="{{ $municipality->municipality_name }}" data-province="{{ $municipality->province->province_name }}">{{ $municipality->municipality_name }}</option>
         @endforeach
     </select>
+
+    <!-- Add Docket Button -->
+    <button class="rounded-xl border border-gray-300 bg-blue-600 px-4 py-2 text-white-300 hover:bg-blue-700" id="addDocketBtn">Add Docket</button>
 </div>

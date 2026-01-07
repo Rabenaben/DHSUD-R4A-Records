@@ -91,14 +91,8 @@ class DisplayController extends Controller
             ->where('status', '!=', 'ARCHIVED')
             ->get();
 
-        // Get unique province objects from non-archived records
-        $provinces = HoaDatabase::with('province')
-            ->where('status', '!=', 'ARCHIVED')
-            ->get()
-            ->pluck('province')
-            ->unique('province_id')
-            ->sortBy('province_name')
-            ->values();
+        // Get all provinces for the add record modal
+        $provinces = \App\Models\Province::orderBy('province_name')->get();
 
         // Get all municipalities with province relationship
         $municipalities = Municipality::with('province')

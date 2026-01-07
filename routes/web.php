@@ -64,6 +64,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
 
     // HOA routes (HoaController)
     Route::controller(HoaController::class)->prefix('hoa')->name('hoa.')->group(function () {
+        Route::get('/municipalities', 'getMunicipalities')->name('municipalities');
+        Route::post('/', 'store')->name('store');
         Route::get('/{docketNo}/files', 'getFiles')->name('files');
         Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file');
         Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file');

@@ -150,12 +150,158 @@ function initHoaRecords() {
         const record = JSON.parse(row.dataset.record);
         openFileListModal(record, 'hoa');
     });
+
+    // Add Docket Button Event Listener
+    const addDocketBtn = document.getElementById('addDocketBtn');
+    if (addDocketBtn) {
+        addDocketBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-record' } }));
+        });
+    }
+
+    // Add Record Button Click with Confirmation
+    const addRecordSubmitBtn = document.getElementById('add-record-submit-btn');
+    if (addRecordSubmitBtn) {
+        addRecordSubmitBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
+        });
+    }
+
+    // Confirm Save Record Modal Event Listener
+    const confirmSaveBtn = document.getElementById('confirm-save-record-yes-btn');
+    if (confirmSaveBtn) {
+        confirmSaveBtn.addEventListener('click', async () => {
+            const form = document.getElementById('add-record-form');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/hoa', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-save-record-modal' } }));
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-record' } }));
+                    window.showToast('HOA record added successfully!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    const errorData = await response.json();
+                    window.showToast(errorData.message || 'Error adding record', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.showToast('Error adding record. Please try again.', 'error');
+            }
+        });
+    }
+}
+
+// =========================================
+// Add Record Modal Functions
+// =========================================
+
+/**
+ * Initializes the add record modal functionality.
+ */
+function initAddRecordModal() {
+    const addDocketBtn = document.getElementById('addDocketBtn');
+    const addRecordForm = document.getElementById('add-record-form');
+    const cancelAddRecordBtn = document.getElementById('cancel-add-record-btn');
+    const provinceSelect = document.getElementById('add-province');
+    const municipalitySelect = document.getElementById('add-municipality');
+
+    if (!addDocketBtn || !addRecordForm) return;
+
+    // Open modal
+    addDocketBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-record' } }));
+    });
+
+    // Close modal
+    cancelAddRecordBtn.addEventListener('click', () => {
+        addRecordForm.reset();
+        municipalitySelect.disabled = true;
+        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-record' } }));
+    });
+
+    // Province change handler
+    provinceSelect.addEventListener('change', async () => {
+        const provinceId = provinceSelect.value;
+        municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+        municipalitySelect.disabled = !provinceId;
+
+        if (provinceId) {
+            try {
+                const response = await fetch(`/hoa/municipalities?province_id=${provinceId}`);
+                const municipalities = await response.json();
+
+                municipalities.forEach(municipality => {
+                    const option = document.createElement('option');
+                    option.value = municipality.municipality_id;
+                    option.textContent = municipality.municipality_name;
+                    municipalitySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching municipalities:', error);
+            }
+        }
+    });
+
+    // Form submission
+    addRecordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(addRecordForm);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/hoa', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('HTTP error ' + response.status);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Close modal
+                addRecordForm.reset();
+                municipalitySelect.disabled = true;
+                window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-record' } }));
+
+                // Reload the page to show the new record
+                location.reload();
+
+                // Show success toast
+                window.showToast(result.message, 'success');
+            } else {
+                window.showToast(result.message || 'Unknown error', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            window.showToast('Error saving record. Please try again.', 'error');
+        }
+    });
 }
 
 // =========================================
 // Initialization
 // =========================================
 
-document.addEventListener('DOMContentLoaded', initHoaRecords);
+document.addEventListener('DOMContentLoaded', () => {
+    initHoaRecords();
+    initAddRecordModal();
+});
 
 

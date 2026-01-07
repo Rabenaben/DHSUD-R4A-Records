@@ -10,6 +10,7 @@
 window.openFileListModal = openFileListModal;
 window.renderFileList = renderFileList;
 window.handleFileUpload = handleFileUpload;
+window.handleConfirmSaveFile = handleConfirmSaveFile;
 window.loadFilePreview = loadFilePreview;
 window.setValue = setValue;
 window.openRecordModal = openRecordModal;
@@ -38,7 +39,7 @@ function openFileListModal(record, type) {
     const tbody = document.getElementById('file-list-body');
     tbody.innerHTML = `
         <tr>
-            <td colspan="2" class="px-6 py-4 text-center text-gray-500">
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
                 <div class="flex justify-center items-center">
                     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
                     <span class="ml-2">Loading files...</span>
@@ -150,6 +151,22 @@ function handleFileUpload() {
 
     addFileForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        // Open confirmation modal instead of direct upload
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'save-file' } }));
+    });
+}
+
+/**
+ * Handles the confirm save button for file upload.
+ */
+function handleConfirmSaveFile() {
+    const confirmSaveBtn = document.getElementById('confirm-save-btn');
+    if (!confirmSaveBtn || confirmSaveBtn.dataset.listenerAdded) return;
+
+    confirmSaveBtn.dataset.listenerAdded = 'true';
+
+    confirmSaveBtn.addEventListener('click', () => {
+        const addFileForm = document.getElementById('add-file-form');
         const formData = new FormData(addFileForm);
         const docketNo = formData.get('docket_no');
         const type = window.currentRecordType;
@@ -165,6 +182,7 @@ function handleFileUpload() {
             .then(data => {
                 if (data.success) {
                     window.showToast(data.message, 'success');
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'save-file' } }));
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
                     // Refresh the file list - need to get current record
                     if (window.currentRecord) {
@@ -405,6 +423,7 @@ function exportFile(type) {
 
 // Initialize file upload handler if form exists
 handleFileUpload();
+handleConfirmSaveFile();
 
 // Reset add-file form when modal opens
 window.addEventListener('open-modal', (e) => {
@@ -460,4 +479,12 @@ function attachFileChangeListener(fileInput) {
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-upload');
     if (fileInput) attachFileChangeListener(fileInput);
+
+    // Handle cancel save button
+    const cancelSaveBtn = document.getElementById('cancel-save-btn');
+    if (cancelSaveBtn) {
+        cancelSaveBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'save-file' } }));
+        });
+    }
 });

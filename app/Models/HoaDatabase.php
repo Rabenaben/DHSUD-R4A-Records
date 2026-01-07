@@ -9,7 +9,7 @@ class HoaDatabase extends Model
     protected $table = 'hoa_database'; // your table name
     protected $primaryKey = 'id';      // primary key
 
-    protected $fillable = ['status', 'files'];
+    protected $fillable = ['docket_no', 'hoa_name', 'location', 'province_id', 'municipality_id', 'status', 'quantity', 'remarks', 'files'];
 
     public function province()
     {
