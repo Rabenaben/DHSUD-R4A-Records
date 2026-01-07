@@ -1,7 +1,8 @@
-# TODO: Fix ArchiveController to Display Archived Files
+# TODO: Prevent Borrowing Already Borrowed Dockets
 
-- [x] Add `unarchiveFile` method to ArchiveController to unarchive individual files.
-- [x] Add route for unarchiveFile in web.php.
-- [x] Modify DisplayController::archivedDashboard to collect archived files from all HOA and REM records.
-- [x] Update archive.blade.php to display archived files instead of records.
-- [x] Update archive.js to handle unarchive file action.
+- [ ] Modify BorrowerController.php storeBorrower() to check docket status before creating borrower record
+- [ ] Update DisplayController.php borrowerDashboard() to filter out borrowed dockets from hoaDockets and remDockets
+- [ ] Update borrower-modal.blade.php to use filtered docket lists
+- [ ] Test the changes: attempt to borrow an already borrowed docket and verify error
+- [ ] Verify modal only shows available dockets
+- [ ] Check borrower dashboard updates correctly
