@@ -519,6 +519,20 @@ function initBorrowerRecords() {
                     statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
                     statusCell.textContent = 'Returned';
                 }
+
+                // Update the main borrower table status if provided
+                if (result.borrower_status) {
+                    const borrowerName = result.borrower.borrower_name;
+                    const mainTableRow = document.querySelector(`tr[data-borrower-name="${borrowerName}"]`);
+                    if (mainTableRow) {
+                        mainTableRow.setAttribute('data-status', result.borrower_status);
+                        const mainStatusCell = mainTableRow.querySelector('td:nth-child(3)');
+                        if (mainStatusCell) {
+                            mainStatusCell.textContent = result.borrower_status;
+                        }
+                    }
+                }
+
                 // Show success toast
                 window.showToast('Returned date updated successfully.', 'success');
             } else {

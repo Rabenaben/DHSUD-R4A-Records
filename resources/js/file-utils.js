@@ -38,7 +38,7 @@ function openFileListModal(record, type) {
     const tbody = document.getElementById('file-list-body');
     tbody.innerHTML = `
         <tr>
-            <td colspan="2" class="px-6 py-4 text-center text-gray-500">
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
                 <div class="flex justify-center items-center">
                     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
                     <span class="ml-2">Loading files...</span>

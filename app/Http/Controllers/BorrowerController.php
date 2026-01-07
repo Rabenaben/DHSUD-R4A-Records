@@ -140,9 +140,17 @@ class BorrowerController extends Controller
             HoaDatabase::where('docket_no', $borrower->docket_number)->update(['status' => $docketStatus]);
         }
 
+        // Calculate the borrower's overall status
+        $borrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
+        $hasBorrowed = $borrowerRecords->contains(function ($record) {
+            return is_null($record->date_returned);
+        });
+        $borrowerStatus = $hasBorrowed ? 'Borrowed' : 'Returned';
+
         return response()->json([
             'success' => true,
             'borrower' => $borrower,
+            'borrower_status' => $borrowerStatus,
             'message' => 'Returned date updated successfully.'
         ]);
     }
