@@ -7,18 +7,16 @@
 
     <div class="mx-auto max-w-7xl p-4">
         <!-- Section Header Card -->
-        <x-section-header :title="__('Archived Documents Summary')" />
-
-        <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
-            <h3 class="mb-4 text-lg font-semibold text-black-600">Archived Records</h3>
+        <x-section-header :title="__('Archived Documents')" />
+        <div class="space-y-4">
             <!-- Search Filter Bar -->
-            <div class="mb-4 flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
+            <div class="mb-4 mt-4 flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
                 <input
                     class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
                     id="archiveSearchInput" type="text"
                     placeholder="Search by Type, Docket No., or Name...">
             </div>
-            <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
+            <div class="max-h-[350px] overflow-x-auto overflow-y-auto rounded-xl border-gray-300 bg-white p-4 shadow">
                 <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white" id="archiveTable">
                     <thead class="sticky top-0 bg-red-600">
                         <tr>
