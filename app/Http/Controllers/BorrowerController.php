@@ -51,6 +51,9 @@ class BorrowerController extends Controller
 
         $borrower = Borrower::create($validated);
 
+        // Set status for the new borrower
+        $borrower->status = 'Borrowed';
+
         // Update docket status to BORROWED
         if ($validated['file_location'] === 'REM Records') {
             RemDatabase::where('docket_no', $validated['docket_number'])->update(['status' => 'BORROWED']);
