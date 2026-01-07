@@ -31,50 +31,57 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 @foreach (['ID', 'Borrower Name', 'Status', 'Action'] as $header)
-                                    <th class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                                    <th
+                                        class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
                                         {{ $header }}
                                     </th>
                                 @endforeach
                             </tr>
                         </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        @forelse ($borrowers as $index => $borrower)
-                            <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
-                                data-docket-number="{{ $borrower->docket_number }}" data-file-location="{{ $borrower->file_location }}"
-                                data-date-borrowed="{{ $borrower->date_borrowed }}" data-date-returned="{{ $borrower->date_returned }}"
-                                data-status="{{ $borrower->status }}">
-                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">{{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-gray-900">
-                                    {{ $borrower->borrower_name }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
-                                    {{ $borrower->status }}</td>
-                                <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
-                                    <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower({{ $borrower->id }})">Edit</button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="p-3 text-center text-sm text-gray-500" colspan="4">No records found.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            @forelse ($borrowers as $index => $borrower)
+                                <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
+                                    data-docket-number="{{ $borrower->docket_number }}"
+                                    data-file-location="{{ $borrower->file_location }}"
+                                    data-date-borrowed="{{ $borrower->date_borrowed }}"
+                                    data-date-returned="{{ $borrower->date_returned }}"
+                                    data-status="{{ $borrower->status }}">
+                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                        {{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
+                                    <td
+                                        class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                        {{ $borrower->borrower_name }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                        {{ $borrower->status }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                        <button class="text-blue-600 hover:text-blue-900"
+                                            onclick="editBorrower({{ $borrower->id }})">Edit</button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td class="p-3 text-center text-sm text-gray-500" colspan="4">No records found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    @include('borrowers.partials.borrower-modal', [
-        'nextId' => $nextId,
-        'hoaDockets' => $hoaDockets,
-        'remDockets' => $remDockets,
-    ])
+        @include('borrowers.partials.borrower-modal', [
+            'nextId' => $nextId,
+            'hoaDockets' => $hoaDockets,
+            'remDockets' => $remDockets,
+        ])
 
-    @include('borrowers.partials.borrower-records-modal', [
-        'hoaDockets' => $hoaDockets,
-        'remDockets' => $remDockets,
-    ])
+        @include('borrowers.partials.borrower-records-modal', [
+            'hoaDockets' => $hoaDockets,
+            'remDockets' => $remDockets,
+        ])
 
-    <script>
-        window.nextId = {{ $nextId }};
-    </script>
+        <script>
+            window.nextId = {{ $nextId }};
+        </script>
 </x-app-layout>

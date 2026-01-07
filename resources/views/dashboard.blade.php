@@ -15,16 +15,26 @@
             <!-- Stats Grid -->
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
                 @foreach ($cards as $card)
+                    @php
+                        $bgClass = match($card['from']) {
+                            'gray-600' => 'from-gray-600 to-gray-900',
+                            'blue-500' => 'from-blue-500 to-blue-800',
+                            'orange-400' => 'from-orange-400 to-orange-500',
+                            'green-400' => 'from-green-400 to-green-700',
+                            'red-500' => 'from-red-500 to-red-800',
+                            'yellow-300' => 'from-yellow-300 to-yellow-600',
+                            default => '',
+                        };
+                        $textClass = $card['text'] === 'text-white' ? 'text-white' : 'text-black';
+                    @endphp
                     <div class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow hover:transform hover:-translate-y-2 transition-transform duration-200">
 
                         <!-- LEFT COLORED BAR -->
-                        <div
-                            class="bg-linear-to-r {{ $card['from'] === 'gray-600' ? 'from-gray-600 to-gray-900' : '' }} {{ $card['from'] === 'blue-500' ? 'from-blue-500 to-blue-800' : '' }} {{ $card['from'] === 'orange-400' ? 'from-orange-400 to-orange-500' : '' }} {{ $card['from'] === 'green-400' ? 'from-green-400 to-green-700' : '' }} {{ $card['from'] === 'red-500' ? 'from-red-500 to-red-800' : '' }} {{ $card['from'] === 'yellow-300' ? 'from-yellow-300 to-yellow-600' : '' }} absolute bottom-0 left-0 top-0 w-2 rounded-l-lg">
+                        <div class="bg-linear-to-r {{ $bgClass }} absolute bottom-0 left-0 top-0 w-2 rounded-l-lg">
                         </div>
 
                         <!-- Text Content -->
-                        <div
-                            class="{{ $card['text'] === 'text-white' ? 'text-white' : 'text-black' }} flex flex-col pl-2">
+                        <div class="{{ $textClass }} flex flex-col pl-2">
                             <h2 class="text-lg font-bold leading-tight md:text-xl">
                                 {{ $card['count'] }}
                             </h2>
@@ -40,45 +50,44 @@
             </div>
 
             <!-- Recent Activity Logs -->
-            <div class="rounded-lg shadow-md">
-                <h2 class="mb-4 text-xl font-bold">Recent Activity Logs</h2>
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full border border-gray-300 text-center text-sm">
-                        <thead class="bg-gray-800 text-white">
+            <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
+                <h3 class="mb-4 text-lg font-semibold text-black-600">Recent Activity Logs</h3>
+                <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
+                    <table class="min-w-full table-auto divide-y divide-gray-200 bg-white">
+                        <thead class="sticky top-0 bg-gray-800">
                             <tr>
-                                <th class="border border-gray-300 px-4 py-2">Docket No.</th>
-                                <th class="border border-gray-300 px-4 py-2">File Name</th>
-                                <th class="border border-gray-300 px-4 py-2">File Location</th>
-                                <th class="border border-gray-300 px-4 py-2">Date &amp; Time</th>
-                                <th class="border border-gray-300 px-4 py-2">Action</th>
-                                <th class="border border-gray-300 px-4 py-2">User</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Docket No.</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">File Name</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">File Location</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Date &amp; Time</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Action</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">User</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white text-gray-700">
+                        <tbody class="divide-y divide-gray-200 bg-gray-50 text-gray-700">
                             <tr>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                             </tr>
                             <tr>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                             </tr>
                             <tr>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
-                                <td class="border border-gray-300 px-4 py-2">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
                             </tr>
                         </tbody>
                     </table>

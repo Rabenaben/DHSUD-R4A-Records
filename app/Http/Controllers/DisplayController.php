@@ -28,7 +28,7 @@ class DisplayController extends Controller
         $hoa = $this->getCounts(HoaDatabase::class);
 
         // Calculate total borrowed dockets from borrowers table (unique docket numbers not returned or with future return date)
-        $borrowed = Borrower::where(function($q) {
+        $borrowed = Borrower::where(function ($q) {
             $q->whereNull('date_returned')->orWhere('date_returned', '>', now());
         })->distinct('docket_number')->count('docket_number');
 
@@ -126,17 +126,27 @@ class DisplayController extends Controller
 
         // Attach status from docket tables to borrowers
         foreach ($borrowers as $borrower) {
-            // Get the latest borrower record for this name to determine status
-            $latestBorrower = Borrower::where('borrower_name', $borrower->borrower_name)->orderBy('date_borrowed', 'desc')->first();
-            if ($latestBorrower->file_location === 'REM Records') {
-                $docket = RemDatabase::where('docket_no', $latestBorrower->docket_number)->first();
-                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
-            } elseif ($latestBorrower->file_location === 'HOA Records') {
-                $docket = HoaDatabase::where('docket_no', $latestBorrower->docket_number)->first();
-                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
-            } else {
-                $borrower->status = 'Unknown';
+            // Get all borrower records for this name
+            $allBorrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
+
+            $hasBorrowed = false;
+            foreach ($allBorrowerRecords as $record) {
+                if ($record->file_location === 'REM Records') {
+                    $docket = RemDatabase::where('docket_no', $record->docket_number)->first();
+                    if ($docket && $docket->status === 'BORROWED') {
+                        $hasBorrowed = true;
+                        break;
+                    }
+                } elseif ($record->file_location === 'HOA Records') {
+                    $docket = HoaDatabase::where('docket_no', $record->docket_number)->first();
+                    if ($docket && $docket->status === 'BORROWED') {
+                        $hasBorrowed = true;
+                        break;
+                    }
+                }
             }
+
+            $borrower->status = $hasBorrowed ? 'Borrowed' : 'Returned';
         }
 
         return view('borrowers.borrower', [
