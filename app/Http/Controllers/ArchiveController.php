@@ -8,6 +8,8 @@ use App\Models\RemDatabase;
 
 class ArchiveController extends Controller
 {
+    use ActivityLoggingTrait;
+
     // 🔹 Archive File
     public function archiveFile($type, $docketNo, $fileIndex)
     {
@@ -31,6 +33,10 @@ class ArchiveController extends Controller
 
         $record->files = json_encode($files);
         $record->save();
+
+        // Log activity
+        $fileLocation = $type === 'hoa' ? 'HOA Records' : 'REM - ' . $record->province;
+        $this->logActivity($docketNo, $files[$fileIndex]['name'], $fileLocation, 'Archive');
 
         return response()->json(['success' => true]);
     }
@@ -58,6 +64,10 @@ class ArchiveController extends Controller
 
         $record->files = json_encode($files);
         $record->save();
+
+        // Log activity
+        $fileLocation = $type === 'hoa' ? 'HOA Records' : 'REM - ' . $record->province;
+        $this->logActivity($docketNo, $files[$fileIndex]['name'], $fileLocation, 'Unarchive');
 
         return response()->json(['success' => true]);
     }

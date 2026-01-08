@@ -174,6 +174,51 @@ function attachBackButton(container, originalHTML) {
 }
 
 // =========================================
+// Update REM Data Function
+// =========================================
+
+/**
+ * Fetches updated REM data and updates the table and status cards.
+ */
+async function updateRemData() {
+    try {
+        const response = await fetch('/rem/updated-data');
+        const data = await response.json();
+
+        // Update status cards
+        updateRemStatusCards(data.counts);
+
+        // Update table if needed (for folder view)
+        // Note: Table updates might need to be handled differently for REM due to folder structure
+    } catch (error) {
+        console.error('Error updating REM data:', error);
+    }
+}
+
+/**
+ * Updates the REM status cards with new counts.
+ * @param {Object} counts - The updated counts.
+ */
+function updateRemStatusCards(counts) {
+    const cards = [
+        { key: 'total', selector: '.status-card-total' },
+        { key: 'onShelf', selector: '.status-card-onShelf' },
+        { key: 'unavailable', selector: '.status-card-unavailable' },
+        { key: 'borrowed', selector: '.status-card-borrowed' },
+    ];
+
+    cards.forEach(card => {
+        const element = document.querySelector(card.selector);
+        if (element) {
+            const countElement = element.querySelector('h2');
+            if (countElement) {
+                countElement.textContent = counts[card.key];
+            }
+        }
+    });
+}
+
+// =========================================
 // Initialization
 // =========================================
 
@@ -248,9 +293,19 @@ function initAddRemRecordModal() {
                 });
 
                 if (response.ok) {
+                    // Reset form after successful submission
+                    form.reset();
+                    // Re-enable and show province section
+                    const provinceSection = document.querySelector('#add-rem-record-form .province-section');
+                    const provinceInput = document.getElementById('add-rem-province');
+                    if (provinceSection) provinceSection.style.display = '';
+                    if (provinceInput) provinceInput.disabled = false;
+
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-save-record-modal' } }));
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-rem-record' } }));
                     window.showToast('REM record added successfully!', 'success');
+                    // Update status cards
+                    await updateRemData();
                     // Reload current province folder instead of full page
                     if (window.currentProvince) {
                         // Reload the current folder content

@@ -8,7 +8,7 @@ use App\Models\Municipality;
 
 class HoaController extends Controller
 {
-    use FileControllerTrait;
+    use FileControllerTrait, ActivityLoggingTrait;
 
     public function __construct()
     {
@@ -31,6 +31,9 @@ class HoaController extends Controller
         ]);
 
         $hoa = HoaDatabase::create($request->all());
+
+        // Log activity
+        $this->logActivity($request->docket_no, null, 'HOA Records', 'Added a docket');
 
         return response()->json([
             'success' => true,

@@ -12,6 +12,13 @@ window.exportHoaFile = function () {
 };
 
 // =========================================
+// Global Variables for Modals
+// =========================================
+
+let addRecordForm;
+let municipalitySelect;
+
+// =========================================
 // Modal Functions
 // =========================================
 
@@ -46,6 +53,10 @@ function openHoaModal(record, fileIndex) {
  * Initializes HOA records table with filtering and event listeners.
  */
 function initHoaRecords() {
+    // Declare modal elements
+    addRecordForm = document.getElementById('add-record-form');
+    municipalitySelect = document.getElementById('add-municipality');
+
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
     const provinceFilter = document.getElementById('provinceFilter');
@@ -167,6 +178,14 @@ function initHoaRecords() {
         });
     }
 
+    // Reset form when opening add record modal
+    window.addEventListener('open-modal', (e) => {
+        if (e.detail.name === 'add-record') {
+            addRecordForm.reset();
+            municipalitySelect.disabled = true;
+        }
+    });
+
     // Confirm Save Record Modal Event Listener
     const confirmSaveBtn = document.getElementById('confirm-save-record-yes-btn');
     if (confirmSaveBtn) {
@@ -184,6 +203,11 @@ function initHoaRecords() {
                 });
 
                 if (response.ok) {
+                    // Reset form after successful submission
+                    form.reset();
+                    const municipalitySelect = document.getElementById('add-municipality');
+                    if (municipalitySelect) municipalitySelect.disabled = true;
+
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-save-record-modal' } }));
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-record' } }));
                     window.showToast('HOA record added successfully!', 'success');
@@ -324,7 +348,7 @@ async function updateHoaData() {
 function updateStatusCards(counts) {
     const cards = [
         { key: 'total', selector: '.status-card-total' },
-        { key: 'onShelf', selector: '.status-card-on-shelf' },
+        { key: 'onShelf', selector: '.status-card-onShelf' },
         { key: 'unavailable', selector: '.status-card-unavailable' },
         { key: 'borrowed', selector: '.status-card-borrowed' },
     ];

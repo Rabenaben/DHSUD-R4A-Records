@@ -16,7 +16,7 @@
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
                 @foreach ($cards as $card)
                     @php
-                        $bgClass = match($card['from']) {
+                        $bgClass = match ($card['from']) {
                             'gray-600' => 'from-gray-600 to-gray-900',
                             'blue-500' => 'from-blue-500 to-blue-800',
                             'orange-400' => 'from-orange-400 to-orange-500',
@@ -27,7 +27,8 @@
                         };
                         $textClass = $card['text'] === 'text-white' ? 'text-white' : 'text-black';
                     @endphp
-                    <div class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow hover:transform hover:-translate-y-2 transition-transform duration-200">
+                    <div
+                        class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow transition-transform duration-200 hover:-translate-y-2 hover:transform">
 
                         <!-- LEFT COLORED BAR -->
                         <div class="bg-linear-to-r {{ $bgClass }} absolute bottom-0 left-0 top-0 w-2 rounded-l-lg">
@@ -51,7 +52,7 @@
 
             <!-- Recent Activity Logs -->
             <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
-                <h3 class="mb-4 text-lg font-semibold text-black-600">Recent Activity Logs</h3>
+                <h3 class="text-black-600 mb-4 text-lg font-semibold">Recent Activity Logs</h3>
                 <div class="max-h-[350px] overflow-x-auto overflow-y-auto">
                     <table class="min-w-full table-auto divide-y divide-gray-200 bg-white">
                         <thead class="sticky top-0 bg-gray-800">
@@ -64,31 +65,8 @@
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-white">User</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 bg-gray-50 text-gray-700">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                            </tr>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                            </tr>
+                        <tbody class="divide-y divide-gray-200 bg-gray-50 text-gray-700" id="activity-logs-tbody">
+                            <!-- Logs will be loaded here via AJAX -->
                         </tbody>
                     </table>
                 </div>
@@ -96,4 +74,42 @@
 
         </div>
     </div>
+
+    <script>
+        function loadActivityLogs() {
+            fetch('/activity/logs')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('activity-logs-tbody');
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        tbody.innerHTML =
+                            '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No activity logs found.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(log => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.docket_no}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.file_name || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.file_location}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(log.created_at).toLocaleString()}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.action}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.user ? log.user.name : 'Unknown'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading activity logs:', error);
+                    const tbody = document.getElementById('activity-logs-tbody');
+                    tbody.innerHTML =
+                        '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Error loading logs.</td></tr>';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadActivityLogs);
+    </script>
 </x-app-layout>

@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\RemDatabase;
-use Illuminate\Support\Facades\Log;
-
 
 class RemController extends Controller
 {
-    use FileControllerTrait;
+    use FileControllerTrait, ActivityLoggingTrait;
 
     public function __construct()
     {
@@ -29,25 +27,32 @@ class RemController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        Log::info('Creating REM record with data: ' . json_encode($request->all()));
+        $rem = RemDatabase::create($request->all());
 
-        try {
-            $rem = RemDatabase::create($request->all());
+        // Log activity
+        $this->logActivity($request->docket_no, null, 'REM - ' . $request->province, 'Added a docket');
 
-            Log::info('REM record created successfully with id: ' . $rem->id . ', docket_no: ' . $rem->docket_no);
+        return response()->json([
+            'success' => true,
+            'message' => 'REM record added successfully.',
+            'rem' => $rem,
+        ]);
+    }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'REM record added successfully.',
-                'rem' => $rem,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to create REM record: ' . $e->getMessage());
+    public function getUpdatedData()
+    {
+        $data = [
+            'total' => RemDatabase::count(),
+            'onShelf' => RemDatabase::where('status', 'ON-SHELF')->count(),
+            'unavailable' => RemDatabase::where('status', 'UNAVAILABLE')->count(),
+            'borrowed' => RemDatabase::where('status', 'BORROWED')->count(),
+        ];
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to add REM record.',
-            ], 500);
-        }
+        $records = RemDatabase::all();
+
+        return response()->json([
+            'counts' => $data,
+            'records' => $records,
+        ]);
     }
 }

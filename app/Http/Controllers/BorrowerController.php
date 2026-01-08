@@ -9,6 +9,8 @@ use App\Models\HoaDatabase;
 
 class BorrowerController extends Controller
 {
+    use ActivityLoggingTrait;
+
     // 🔹 Show Borrower Details
     public function showBorrower($id)
     {
@@ -91,6 +93,9 @@ class BorrowerController extends Controller
             HoaDatabase::where('docket_no', $validated['docket_number'])->update(['status' => $docketStatus]);
         }
 
+        // Log activity
+        $this->logActivity($validated['docket_number'], null, $validated['file_location'], 'Borrow');
+
         return response()->json([
             'success' => true,
             'borrower' => $borrower,
@@ -149,6 +154,11 @@ class BorrowerController extends Controller
             return is_null($record->date_returned);
         });
         $borrowerStatus = $hasBorrowed ? 'Borrowed' : 'Returned';
+
+         // Log activity if returned
+        if ($borrower->fresh()->date_returned) {
+            $this->logActivity($validated['docket_number'], null, $validated['file_location'], 'Return');
+        }
 
         return response()->json([
             'success' => true,

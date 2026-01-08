@@ -27,8 +27,9 @@
     @include('rem_records.partials.rem-modal')
     <x-add-rem-record-modal :provinces="$provinces" />
     <x-add-file-modal />
+    <x-save-file-modal />
     <x-file-list-modal />
     <x-confirm-archive-file-modal />
-    <x-confirm-save-record-modal />
+    <x-confirm-save-record-modal type="REM" />
 
 </x-app-layout>

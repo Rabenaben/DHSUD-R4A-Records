@@ -80,6 +80,12 @@ trait FileControllerTrait
         $record->files = json_encode($files);
         $record->save();
 
+        // Log activity for uploaded files
+        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . $record->province;
+        foreach ($uploadedFiles as $fileName) {
+            $this->logActivity($docketNo, $fileName, $fileLocation, 'Uploaded a file');
+        }
+
         $message = count($uploadedFiles) . ' file(s) uploaded successfully.';
         if (!empty($errors)) {
             $message .= ' Errors: ' . implode(', ', $errors);
