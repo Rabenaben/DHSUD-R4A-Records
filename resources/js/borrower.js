@@ -9,6 +9,7 @@ function initBorrowerRecords() {
     const fileLocationSelect = document.getElementById('file-location');
     const docketInput = document.getElementById('docket-no');
 
+
     if (!searchInput || !tableBody) return;
 
     const getTableRows = () => Array.from(tableBody.querySelectorAll('tr[data-id]'));
@@ -26,25 +27,18 @@ function initBorrowerRecords() {
             if (matchesSearch) anyVisible = true;
         });
 
-        const noRecordsRow = document.getElementById('noRecordsRow');
-        if (noRecordsRow) {
-            if (anyVisible) {
-                noRecordsRow.classList.add('hidden');
-            } else {
-                noRecordsRow.classList.remove('hidden');
-            }
-        }
+
     };
 
-    // Filter Docket List based on File Location
-    const filterDocketList = () => {
-        const selectedLocation = fileLocationSelect.value;
+    // Generalized Filter Docket List
+    const filterDocketList = (selectElement, docketInputElement, hoaListId, remListId) => {
+        const selectedLocation = selectElement.value;
         if (selectedLocation === 'HOA Records') {
-            docketInput.setAttribute('list', 'hoa-docket-list');
+            docketInputElement.setAttribute('list', hoaListId);
         } else if (selectedLocation === 'REM Records') {
-            docketInput.setAttribute('list', 'rem-docket-list');
+            docketInputElement.setAttribute('list', remListId);
         } else {
-            docketInput.removeAttribute('list');
+            docketInputElement.removeAttribute('list');
         }
     };
 
@@ -60,11 +54,11 @@ function initBorrowerRecords() {
         window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'borrower' } }));
     };
 
-    // Handle form submission
-    const handleFormSubmit = async (e) => {
+    // Generalized Handle Borrower Form Submission
+    const handleBorrowerFormSubmit = async (e, formElement, isHistory = false) => {
         e.preventDefault();
 
-        const formData = new FormData(borrowerForm);
+        const formData = new FormData(formElement);
         const data = Object.fromEntries(formData.entries());
 
         try {
@@ -84,18 +78,52 @@ function initBorrowerRecords() {
             const result = await response.json();
 
             if (result.success) {
-                // Close modal
-                closeModal();
-                // Reset form
-                borrowerForm.reset();
-                // Add new record to table without reloading
+                if (isHistory) {
+                    // Reset history form fields
+                    formElement.reset();
+                    // Reset file location dropdown to default
+                    const fileLocationSelect = document.getElementById('history-file-location');
+                    if (fileLocationSelect) {
+                        fileLocationSelect.value = '';
+                    }
+                    // Reset docket list
+                    const docketInput = document.getElementById('history-docket-no');
+                    if (docketInput) {
+                        docketInput.removeAttribute('list');
+                    }
+
+                    // Refresh history modal if it's open
+                    const borrowerName = document.getElementById('history-borrower-name').value;
+                    if (borrowerName) {
+                        // Reset to page 1 to ensure new record is visible
+                        currentPage = 1;
+                        // Re-fetch and re-populate history
+                        fetch(`/borrowers/history/${encodeURIComponent(borrowerName)}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        }).then(response => response.json()).then(result => {
+                            if (result.success) {
+                                populateHistoryModal(result.borrower_name, result.history);
+                            }
+                        });
+                    }
+                } else {
+                    // Close modal
+                    closeModal();
+                    // Reset form
+                    formElement.reset();
+                    // Open the record history modal for the created borrower
+                    window.editBorrower(result.borrower.id);
+                }
+
+                // Add new record to main table
                 if (result.borrower) {
                     addRecordToTable(result.borrower);
                 }
                 // Show success toast
                 window.showToast(result.message, 'success');
-                // Open the record history modal for the created borrower
-                window.editBorrower(result.borrower.id);
             } else {
                 window.showToast(result.message || 'Unknown error', 'error');
             }
@@ -108,7 +136,7 @@ function initBorrowerRecords() {
     searchInput.addEventListener('input', filterTable);
 
     if (fileLocationSelect) {
-        fileLocationSelect.addEventListener('change', filterDocketList);
+        fileLocationSelect.addEventListener('change', () => filterDocketList(fileLocationSelect, docketInput, 'hoa-docket-list', 'rem-docket-list'));
     }
 
     if (addRecordBtn) {
@@ -116,7 +144,7 @@ function initBorrowerRecords() {
     }
 
     if (borrowerForm) {
-        borrowerForm.addEventListener('submit', handleFormSubmit);
+        borrowerForm.addEventListener('submit', (e) => handleBorrowerFormSubmit(e, borrowerForm, false));
     }
 
     if (cancelBtn) {
@@ -146,8 +174,6 @@ function initBorrowerRecords() {
         newRow.setAttribute('data-id', borrower.id);
         newRow.setAttribute('data-borrower-name', borrower.borrower_name);
         newRow.setAttribute('data-status', borrower.status || 'N/A');
-        newRow.setAttribute('onclick', `showBorrowerDetails(${borrower.id})`);
-        newRow.style.cursor = 'pointer';
 
         newRow.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.id}</td>
@@ -162,45 +188,7 @@ function initBorrowerRecords() {
         tableBody.insertBefore(newRow, tableBody.firstChild);
     };
 
-    // Function to show borrower details in modal (removed - no longer needed)
-    // window.showBorrowerDetails = async (id) => {
-    //     // This function is no longer used since table rows are not clickable
-    // };
 
-    // Function to populate modal for viewing details
-    const populateModalForViewing = (borrower) => {
-        // Change modal title
-        const modalTitle = document.getElementById('modal-title');
-        if (modalTitle) {
-            modalTitle.textContent = 'Borrower Details';
-        }
-
-        // Populate form fields (only set values for fields that exist)
-        const docketNoField = document.getElementById('docket-no');
-        if (docketNoField) docketNoField.value = borrower.docket_number || '';
-
-        const fileLocationField = document.getElementById('file-location');
-        if (fileLocationField) fileLocationField.value = borrower.file_location || '';
-
-        const borrowerNameField = document.getElementById('borrower-name');
-        if (borrowerNameField) borrowerNameField.value = borrower.borrower_name || '';
-
-        const dateLoanedField = document.getElementById('date-loaned');
-        if (dateLoanedField) dateLoanedField.value = borrower.date_borrowed ? new Date(borrower.date_borrowed).toISOString().slice(0, 16) : '';
-
-        // Make all fields readonly
-        const inputs = document.querySelectorAll('#borrower-form input, #borrower-form select, #borrower-form textarea');
-        inputs.forEach(input => {
-            input.setAttribute('readonly', 'readonly');
-            input.classList.add('bg-gray-100');
-        });
-
-        // Hide save button, show close button
-        const saveBtn = document.getElementById('save-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        if (saveBtn) saveBtn.style.display = 'none';
-        if (cancelBtn) cancelBtn.textContent = 'Close';
-    };
 
     // Function to reset modal for adding new record
     const resetModalForAdding = (fromHistory = false, borrowerName = null) => {
@@ -217,6 +205,12 @@ function initBorrowerRecords() {
         const idField = document.getElementById('borrower-id');
         if (idField && window.nextId) {
             idField.value = window.nextId;
+        }
+
+        // Set date borrowed to current date
+        const dateLoanedField = document.getElementById('date-loaned');
+        if (dateLoanedField) {
+            dateLoanedField.value = new Date().toISOString().split('T')[0];
         }
 
         // Make fields editable
@@ -298,6 +292,8 @@ function initBorrowerRecords() {
 
         // Set borrower name in form
         document.getElementById('history-borrower-name').value = borrowerName;
+        // Set borrower ID (using the first record's ID as representative)
+        document.getElementById('history-borrower-id').value = history.length > 0 ? history[0].id : '';
 
         // Add event listener for add new record button
         const addNewRecordBtn = document.getElementById('add-new-record-btn');
@@ -330,13 +326,12 @@ function initBorrowerRecords() {
 
         pageHistory.forEach(record => {
             const row = document.createElement('tr');
-            row.className = 'cursor-pointer hover:bg-gray-50';
-            row.onclick = () => makeReturnedDateEditable(record.id, row);
+            row.className = 'hover:bg-gray-50';
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.docket_number}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.file_location}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(record.date_borrowed).toLocaleString()}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" id="returned-date-${record.id}">${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.date_returned ? '' : 'cursor-pointer text-blue-600 hover:text-blue-800'}" id="returned-date-${record.id}" ${record.date_returned ? '' : `onclick="window.openVerifyReturnedDateModal(${record.id})"`}>${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${record.status === 'Returned' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
                         ${record.status}
@@ -357,133 +352,84 @@ function initBorrowerRecords() {
         }
     };
 
-    // Function to make returned date editable
-    const makeReturnedDateEditable = (id, row) => {
-        const cell = document.getElementById(`returned-date-${id}`);
-        if (!cell) return;
+    // Global variable to store current record ID for modal
+    let currentRecordId = null;
 
-        // Check if already returned (has date_returned set)
+    // Function to open verify returned date modal
+    window.openVerifyReturnedDateModal = (id) => {
+        currentRecordId = id;
+        // Find the record data
         const record = currentHistory.find(r => r.id === id);
-        if (record && record.date_returned) {
-            return; // Already returned, no editing
+        if (!record) return;
+
+        // Populate borrower name
+        const borrowerNameInput = document.getElementById('verify-borrower-name');
+        if (borrowerNameInput) {
+            borrowerNameInput.value = document.getElementById('history-borrower-name').value;
         }
+        // Populate borrower ID
+        const borrowerIdInput = document.getElementById('verify-borrower-id');
+        if (borrowerIdInput) {
+            borrowerIdInput.value = document.getElementById('history-borrower-id').value;
+        }
+        // Populate docket number
+        const docketNoInput = document.getElementById('verify-docket-no');
+        if (docketNoInput) {
+            docketNoInput.value = record.docket_number;
+        }
+        // Set current date as read-only
+        const returnedDateInput = document.getElementById('verify-returned-date');
+        if (returnedDateInput) {
+            returnedDateInput.value = new Date().toISOString().split('T')[0];
+        }
+        // Show verify returned date modal
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'verify-returned-date-modal' } }));
+    };
 
-        const currentValue = record?.date_returned;
-        const input = document.createElement('input');
-        input.type = 'datetime-local';
-        input.className = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500';
-        input.value = currentValue ? new Date(currentValue).toISOString().slice(0, 16) : '';
 
-        const showConfirmation = () => {
-            const newValue = input.value;
-            if (!newValue) return; // Don't proceed if no value
 
-            // Show confirmation modal
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-returned-date-modal' } }));
+    // Function to handle verify returned date modal submission
+    const handleVerifyReturnedDate = async () => {
+        if (!currentRecordId) return;
 
-            // Set up confirmation button
-            const confirmBtn = document.getElementById('confirm-returned-yes-btn');
-            const handleConfirm = async () => {
-                await updateReturnedDate(id, newValue);
-                cell.innerHTML = newValue ? new Date(newValue).toLocaleString() : 'N/A';
-                // Mark as returned to prevent further editing
-                record.date_returned = newValue;
+        const returnedDateInput = document.getElementById('verify-returned-date');
+        const newValue = returnedDateInput.value;
+        if (!newValue) return;
+
+        // Show confirmation modal
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-returned-date-modal' } }));
+
+        // Set up confirmation button
+        const confirmBtn = document.getElementById('confirm-returned-yes-btn');
+        const handleConfirm = async () => {
+            await updateReturnedDate(currentRecordId, newValue + 'T' + new Date().toTimeString().split(' ')[0]); // Add current time
+            // Update the cell to show the new date and time
+            const cell = document.getElementById(`returned-date-${currentRecordId}`);
+            if (cell) {
+                cell.innerHTML = new Date(newValue + 'T' + new Date().toTimeString().split(' ')[0]).toLocaleString();
+                cell.classList.remove('cursor-pointer', 'text-blue-600', 'hover:text-blue-800');
+            }
+            // Mark as returned to prevent further editing
+            const record = currentHistory.find(r => r.id === currentRecordId);
+            if (record) {
+                record.date_returned = newValue + 'T' + new Date().toTimeString().split(' ')[0];
                 record.status = 'Returned';
                 // Update the status cell in the table
-                const statusCell = cell.closest('tr').querySelector('td:last-child span');
+                const statusCell = document.querySelector(`#returned-date-${currentRecordId}`).closest('tr').querySelector('td:last-child span');
                 if (statusCell) {
                     statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
                     statusCell.textContent = 'Returned';
                 }
-                window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-returned-date-modal' } }));
-                confirmBtn.removeEventListener('click', handleConfirm);
-            };
-            confirmBtn.addEventListener('click', handleConfirm);
-        };
-
-        input.onblur = showConfirmation;
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                showConfirmation();
-            } else if (e.key === 'Escape') {
-                cell.innerHTML = currentValue ? new Date(currentValue).toLocaleString() : 'N/A';
             }
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-returned-date-modal' } }));
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'verify-returned-date-modal' } }));
+            confirmBtn.removeEventListener('click', handleConfirm);
+            currentRecordId = null;
         };
-
-        cell.innerHTML = '';
-        cell.appendChild(input);
-        input.focus();
+        confirmBtn.addEventListener('click', handleConfirm);
     };
 
-    // Handle history form submission (for adding new records)
-    const handleHistoryFormSubmit = async (e) => {
-        e.preventDefault();
 
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-        // Default status for new records is already 'Borrowed'
-
-        try {
-            const response = await fetch('/borrowers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                throw new Error('HTTP error ' + response.status);
-            }
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Reset form fields
-                historyForm.reset();
-                // Reset file location dropdown to default
-                const fileLocationSelect = document.getElementById('history-file-location');
-                if (fileLocationSelect) {
-                    fileLocationSelect.value = '';
-                }
-                // Reset docket list
-                const docketInput = document.getElementById('history-docket-no');
-                if (docketInput) {
-                    docketInput.removeAttribute('list');
-                }
-
-                // Add new record to main table
-                if (result.borrower) {
-                    addRecordToTable(result.borrower);
-                }
-                // Refresh history modal if it's open
-                const borrowerName = document.getElementById('history-borrower-name').value;
-                if (borrowerName) {
-                    // Reset to page 1 to ensure new record is visible
-                    currentPage = 1;
-                    // Re-fetch and re-populate history
-                    fetch(`/borrowers/history/${encodeURIComponent(borrowerName)}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    }).then(response => response.json()).then(result => {
-                        if (result.success) {
-                            populateHistoryModal(result.borrower_name, result.history);
-                        }
-                    });
-                }
-                // Show success toast
-                window.showToast(result.message, 'success');
-            } else {
-                window.showToast('Error adding record: ' + (result.message || 'Unknown error'), 'error');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            window.showToast('Error adding record. Please try again.', 'error');
-        }
-    };
 
     // Function to close history modal
     const closeHistoryModal = () => {
@@ -509,18 +455,6 @@ function initBorrowerRecords() {
             const result = await response.json();
 
             if (result.success) {
-                // Update the cell to show the new date
-                const cell = document.getElementById(`returned-date-${id}`);
-                if (cell) {
-                    cell.innerHTML = dateValue ? new Date(dateValue).toLocaleString() : 'N/A';
-                }
-                // Automatically update the status to 'Returned' if date is set
-                const statusCell = cell.closest('tr').querySelector('td:last-child span');
-                if (statusCell && dateValue) {
-                    statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
-                    statusCell.textContent = 'Returned';
-                }
-
                 // Update the main borrower table status if provided
                 if (result.borrower_status) {
                     const borrowerName = result.borrower.borrower_name;
@@ -557,18 +491,7 @@ function initBorrowerRecords() {
         }
     };
 
-    // Filter Docket List based on File Location for history modal
-    const filterHistoryDocketList = () => {
-        const selectedLocation = document.getElementById('history-file-location').value;
-        const docketInput = document.getElementById('history-docket-no');
-        if (selectedLocation === 'HOA Records') {
-            docketInput.setAttribute('list', 'history-hoa-docket-list');
-        } else if (selectedLocation === 'REM Records') {
-            docketInput.setAttribute('list', 'history-rem-docket-list');
-        } else {
-            docketInput.removeAttribute('list');
-        }
-    };
+
 
     // Pagination event listeners
     const prevPageBtn = document.getElementById('prev-page');
@@ -599,7 +522,7 @@ function initBorrowerRecords() {
     const historyFileLocationSelect = document.getElementById('history-file-location');
 
     if (historyForm) {
-        historyForm.addEventListener('submit', handleHistoryFormSubmit);
+        historyForm.addEventListener('submit', (e) => handleBorrowerFormSubmit(e, historyForm, true));
     }
 
     if (historyCancelBtn) {
@@ -607,6 +530,12 @@ function initBorrowerRecords() {
     }
 
     if (historyFileLocationSelect) {
-        historyFileLocationSelect.addEventListener('change', filterHistoryDocketList);
+        historyFileLocationSelect.addEventListener('change', () => filterDocketList(historyFileLocationSelect, document.getElementById('history-docket-no'), 'history-hoa-docket-list', 'history-rem-docket-list'));
+    }
+
+    // Add event listener for verify returned date modal
+    const verifyReturnedDateBtn = document.getElementById('verify-returned-date-btn');
+    if (verifyReturnedDateBtn) {
+        verifyReturnedDateBtn.addEventListener('click', handleVerifyReturnedDate);
     }
 }

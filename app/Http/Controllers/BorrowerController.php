@@ -22,6 +22,44 @@ class BorrowerController extends Controller
         ]);
     }
 
+    // 🔹 Validate Docket Exists
+    private function validateDocketExists($fileLocation, $docketNumber)
+    {
+        if ($fileLocation === 'REM Records') {
+            $docket = RemDatabase::where('docket_no', $docketNumber)->first();
+            if (!$docket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Docket number "' . $docketNumber . '" No existing records'
+                ]);
+            }
+        } elseif ($fileLocation === 'HOA Records') {
+            $docket = HoaDatabase::where('docket_no', $docketNumber)->first();
+            if (!$docket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error "' . $docketNumber . '" No existing records.'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select a valid file location (HOA Records or REM Records).'
+            ]);
+        }
+        return null; // Valid
+    }
+
+    // 🔹 Update Docket Status
+    private function updateDocketStatus($fileLocation, $docketNumber, $status)
+    {
+        if ($fileLocation === 'REM Records') {
+            RemDatabase::where('docket_no', $docketNumber)->update(['status' => $status]);
+        } elseif ($fileLocation === 'HOA Records') {
+            HoaDatabase::where('docket_no', $docketNumber)->update(['status' => $status]);
+        }
+    }
+
     // 🔹 Store Borrower
     public function storeBorrower(Request $request)
     {
@@ -29,8 +67,15 @@ class BorrowerController extends Controller
             'borrower_name' => 'required|string|max:255',
             'docket_number' => 'required|string|max:100',
             'file_location' => 'required|string|max:255',
-            'date_borrowed' => 'required|date',
+            'date_borrowed' => 'nullable|date',
         ]);
+
+        // Trim docket number to avoid whitespace issues
+        $validated['docket_number'] = trim($validated['docket_number']);
+
+        // Validate docket exists
+        $validationError = $this->validateDocketExists($validated['file_location'], $validated['docket_number']);
+        if ($validationError) return $validationError;
 
         // Check if docket is already borrowed
         if ($validated['file_location'] === 'REM Records') {
@@ -51,17 +96,21 @@ class BorrowerController extends Controller
             }
         }
 
+        // Set date_borrowed to current datetime if not provided
+        if (!isset($validated['date_borrowed']) || empty($validated['date_borrowed'])) {
+            $validated['date_borrowed'] = now();
+        } else {
+            // If date is provided, append current time
+            $validated['date_borrowed'] = $validated['date_borrowed'] . ' ' . now()->format('H:i:s');
+        }
+
         $borrower = Borrower::create($validated);
 
         // Set status for the new borrower
         $borrower->status = 'Borrowed';
 
         // Update docket status to BORROWED
-        if ($validated['file_location'] === 'REM Records') {
-            RemDatabase::where('docket_no', $validated['docket_number'])->update(['status' => 'BORROWED']);
-        } elseif ($validated['file_location'] === 'HOA Records') {
-            HoaDatabase::where('docket_no', $validated['docket_number'])->update(['status' => 'BORROWED']);
-        }
+        $this->updateDocketStatus($validated['file_location'], $validated['docket_number'], 'BORROWED');
 
         return response()->json([
             'success' => true,
@@ -82,6 +131,9 @@ class BorrowerController extends Controller
             'date_borrowed' => 'required|date',
             'date_returned' => 'nullable|date',
         ]);
+
+        // Update date_borrowed to current datetime
+        $validated['date_borrowed'] = now();
 
         $borrower->update($validated);
 
@@ -110,15 +162,7 @@ class BorrowerController extends Controller
 
         // Add status from docket tables
         foreach ($borrowers as $borrower) {
-            if ($borrower->file_location === 'REM Records') {
-                $docket = RemDatabase::where('docket_no', $borrower->docket_number)->first();
-                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
-            } elseif ($borrower->file_location === 'HOA Records') {
-                $docket = HoaDatabase::where('docket_no', $borrower->docket_number)->first();
-                $borrower->status = $docket ? ($docket->status === 'BORROWED' ? 'Borrowed' : 'Returned') : 'Unknown';
-            } else {
-                $borrower->status = 'Unknown';
-            }
+            $borrower->status = is_null($borrower->date_returned) ? 'Borrowed' : 'Returned';
         }
 
         return response()->json([
@@ -142,11 +186,7 @@ class BorrowerController extends Controller
 
         // Update docket status based on date_returned
         $docketStatus = $borrower->fresh()->date_returned ? 'ON-SHELF' : 'BORROWED';
-        if ($borrower->file_location === 'REM Records') {
-            RemDatabase::where('docket_no', $borrower->docket_number)->update(['status' => $docketStatus]);
-        } elseif ($borrower->file_location === 'HOA Records') {
-            HoaDatabase::where('docket_no', $borrower->docket_number)->update(['status' => $docketStatus]);
-        }
+        $this->updateDocketStatus($borrower->file_location, $borrower->docket_number, $docketStatus);
 
         // Calculate the borrower's overall status
         $borrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
@@ -155,9 +195,14 @@ class BorrowerController extends Controller
         });
         $borrowerStatus = $hasBorrowed ? 'Borrowed' : 'Returned';
 
-         // Log activity if returned
+        // Log activity if returned
         if ($borrower->fresh()->date_returned) {
-            $this->logActivity($validated['docket_number'], null, $validated['file_location'], 'Return');
+            $this->logActivity(
+                $borrower->docket_number,
+                null,
+                $borrower->file_location,
+                'Return'
+            );
         }
 
         return response()->json([

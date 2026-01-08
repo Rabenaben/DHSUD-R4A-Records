@@ -110,29 +110,17 @@ class DisplayController extends Controller
         $hoaDockets = HoaDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
         $remDockets = RemDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
 
-        // Attach status from docket tables to borrowers
+        // Attach status from borrower records to borrowers
         foreach ($borrowers as $borrower) {
             // Get all borrower records for this name
             $allBorrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
 
-            $hasBorrowed = false;
-            foreach ($allBorrowerRecords as $record) {
-                if ($record->file_location === 'REM Records') {
-                    $docket = RemDatabase::where('docket_no', $record->docket_number)->first();
-                    if ($docket && $docket->status === 'BORROWED') {
-                        $hasBorrowed = true;
-                        break;
-                    }
-                } elseif ($record->file_location === 'HOA Records') {
-                    $docket = HoaDatabase::where('docket_no', $record->docket_number)->first();
-                    if ($docket && $docket->status === 'BORROWED') {
-                        $hasBorrowed = true;
-                        break;
-                    }
-                }
-            }
+            // Check if any borrower record for this person has not been returned
+            $hasUnreturnedRecords = $allBorrowerRecords->contains(function ($record) {
+                return is_null($record->date_returned);
+            });
 
-            $borrower->status = $hasBorrowed ? 'Borrowed' : 'Returned';
+            $borrower->status = $hasUnreturnedRecords ? 'Borrowed' : 'Returned';
         }
 
         return view('borrowers.borrower', [

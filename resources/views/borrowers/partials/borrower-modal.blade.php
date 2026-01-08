@@ -4,11 +4,17 @@
         <h2 class="mb-4 text-xl font-semibold" id="modal-title">Add New Borrower Record</h2>
         <form id="borrower-form" method="POST" action="{{ route('borrowers.store') }}">
             @csrf
-            <!-- Borrower's Name -->
+            <!-- Borrower's Name and Date -->
             <div class="mb-4 flex gap-4">
                 <div class="flex-1">
                     <x-input-label value="Borrower's Name" />
                     <x-modal-input id="borrower-name" name="borrower_name" placeholder="Borrower's Name" required />
+                </div>
+                <div class="flex-1">
+                    <x-input-label value="Date Borrowed" />
+                    <input
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                        id="date-loaned" type="date" name="date_borrowed" disabled value="{{ date('Y-m-d') }}" />
                 </div>
             </div>
             <input type="hidden" id="existing-borrower-name" value="">
@@ -38,16 +44,6 @@
                         <option value="REM Records">REM Records</option>
                         <option value="HOA Records">HOA Records</option>
                     </select>
-                </div>
-            </div>
-
-            <!-- Date & Time -->
-            <div class="mb-4">
-                <x-input-label value="Date & Time Borrowed" />
-                <div>
-                    <input
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        id="date-loaned" type="datetime-local" name="date_borrowed" required />
                 </div>
             </div>
 
