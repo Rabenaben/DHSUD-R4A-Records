@@ -187,7 +187,7 @@ function initHoaRecords() {
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-save-record-modal' } }));
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-record' } }));
                     window.showToast('HOA record added successfully!', 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    await updateHoaData();
                 } else {
                     const errorData = await response.json();
                     window.showToast(errorData.message || 'Error adding record', 'error');
@@ -293,6 +293,125 @@ function initAddRecordModal() {
             window.showToast('Error saving record. Please try again.', 'error');
         }
     });
+}
+
+// =========================================
+// Update HOA Data Function
+// =========================================
+
+/**
+ * Fetches updated HOA data and updates the table and status cards.
+ */
+async function updateHoaData() {
+    try {
+        const response = await fetch('/hoa/updated-data');
+        const data = await response.json();
+
+        // Update status cards
+        updateStatusCards(data.counts);
+
+        // Update table
+        updateHoaTable(data.records);
+    } catch (error) {
+        console.error('Error updating HOA data:', error);
+    }
+}
+
+/**
+ * Updates the status cards with new counts.
+ * @param {Object} counts - The updated counts.
+ */
+function updateStatusCards(counts) {
+    const cards = [
+        { key: 'total', selector: '.status-card-total' },
+        { key: 'onShelf', selector: '.status-card-on-shelf' },
+        { key: 'unavailable', selector: '.status-card-unavailable' },
+        { key: 'borrowed', selector: '.status-card-borrowed' },
+    ];
+
+    cards.forEach(card => {
+        const element = document.querySelector(card.selector);
+        if (element) {
+            const countElement = element.querySelector('h2');
+            if (countElement) {
+                countElement.textContent = counts[card.key];
+            }
+        }
+    });
+}
+
+/**
+ * Updates the HOA records table with new data.
+ * @param {Array} records - The updated records.
+ */
+function updateHoaTable(records) {
+    const tableBody = document.getElementById('hoaRecordsTable');
+    if (!tableBody) return;
+
+    // Clear existing rows except the no records row
+    const existingRows = tableBody.querySelectorAll('tr.hoa-row');
+    existingRows.forEach(row => row.remove());
+
+    const noRecordsRow = document.getElementById('noRecordsRow');
+    if (records.length === 0) {
+        if (noRecordsRow) noRecordsRow.classList.remove('hidden');
+        return;
+    }
+
+    if (noRecordsRow) noRecordsRow.classList.add('hidden');
+
+    // Add new rows
+    records.forEach(record => {
+        const row = createHoaTableRow(record);
+        tableBody.insertBefore(row, noRecordsRow);
+    });
+}
+
+/**
+ * Creates a table row for an HOA record.
+ * @param {Object} record - The record data.
+ * @returns {HTMLElement} The table row element.
+ */
+function createHoaTableRow(record) {
+    const statusClasses = {
+        'ON-SHELF': 'bg-green-100 text-green-800',
+        'BORROWED': 'bg-yellow-100 text-yellow-800',
+        'DEFAULT': 'bg-red-100 text-red-800',
+    };
+
+    const statusClass = statusClasses[record.status] || statusClasses['DEFAULT'];
+
+    const row = document.createElement('tr');
+    row.className = 'hoa-row cursor-pointer transition hover:bg-blue-100';
+    row.setAttribute('data-record', JSON.stringify(record));
+
+    // Add data attributes for filtering
+    ['docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'].forEach(col => {
+        let value = '';
+        if (col === 'province') {
+            value = record.province?.province_name || '';
+        } else if (col === 'municipality') {
+            value = record.municipality?.municipality_name || '';
+        } else {
+            value = record[col] || '';
+        }
+        row.setAttribute(`data-${col}`, value.toLowerCase());
+    });
+
+    row.innerHTML = `
+        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.docket_no}</td>
+        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.hoa_name}</td>
+        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.location}</td>
+        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.province?.province_name || 'N/A'}</td>
+        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.municipality?.municipality_name || 'N/A'}</td>
+        <td class="px-6 py-4 text-center text-sm">
+            <span class="${statusClass} inline-flex rounded-full px-2 py-1 text-xs font-semibold">
+                ${record.status}
+            </span>
+        </td>
+    `;
+
+    return row;
 }
 
 // =========================================

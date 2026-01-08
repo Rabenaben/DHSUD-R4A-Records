@@ -46,4 +46,21 @@ class HoaController extends Controller
 
         return response()->json($municipalities);
     }
+
+    public function getUpdatedData()
+    {
+        $data = [
+            'total' => HoaDatabase::count(),
+            'onShelf' => HoaDatabase::where('status', 'ON-SHELF')->count(),
+            'unavailable' => HoaDatabase::where('status', 'UNAVAILABLE')->count(),
+            'borrowed' => HoaDatabase::where('status', 'BORROWED')->count(),
+        ];
+
+        $records = HoaDatabase::with(['province', 'municipality'])->get();
+
+        return response()->json([
+            'counts' => $data,
+            'records' => $records,
+        ]);
+    }
 }

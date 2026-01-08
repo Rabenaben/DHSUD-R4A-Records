@@ -16,7 +16,7 @@
 
 <div class="mt-3 flex flex-wrap gap-2">
     @foreach ($cards as $key => $card)
-        <div class="flex flex-1 rounded-lg bg-white shadow hover:transform hover:-translate-y-2 transition-transform duration-200"> <!-- ← added bg-white -->
+        <div class="status-card-{{ $key }} flex flex-1 rounded-lg bg-white shadow hover:transform hover:-translate-y-2 transition-transform duration-200"> <!-- ← added bg-white -->
             <!-- Colored left bar -->
             <div class="{{ $baseColors[$key] }} w-2 rounded-l-lg bg-linear-to-b"></div>
 

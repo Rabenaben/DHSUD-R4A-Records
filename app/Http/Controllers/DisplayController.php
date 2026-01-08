@@ -71,7 +71,7 @@ class DisplayController extends Controller
 
     public function loadFolder($province)
     {
-        $records = RemDatabase::where('province', $province)->where('status', '!=', 'ARCHIVED')->get();
+        $records = RemDatabase::where('province', $province)->get();
         $provinceName = $province;
 
         return view('rem_records.partials.folder-table', [
@@ -86,9 +86,8 @@ class DisplayController extends Controller
     {
         $data = $this->getCounts(HoaDatabase::class);
 
-        // Get all HOA records with province and municipality relationships, excluding archived
+        // Get all HOA records with province and municipality relationships
         $hoaRecords = HoaDatabase::with(['province', 'municipality'])
-            ->where('status', '!=', 'ARCHIVED')
             ->get();
 
         // Get all provinces for the add record modal
