@@ -22,6 +22,9 @@
             <option value="BORROWED">BORROWED</option>
             <option value="UNAVAILABLE">UNAVAILABLE</option>
         </select>
+
+        <!-- Add Docket Button -->
+        <button class="rounded-xl border border-gray-300 bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" id="addRemDocketBtn">Add Docket</button>
     </div>
 
     <!-- Table -->
