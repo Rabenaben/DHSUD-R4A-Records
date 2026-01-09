@@ -25,12 +25,24 @@
                 </div>
             </div>
 
+            <!-- Location -->
+            <h3 class="mb-2 mt-4 text-[15px] font-semibold">Location</h3>
+            <div class="mb-2.5 flex gap-2.5">
+                <div class="flex-1">
+                    <x-input-label value="Province" />
+                    <x-modal-input id="rem-province" placeholder="Province" readonly />
+                </div>
+            </div>
+
             <!-- Additional Information -->
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Additional Information</h3>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
                     <x-input-label value="Status" />
-                    <x-modal-input id="rem-status" placeholder="Status" readonly />
+                    <select id="rem-status" disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none">
+                        <option value="ON-SHELF">ON-SHELF</option>
+                        <option value="UNAVAILABLE">UNAVAILABLE</option>
+                    </select>
                 </div>
                 <div class="flex-1">
                     <x-input-label value="Quantity" />
@@ -43,6 +55,11 @@
                 <textarea
                     class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                     id="rem-remarks" placeholder="Remarks" readonly></textarea>
+            </div>
+
+            <div id="rem-file-name-field" style="display: none;">
+                <x-input-label value="File Name" />
+                <x-modal-input id="rem-file-name" placeholder="File Name" readonly />
             </div>
         </div>
 
@@ -93,8 +110,10 @@
 
             <div class="mb-4 mt-2 text-sm font-medium text-gray-800" id="rem-file-label"></div>
             <div class="flex gap-3" id="rem-file-actions" style="display: none;">
-                <button class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700">EDIT</button>
-                <button onclick="exportRemFile()" class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
+                <button id="rem-edit-btn" class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700">EDIT</button>
+                <button id="rem-save-btn" class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700" style="display: none;">SAVE</button>
+                <button id="rem-cancel-btn" class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700" style="display: none;">CANCEL</button>
+                <button id="export-rem-btn" onclick="exportRemFile()" class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
                     FILE</button>
                 <button id="archive-rem-btn" class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
                     FILE</button>
