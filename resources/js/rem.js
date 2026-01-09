@@ -10,17 +10,19 @@ window.remGoBackToFileList = function () {
 window.exportRemFile = function () {
     exportFile('rem');
 };
+window.remShowFileList = function () { window.showGenericFileList('rem'); };
+window.loadRemFileList = function (record) { window.loadGenericFileList('rem', record); };
+window.updateRemData = updateRemData;
 
 // =========================================
 // Modal Functions
 // =========================================
 
 /**
- * Opens the REM modal for a specific record and file index.
+ * Opens the REM modal for a specific record and loads the file list.
  * @param {Object} record - The record data.
- * @param {number} fileIndex - The index of the file.
  */
-function openRemModal(record, fileIndex) {
+function openRemModal(record) {
     const fieldConfig = {
         docket_no: 'rem-docket-no',
         project_name: 'rem-project-name',
@@ -29,8 +31,10 @@ function openRemModal(record, fileIndex) {
         remarks: 'rem-remarks'
     };
 
-    openRecordModal('rem', record, fileIndex, fieldConfig, ['rem-file-label', 'rem-file-preview', 'rem-file-placeholder']);
+    openGenericModal(record, 'rem', fieldConfig);
 }
+
+
 
 // =========================================
 // Folder Management Functions
@@ -136,7 +140,7 @@ function attachFilters(container) {
         if (!row) return;
 
         const record = JSON.parse(row.dataset.record);
-        openFileListModal(record, 'rem');
+        openRemModal(record);
     });
 
     // Add Docket Button Event Listener
@@ -181,41 +185,7 @@ function attachBackButton(container, originalHTML) {
  * Fetches updated REM data and updates the table and status cards.
  */
 async function updateRemData() {
-    try {
-        const response = await fetch('/rem/updated-data');
-        const data = await response.json();
-
-        // Update status cards
-        updateRemStatusCards(data.counts);
-
-        // Update table if needed (for folder view)
-        // Note: Table updates might need to be handled differently for REM due to folder structure
-    } catch (error) {
-        console.error('Error updating REM data:', error);
-    }
-}
-
-/**
- * Updates the REM status cards with new counts.
- * @param {Object} counts - The updated counts.
- */
-function updateRemStatusCards(counts) {
-    const cards = [
-        { key: 'total', selector: '.status-card-total' },
-        { key: 'onShelf', selector: '.status-card-onShelf' },
-        { key: 'unavailable', selector: '.status-card-unavailable' },
-        { key: 'borrowed', selector: '.status-card-borrowed' },
-    ];
-
-    cards.forEach(card => {
-        const element = document.querySelector(card.selector);
-        if (element) {
-            const countElement = element.querySelector('h2');
-            if (countElement) {
-                countElement.textContent = counts[card.key];
-            }
-        }
-    });
+    updateGenericData('rem');
 }
 
 // =========================================

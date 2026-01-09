@@ -10,6 +10,10 @@ window.hoaGoBackToFileList = function () {
 window.exportHoaFile = function () {
     exportFile('hoa');
 };
+window.hoaShowFileList = function () { window.showGenericFileList('hoa'); };
+window.loadHoaFileList = loadHoaFileList;
+window.updateHoaData = updateHoaData;
+window.createHoaTableRow = createHoaTableRow;
 
 // =========================================
 // Global Variables for Modals
@@ -23,11 +27,10 @@ let municipalitySelect;
 // =========================================
 
 /**
- * Opens the HOA modal for a specific record and file index.
+ * Opens the HOA modal for a specific record and loads the file list.
  * @param {Object} record - The record data.
- * @param {number} fileIndex - The index of the file.
  */
-function openHoaModal(record, fileIndex) {
+function openHoaModal(record) {
     const fieldConfig = {
         docket_no: 'docket-no',
         hoa_name: 'hoa-name',
@@ -39,11 +42,42 @@ function openHoaModal(record, fileIndex) {
     };
 
     // Handle nested province and municipality
-    record.province = record.province?.province_name ?? 'N/A';
-    record.municipality = record.municipality?.municipality_name ?? 'N/A';
+    const recordTransformer = (rec) => ({
+        ...rec,
+        province: rec.province?.province_name ?? 'N/A',
+        municipality: rec.municipality?.municipality_name ?? 'N/A'
+    });
 
-    openRecordModal('hoa', record, fileIndex, fieldConfig, ['file-label', 'file-preview', 'file-placeholder']);
+    openGenericModal(record, 'hoa', fieldConfig, recordTransformer);
 }
+
+/**
+ * Loads the file list for HOA records.
+ * @param {Object} record - The record data.
+ */
+function loadHoaFileList(record) {
+    loadGenericFileList('hoa', record);
+}
+
+/**
+ * Renders the HOA file list in the modal table body.
+ * @param {Array} files - Array of file objects.
+ * @param {Object} record - The record data.
+ */
+function renderHoaFileList(files, record) {
+    renderGenericFileList(files, record, 'hoa');
+}
+
+/**
+ * Shows the file preview for HOA records.
+ * @param {Object} record - The record data.
+ * @param {number} fileIndex - The index of the file.
+ */
+function hoaShowFilePreview(record, fileIndex) {
+    showGenericFilePreview(record, fileIndex, 'hoa');
+}
+
+
 
 // =========================================
 // Table Filtering Functions
@@ -159,7 +193,7 @@ function initHoaRecords() {
         if (!row) return;
 
         const record = JSON.parse(row.dataset.record);
-        openFileListModal(record, 'hoa');
+        openHoaModal(record);
     });
 
     // Add Docket Button Event Listener
@@ -327,68 +361,7 @@ function initAddRecordModal() {
  * Fetches updated HOA data and updates the table and status cards.
  */
 async function updateHoaData() {
-    try {
-        const response = await fetch('/hoa/updated-data');
-        const data = await response.json();
-
-        // Update status cards
-        updateStatusCards(data.counts);
-
-        // Update table
-        updateHoaTable(data.records);
-    } catch (error) {
-        console.error('Error updating HOA data:', error);
-    }
-}
-
-/**
- * Updates the status cards with new counts.
- * @param {Object} counts - The updated counts.
- */
-function updateStatusCards(counts) {
-    const cards = [
-        { key: 'total', selector: '.status-card-total' },
-        { key: 'onShelf', selector: '.status-card-onShelf' },
-        { key: 'unavailable', selector: '.status-card-unavailable' },
-        { key: 'borrowed', selector: '.status-card-borrowed' },
-    ];
-
-    cards.forEach(card => {
-        const element = document.querySelector(card.selector);
-        if (element) {
-            const countElement = element.querySelector('h2');
-            if (countElement) {
-                countElement.textContent = counts[card.key];
-            }
-        }
-    });
-}
-
-/**
- * Updates the HOA records table with new data.
- * @param {Array} records - The updated records.
- */
-function updateHoaTable(records) {
-    const tableBody = document.getElementById('hoaRecordsTable');
-    if (!tableBody) return;
-
-    // Clear existing rows except the no records row
-    const existingRows = tableBody.querySelectorAll('tr.hoa-row');
-    existingRows.forEach(row => row.remove());
-
-    const noRecordsRow = document.getElementById('noRecordsRow');
-    if (records.length === 0) {
-        if (noRecordsRow) noRecordsRow.classList.remove('hidden');
-        return;
-    }
-
-    if (noRecordsRow) noRecordsRow.classList.add('hidden');
-
-    // Add new rows
-    records.forEach(record => {
-        const row = createHoaTableRow(record);
-        tableBody.insertBefore(row, noRecordsRow);
-    });
+    updateGenericData('hoa');
 }
 
 /**

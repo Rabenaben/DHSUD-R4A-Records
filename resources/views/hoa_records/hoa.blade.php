@@ -33,10 +33,9 @@
         </div>
 
         @include('hoa_records.partials.hoa-modal')
-        <x-add-record-modal :provinces="$provinces" />
+        <x-add-record-modal type="hoa" :provinces="$provinces" />
         <x-add-file-modal />
         <x-save-file-modal />
-        <x-file-list-modal />
         <x-confirm-archive-file-modal />
         <x-confirm-save-record-modal type="HOA" />
 

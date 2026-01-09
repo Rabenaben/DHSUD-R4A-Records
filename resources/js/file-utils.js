@@ -16,6 +16,15 @@ window.setValue = setValue;
 window.openRecordModal = openRecordModal;
 window.goBackToFileList = goBackToFileList;
 window.exportFile = exportFile;
+window.archiveFile = archiveFile;
+window.openGenericModal = openGenericModal;
+window.loadGenericFileList = loadGenericFileList;
+window.renderGenericFileList = renderGenericFileList;
+window.showGenericFilePreview = showGenericFilePreview;
+window.showGenericFileList = showGenericFileList;
+window.updateGenericData = updateGenericData;
+window.updateGenericStatusCards = updateGenericStatusCards;
+window.updateGenericTable = updateGenericTable;
 
 // =========================================
 // File List Modal Functions
@@ -100,9 +109,9 @@ function renderFileList(files, record, type) {
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
 
             if (type === 'hoa') {
-                openHoaModal(record, fileIndex);
+                openHoaModal(record);
             } else if (type === 'rem') {
-                openRemModal(record, fileIndex);
+                openRemModal(record);
             }
 
             tbody.removeEventListener('click', onFileClick); // Remove listener to avoid duplicates
@@ -123,17 +132,7 @@ function renderFileList(files, record, type) {
         });
     }
 
-    // Cancel Add File Button
-    const cancelAddFileBtn = document.getElementById('cancel-add-file-btn');
-    if (cancelAddFileBtn) {
-        cancelAddFileBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
-            // Reopen the file-list modal
-            if (window.currentRecord && window.currentRecordType) {
-                openFileListModal(window.currentRecord, window.currentRecordType);
-            }
-        });
-    }
+
 }
 
 // =========================================
@@ -184,9 +183,13 @@ function handleConfirmSaveFile() {
                     window.showToast(data.message, 'success');
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'save-file' } }));
                     window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
-                    // Refresh the file list - need to get current record
-                    if (window.currentRecord) {
-                        openFileListModal(window.currentRecord, type);
+                    // Refresh the file list in the current modal
+                    if (window.currentRecord && window.currentRecordType) {
+                        if (window.currentRecordType === 'hoa') {
+                            window.loadHoaFileList(window.currentRecord);
+                        } else if (window.currentRecordType === 'rem') {
+                            window.loadRemFileList(window.currentRecord);
+                        }
                     }
                 } else {
                     window.showToast('Failed to upload files.', 'error');
@@ -248,10 +251,20 @@ function archiveFile(type, docketNo, fileIndex) {
                 .then(data => {
                     if (data.success) {
                         window.showToast('File archived successfully!', 'success');
-                        // Close the current modal and refresh the file list
-                        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: type } }));
+                        // Reload the file list in the current modal and switch to file list view
                         if (window.currentRecord) {
-                            openFileListModal(window.currentRecord, type);
+                            if (type === 'hoa') {
+                                window.loadHoaFileList(window.currentRecord);
+                            } else if (type === 'rem') {
+                                window.loadRemFileList(window.currentRecord);
+                            }
+                            // Switch to file list view
+                            document.getElementById(`${type}-file-list-view`).style.display = 'block';
+                            document.getElementById(`${type}-file-preview-view`).style.display = 'none';
+                            document.getElementById(`${type}-file-actions`).style.display = 'none';
+                            // Clear the file label
+                            const labelId = type === 'hoa' ? 'file-label' : 'rem-file-label';
+                            document.getElementById(labelId).textContent = '';
                         }
                     } else {
                         window.showToast('Failed to archive file.', 'error');
@@ -442,6 +455,15 @@ window.addEventListener('open-modal', (e) => {
                 attachFileChangeListener(newFileInput);
             }
         }
+
+        // Attach cancel button listener
+        const cancelAddFileBtn = document.getElementById('cancel-add-file-btn');
+        if (cancelAddFileBtn && !cancelAddFileBtn.dataset.listenerAttached) {
+            cancelAddFileBtn.dataset.listenerAttached = 'true';
+            cancelAddFileBtn.addEventListener('click', () => {
+                window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'add-file' } }));
+            });
+        }
     }
 });
 
@@ -472,6 +494,240 @@ function updateSelectedFilesDisplay() {
 function attachFileChangeListener(fileInput) {
     fileInput.addEventListener('change', (e) => {
         updateSelectedFilesDisplay();
+    });
+}
+
+// =========================================
+// Generic Modal and File Handling Functions
+// =========================================
+
+/**
+ * Generic function to open a modal for HOA or REM records.
+ * @param {Object} record - The record data.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ * @param {Object} fieldConfig - Configuration for field IDs.
+ * @param {Function} recordTransformer - Optional function to transform record data.
+ */
+function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
+    // Transform record if needed
+    let transformedRecord = record;
+    if (recordTransformer) {
+        transformedRecord = recordTransformer(record);
+    }
+
+    // Store the record for back navigation
+    window.currentRecord = record;
+    window.currentRecordType = type;
+
+    // Set field values using config
+    Object.entries(fieldConfig).forEach(([key, id]) => {
+        setValue(id, transformedRecord[key] ?? '');
+    });
+
+    // Load file list
+    loadGenericFileList(type, record);
+
+    // Open modal
+    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: type } }));
+
+    // Attach add file button event
+    const addFileBtn = document.getElementById(`${type}-add-file-btn`);
+    if (addFileBtn) {
+        addFileBtn.addEventListener('click', () => {
+            // Set the docket_no in the hidden field
+            const docketNoHidden = document.getElementById('docket-no-hidden');
+            if (docketNoHidden) {
+                docketNoHidden.value = record.docket_no;
+            }
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-file' } }));
+        });
+    }
+}
+
+/**
+ * Generic function to load file list for HOA or REM records.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ * @param {Object} record - The record data.
+ */
+function loadGenericFileList(type, record) {
+    const tbodyId = `${type}-file-list-body`;
+    const tbody = document.getElementById(tbodyId);
+
+    // Show loading state
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                <div class="flex justify-center items-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    <span class="ml-2">Loading files...</span>
+                </div>
+            </td>
+        </tr>
+    `;
+
+    // Fetch files from the database
+    fetch(`/${type}/${record.docket_no}/files`)
+        .then(response => response.json())
+        .then(data => {
+            const files = data.files || [];
+            renderGenericFileList(files, record, type);
+        })
+        .catch(error => {
+            console.error('Error fetching files:', error);
+            renderGenericFileList([], record, type);
+        });
+}
+
+/**
+ * Generic function to render file list for HOA or REM records.
+ * @param {Array} files - Array of file objects.
+ * @param {Object} record - The record data.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ */
+function renderGenericFileList(files, record, type) {
+    const tbodyId = `${type}-file-list-body`;
+    const tbody = document.getElementById(tbodyId);
+
+    if (files.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                    No file uploaded yet
+                </td>
+            </tr>
+        `;
+    } else {
+        tbody.innerHTML = files.map(f => `
+            <tr class="cursor-pointer hover:bg-gray-50 ${type}-file-row" data-file-index="${f.index}">
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">${f.name}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${new Date(f.date_added).toLocaleString()}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${f.last_updated_by || 'Unknown'}</td>
+            </tr>
+        `).join('');
+
+        // Delegate click for file rows
+        tbody.addEventListener('click', function onGenericFileClick(e) {
+            const row = e.target.closest(`tr.${type}-file-row`);
+            if (!row) return;
+
+            const fileIndex = parseInt(row.dataset.fileIndex);
+            showGenericFilePreview(record, fileIndex, type);
+        });
+    }
+}
+
+/**
+ * Generic function to show file preview for HOA or REM records.
+ * @param {Object} record - The record data.
+ * @param {number} fileIndex - The index of the file.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ */
+function showGenericFilePreview(record, fileIndex, type) {
+    // Store the current file index for export
+    window.currentFileIndex = fileIndex;
+
+    // Load file preview
+    const labelId = type === 'hoa' ? 'file-label' : 'rem-file-label';
+    const previewId = type === 'hoa' ? 'file-preview' : 'rem-file-preview';
+    const placeholderId = type === 'hoa' ? 'file-placeholder' : 'rem-file-placeholder';
+    loadFilePreview(record, fileIndex, type, labelId, previewId, placeholderId);
+
+    // Switch to preview view
+    document.getElementById(`${type}-file-list-view`).style.display = 'none';
+    document.getElementById(`${type}-file-preview-view`).style.display = 'block';
+    document.getElementById(`${type}-file-actions`).style.display = 'flex';
+
+    // Attach archive button event
+    const archiveBtn = document.getElementById(`archive-${type}-btn`);
+    if (archiveBtn) {
+        archiveBtn.addEventListener('click', () => archiveFile(type, record.docket_no, window.currentFileIndex));
+    }
+}
+
+/**
+ * Generic function to show file list view for HOA or REM records.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ */
+function showGenericFileList(type) {
+    document.getElementById(`${type}-file-list-view`).style.display = 'block';
+    document.getElementById(`${type}-file-preview-view`).style.display = 'none';
+    document.getElementById(`${type}-file-actions`).style.display = 'none';
+    // Clear the file label
+    const labelId = type === 'hoa' ? 'file-label' : 'rem-file-label';
+    document.getElementById(labelId).textContent = '';
+}
+
+/**
+ * Generic function to update data for HOA or REM records.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ */
+async function updateGenericData(type) {
+    try {
+        const response = await fetch(`/${type}/updated-data`);
+        const data = await response.json();
+
+        // Update status cards
+        updateGenericStatusCards(data.counts);
+
+        // Update table if applicable
+        if (type === 'hoa') {
+            updateGenericTable(data.records, 'hoaRecordsTable', createHoaTableRow);
+        }
+        // REM might not need table update here, as it's folder-based
+    } catch (error) {
+        console.error(`Error updating ${type.toUpperCase()} data:`, error);
+    }
+}
+
+/**
+ * Generic function to update status cards.
+ * @param {Object} counts - The updated counts.
+ */
+function updateGenericStatusCards(counts) {
+    const cards = [
+        { key: 'total', selector: '.status-card-total' },
+        { key: 'onShelf', selector: '.status-card-onShelf' },
+        { key: 'unavailable', selector: '.status-card-unavailable' },
+        { key: 'borrowed', selector: '.status-card-borrowed' },
+    ];
+
+    cards.forEach(card => {
+        const element = document.querySelector(card.selector);
+        if (element) {
+            const countElement = element.querySelector('h2');
+            if (countElement) {
+                countElement.textContent = counts[card.key];
+            }
+        }
+    });
+}
+
+/**
+ * Generic function to update table with new data.
+ * @param {Array} records - The updated records.
+ * @param {string} tableId - The ID of the table body.
+ * @param {Function} rowCreator - Function to create table rows.
+ */
+function updateGenericTable(records, tableId, rowCreator) {
+    const tableBody = document.getElementById(tableId);
+    if (!tableBody) return;
+
+    // Clear existing rows except the no records row
+    const existingRows = tableBody.querySelectorAll('tr:not(#noRecordsRow)');
+    existingRows.forEach(row => row.remove());
+
+    const noRecordsRow = document.getElementById('noRecordsRow');
+    if (records.length === 0) {
+        if (noRecordsRow) noRecordsRow.classList.remove('hidden');
+        return;
+    }
+
+    if (noRecordsRow) noRecordsRow.classList.add('hidden');
+
+    // Add new rows
+    records.forEach(record => {
+        const row = rowCreator(record);
+        tableBody.insertBefore(row, noRecordsRow);
     });
 }
 
