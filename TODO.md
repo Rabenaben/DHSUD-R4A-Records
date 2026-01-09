@@ -1,9 +1,1 @@
-- [x] Add update method to HoaController.php
-- [x] Add PUT route for HOA update in routes/web.php
-- [x] Edit hoa-modal.blade.php to add Save and Cancel buttons
-- [x] Edit hoa.js to implement edit, save, cancel functionality
-- [x] Fix save button issue by using correct record reference and attaching listeners properly
-- [x] Change status field to dropdown with ON-SHELF and UNAVAILABLE options
-- [x] Integrate file name editing into the main EDIT button functionality
-- [x] Make file name field appear ONLY when edit button is clicked (and file is selected)
-- [x] Test the functionality
+- [x] Restructure #rem-file-preview-view in resources/views/rem_records/partials/rem-modal.blade.php to match HOA modal layout

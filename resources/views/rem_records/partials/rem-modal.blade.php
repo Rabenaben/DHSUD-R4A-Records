@@ -39,8 +39,8 @@
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
                     <x-input-label value="Status" />
-                    <select id="rem-status" disabled
-                        class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none">
+                    <select class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none"
+                        id="rem-status" disabled>
                         <option value="ON-SHELF">ON-SHELF</option>
                         <option value="UNAVAILABLE">UNAVAILABLE</option>
                     </select>
@@ -66,29 +66,28 @@
 
         <!-- File Section -->
         <div class="flex basis-3/4 flex-col items-center">
-            <div class="mb-4 mt-2 text-lg font-bold text-gray-800 text-center" id="rem-file-label"></div>
+            <div class="mb-4 mt-2 text-center text-lg font-bold text-gray-800" id="rem-file-label"></div>
             <!-- File List View -->
-            <div id="rem-file-list-view"
-                class="h-full w-full rounded-lg border border-gray-300 bg-white overflow-hidden"
-                style="display: block;">
-                <div class="mb-2 flex items-center justify-between p-4 bg-gray-50">
+            <div class="h-full w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
+                id="rem-file-list-view" style="display: block;">
+                <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
                     <h4 class="text-sm font-semibold text-gray-900">Files</h4>
                     <div class="flex items-center space-x-2">
                         <x-secondary-button id="rem-add-file-btn">Add File</x-secondary-button>
                     </div>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto h-full flex justify-center">
+                <div class="flex h-full justify-center overflow-x-auto overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     File Name</th>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Date Modified</th>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Last Updated By</th>
                             </tr>
                         </thead>
@@ -100,9 +99,8 @@
             </div>
 
             <!-- File Preview View -->
-            <div id="rem-file-preview-view"
-                class="flex flex-col h-full w-full rounded-lg border border-gray-300 bg-gray-100"
-                style="display: none;">
+            <div class="flex h-full w-full flex-col rounded-lg border border-gray-300 bg-gray-100"
+                id="rem-file-preview-view" style="display: none;">
                 <div class="flex items-center justify-between p-4">
                     <button
                         class="flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
@@ -113,30 +111,28 @@
                         </svg>
                         Back to Files
                     </button>
-                    <div class="text-lg font-bold text-gray-800 text-center flex-1" id="rem-file-label-preview"></div>
-                    <div class="flex-1 w-full" id="rem-file-preview-container">
-                        <iframe id="rem-file-preview" class="w-full h-full" style="heiggt-400px;"></iframe>
-                        <div id="rem-file-placeholder" class="flex items-center justify-center h-full text-gray-500">No
-                            file selected</div>
-                    </div>
+                    <div class="flex-1 text-center text-lg font-bold text-gray-800" id="rem-file-label-preview"></div>
                 </div>
+                <div class="w-full flex-1" id="rem-file-preview-container" style="height: 400px;">
+                    <iframe class="h-full w-full" id="rem-file-preview" style="display: none;"></iframe>
+                    <div class="flex h-full items-center justify-center text-gray-500" id="rem-file-placeholder">No file
+                        selected</div>
+                </div>
+            </div>
 
-                <div class="flex gap-3 p-4 justify-center" id="rem-file-actions" style="display: none;">
-                    <button id="rem-edit-btn"
-                        class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700">EDIT</button>
-                    <button id="rem-save-btn"
-                        class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
-                        style="display: none;">SAVE</button>
-                    <button id="rem-cancel-btn"
-                        class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700"
-                        style="display: none;">CANCEL</button>
-                    <button id="export-rem-btn" onclick="exportRemFile()"
-                        class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
-                        FILE</button>
-                    <button id="archive-rem-btn"
-                        class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
-                        FILE</button>
-                </div>
+            <div class="flex justify-center gap-3 p-4" id="rem-file-actions" style="display: none;">
+                <button class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700"
+                    id="rem-edit-btn">EDIT</button>
+                <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
+                    id="rem-save-btn" style="display: none;">SAVE</button>
+                <button class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700"
+                    id="rem-cancel-btn" style="display: none;">CANCEL</button>
+                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900"
+                    id="export-rem-btn" onclick="exportRemFile()">EXPORT
+                    FILE</button>
+                <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700"
+                    id="archive-rem-btn">ARCHIVE
+                    FILE</button>
             </div>
         </div>
     </div>

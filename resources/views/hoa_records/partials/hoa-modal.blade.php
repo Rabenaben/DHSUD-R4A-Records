@@ -43,9 +43,8 @@
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
                     <x-input-label value="Status" />
-                    <select id="status"
-                        class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
-                        disabled>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
+                        id="status" disabled>
                         <option value="ON-SHELF">ON-SHELF</option>
                         <option value="UNAVAILABLE">UNAVAILABLE</option>
                     </select>
@@ -71,29 +70,28 @@
 
         <!-- File Section -->
         <div class="flex basis-3/4 flex-col items-center">
-            <div class="mb-4 mt-2 text-lg font-bold text-gray-800 text-center" id="file-label"></div>
+            <div class="mb-4 mt-2 text-center text-lg font-bold text-gray-800" id="file-label"></div>
             <!-- File List View -->
-            <div id="hoa-file-list-view"
-                class="h-full w-full rounded-lg border border-gray-300 bg-white overflow-hidden"
-                style="display: block;">
-                <div class="mb-2 flex items-center justify-between p-4 bg-gray-50">
+            <div class="h-full w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
+                id="hoa-file-list-view" style="display: block;">
+                <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
                     <h4 class="text-sm font-semibold text-gray-900">Files</h4>
                     <div class="flex items-center space-x-2">
                         <x-secondary-button id="hoa-add-file-btn">Add File</x-secondary-button>
                     </div>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto h-full flex justify-center">
+                <div class="flex h-full justify-center overflow-x-auto overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     File Name</th>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Date Modified</th>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Last Updated By</th>
                             </tr>
                         </thead>
@@ -105,9 +103,8 @@
             </div>
 
             <!-- File Preview View -->
-            <div id="hoa-file-preview-view"
-                class="flex flex-col h-full w-full rounded-lg border border-gray-300 bg-gray-100"
-                style="display: none;">
+            <div class="flex h-full w-full flex-col rounded-lg border border-gray-300 bg-gray-100"
+                id="hoa-file-preview-view" style="display: none;">
                 <div class="flex items-center justify-between p-4">
                     <button
                         class="ml-2 mt-2 flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
@@ -118,29 +115,27 @@
                         </svg>
                         Back to Files
                     </button>
-                    <div class="text-lg font-bold text-gray-800 text-center flex-1" id="file-label"></div>
+                    <div class="flex-1 text-center text-lg font-bold text-gray-800" id="file-label"></div>
                 </div>
-                <div class="flex-1 w-full" id="file-preview-container" style="height: 400px;">
-                    <iframe id="file-preview" class="w-full h-full" style="display: none;"></iframe>
-                    <div id="file-placeholder" class="flex items-center justify-center h-full text-gray-500">No file
+                <div class="w-full flex-1" id="file-preview-container" style="height: 400px;">
+                    <iframe class="h-full w-full" id="file-preview" style="display: none;"></iframe>
+                    <div class="flex h-full items-center justify-center text-gray-500" id="file-placeholder">No file
                         selected</div>
                 </div>
             </div>
 
-            <div class="flex gap-3 p-4 justify-center" id="hoa-file-actions" style="display: none;">
-                <button id="hoa-edit-btn"
-                    class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700">EDIT</button>
-                <button id="hoa-save-btn"
-                    class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
-                    style="display: none;">SAVE</button>
-                <button id="hoa-cancel-btn"
-                    class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700"
-                    style="display: none;">CANCEL</button>
-                <button id="export-hoa-btn" onclick="exportHoaFile()"
-                    class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900">EXPORT
+            <div class="flex justify-center gap-3 p-4" id="hoa-file-actions" style="display: none;">
+                <button class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700"
+                    id="hoa-edit-btn">EDIT</button>
+                <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
+                    id="hoa-save-btn" style="display: none;">SAVE</button>
+                <button class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700"
+                    id="hoa-cancel-btn" style="display: none;">CANCEL</button>
+                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900"
+                    id="export-hoa-btn" onclick="exportHoaFile()">EXPORT
                     FILE</button>
-                <button id="archive-hoa-btn"
-                    class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700">ARCHIVE
+                <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700"
+                    id="archive-hoa-btn">ARCHIVE
                     FILE</button>
             </div>
         </div>
