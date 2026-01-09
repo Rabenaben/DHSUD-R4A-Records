@@ -72,18 +72,22 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/municipalities', 'getMunicipalities')->name('municipalities');
         Route::get('/updated-data', 'getUpdatedData')->name('updated-data');
         Route::post('/', 'store')->name('store');
-        Route::get('/{docketNo}/files', 'getFiles')->name('files');
-        Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file');
-        Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file');
-        Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file');
+        Route::put('/{docketNo}', 'update')->name('update')->where('docketNo', '.*');
+        Route::get('/{docketNo}/files', 'getFiles')->name('files')->where('docketNo', '.*');
+        Route::patch('/{docketNo}/files/{fileIndex}/rename', 'renameFile')->name('rename-file')->where('docketNo', '.*');
+        Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file')->where('docketNo', '.*');
+        Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file')->where('docketNo', '.*');
+        Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
     });
 
     // REM routes (RemController)
     Route::controller(RemController::class)->prefix('rem')->name('rem.')->group(function () {
         Route::get('/updated-data', 'getUpdatedData')->name('updated-data');
         Route::post('/', 'store')->name('store');
+        Route::put('/{docketNo}', 'update')->name('update');
         Route::get('/{docketNo}/files', 'getFiles')->name('files');
         Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file');
+        Route::patch('/{docketNo}/files/{fileIndex}/rename', 'renameFile')->name('rename-file');
         Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file');
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file');
     });

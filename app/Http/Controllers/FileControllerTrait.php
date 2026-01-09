@@ -118,6 +118,38 @@ trait FileControllerTrait
         return response()->download(Storage::disk('local')->path($path), $file['original_name']);
     }
 
+    public function renameFile(Request $request, $docketNo, $fileIndex)
+    {
+        $request->validate([
+            'new_name' => 'required|string|max:255',
+        ]);
+
+        $record = $this->model::where('docket_no', $docketNo)->first();
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => $this->recordType . ' record not found.']);
+        }
+
+        $files = json_decode($record->files, true) ?? [];
+
+        if (!isset($files[$fileIndex])) {
+            return response()->json(['success' => false, 'message' => 'File not found.']);
+        }
+
+        $oldName = $files[$fileIndex]['name'];
+        $files[$fileIndex]['name'] = $request->new_name;
+        $files[$fileIndex]['last_updated_by'] = Auth::check() ? Auth::user()->name : 'Unknown';
+
+        $record->files = json_encode($files);
+        $record->save();
+
+        // Log activity
+        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . $record->province;
+        $this->logActivity($docketNo, $request->new_name, $fileLocation, 'Renamed a file from "' . $oldName . '"');
+
+        return response()->json(['success' => true, 'message' => 'File renamed successfully.']);
+    }
+
     public function previewFile($docketNo, $fileIndex)
     {
         $record = $this->model::where('docket_no', $docketNo)->first();

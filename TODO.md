@@ -1,8 +1,9 @@
-# TODO: Unify HOA and REM Add Record Modals
-
-## Tasks
-- [x] Modify `resources/views/components/add-record-modal.blade.php` to accept a `type` prop ('hoa' or 'rem') and conditionally render fields based on the type.
-- [x] Update `resources/views/hoa_records/hoa.blade.php` to use `<x-add-record-modal type="hoa" :provinces="$provinces" />`.
-- [x] Update `resources/views/rem_records/rem.blade.php` to use `<x-add-record-modal type="rem" :provinces="$provinces" />`.
-- [x] Delete `resources/views/components/add-rem-record-modal.blade.php` as it will be replaced by the unified component.
-- [ ] Test the modals to ensure functionality for both HOA and REM types.
+- [x] Add update method to HoaController.php
+- [x] Add PUT route for HOA update in routes/web.php
+- [x] Edit hoa-modal.blade.php to add Save and Cancel buttons
+- [x] Edit hoa.js to implement edit, save, cancel functionality
+- [x] Fix save button issue by using correct record reference and attaching listeners properly
+- [x] Change status field to dropdown with ON-SHELF and UNAVAILABLE options
+- [x] Integrate file name editing into the main EDIT button functionality
+- [x] Make file name field appear ONLY when edit button is clicked (and file is selected)
+- [x] Test the functionality

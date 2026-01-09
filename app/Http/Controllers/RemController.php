@@ -39,6 +39,32 @@ class RemController extends Controller
         ]);
     }
 
+    public function update(Request $request, $docketNo)
+    {
+        $rem = RemDatabase::where('docket_no', $docketNo)->firstOrFail();
+
+        $request->validate([
+            'docket_no' => 'required|string|unique:rem,docket_no,' . $rem->id,
+            'project_name' => 'required|string',
+            'province' => 'required|string',
+            'status' => 'required|in:ON-SHELF,BORROWED,UNAVAILABLE',
+            'quantity' => 'nullable|numeric',
+            'remarks' => 'nullable|string',
+        ]);
+
+        $oldDocketNo = $rem->docket_no;
+        $rem->update($request->all());
+
+        // Log activity
+        $this->logActivity($request->docket_no, $oldDocketNo, 'REM - ' . $request->province, 'Updated a docket');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'REM record updated successfully.',
+            'rem' => $rem,
+        ]);
+    }
+
     public function getUpdatedData()
     {
         $data = [

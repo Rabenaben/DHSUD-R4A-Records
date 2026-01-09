@@ -50,6 +50,34 @@ class HoaController extends Controller
         return response()->json($municipalities);
     }
 
+    public function update(Request $request, $docketNo)
+    {
+        $hoa = HoaDatabase::where('docket_no', $docketNo)->firstOrFail();
+
+        $request->validate([
+            'docket_no' => 'required|string|unique:hoa_database,docket_no,' . $hoa->id,
+            'hoa_name' => 'required|string',
+            'location' => 'required|string',
+            'province_id' => 'required|exists:provinces,province_id',
+            'municipality_id' => 'required|exists:municipalities,municipality_id',
+            'status' => 'required|in:ON-SHELF,BORROWED,UNAVAILABLE',
+            'quantity' => 'nullable|numeric',
+            'remarks' => 'nullable|string',
+        ]);
+
+        $oldDocketNo = $hoa->docket_no;
+        $hoa->update($request->all());
+
+        // Log activity
+        $this->logActivity($request->docket_no, $oldDocketNo, 'HOA Records', 'Updated a docket');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'HOA record updated successfully.',
+            'hoa' => $hoa->load(['province', 'municipality']),
+        ]);
+    }
+
     public function getUpdatedData()
     {
         $data = [
