@@ -208,8 +208,8 @@ async function updateRemData() {
  */
 function remEnterEditMode() {
     // Store original values
-    const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks', 'rem-file-name'];
-    const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks', 'rem-file-name'];
+    const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
+    const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
     window.remOriginalValues = {};
     allFields.forEach(id => {
         const element = document.getElementById(id);
@@ -227,39 +227,12 @@ function remEnterEditMode() {
         }
     });
 
-    // Show file name field and populate file name if a file is selected
-    const fileNameField = document.getElementById('rem-file-name-field');
-    const fileNameInput = document.getElementById('rem-file-name');
-    if (fileNameField && fileNameInput) {
-        fileNameField.style.display = 'block';
-
-        if (window.currentFileIndex !== undefined) {
-            // Get file name from the files array
-            fetch(`/rem/${encodeURIComponent(window.currentRemRecord.docket_no)}/files`)
-                .then(response => response.json())
-                .then(data => {
-                    const files = data.files || [];
-                    const file = files.find(f => f.index == window.currentFileIndex);
-                    if (file) {
-                        fileNameInput.value = file.name;
-                        window.remOriginalValues['rem-file-name'] = file.name;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching file name:', error);
-                });
-        } else {
-            fileNameInput.value = '';
-            window.remOriginalValues['rem-file-name'] = '';
-        }
-    }
-
-    // Hide EDIT, EXPORT, and ARCHIVE, show SAVE and CANCEL
+    // Hide EDIT button and show edit icons
     document.getElementById('rem-edit-btn').style.display = 'none';
-    document.getElementById('export-rem-btn').style.display = 'none';
-    document.getElementById('archive-rem-btn').style.display = 'none';
-    document.getElementById('rem-save-btn').style.display = 'inline-block';
-    document.getElementById('rem-cancel-btn').style.display = 'inline-block';
+    document.getElementById('rem-edit-icons').style.display = 'flex';
+
+    // Hide pencil icon during record edit
+    document.getElementById('rem-edit-file-name-btn').style.display = 'none';
 }
 
 /**
@@ -276,16 +249,8 @@ async function remSaveEdit() {
         remarks: document.getElementById('rem-remarks').value,
     };
 
-    // Check if file name was changed
-    const fileNameInput = document.getElementById('rem-file-name');
-    const originalFileName = window.remOriginalValues['rem-file-name'];
-    const newFileName = fileNameInput ? fileNameInput.value : null;
-
-    let recordUpdated = false;
-    let fileRenamed = false;
-
     try {
-        // Update record first
+        // Update record
         const recordResponse = await fetch(`/rem/${window.currentRemRecord.docket_no}`, {
             method: 'PUT',
             headers: {
@@ -298,53 +263,13 @@ async function remSaveEdit() {
         if (recordResponse.ok) {
             const result = await recordResponse.json();
             window.currentRemRecord = result.rem;
-            recordUpdated = true;
+            window.showToast('REM record updated successfully!', 'success');
+            remExitEditMode();
+            await updateRemData();
         } else {
             const errorData = await recordResponse.json();
             window.showToast(errorData.message || 'Error updating record', 'error');
-            return;
         }
-
-        // Rename file if name changed
-        if (newFileName && originalFileName && newFileName !== originalFileName && window.currentFileIndex !== undefined) {
-            const renameResponse = await fetch(`/rem/${window.currentRemRecord.docket_no}/files/${window.currentFileIndex}/rename`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ new_name: newFileName })
-            });
-
-            if (renameResponse.ok) {
-                fileRenamed = true;
-            } else {
-                const errorData = await renameResponse.json();
-                window.showToast('Record updated but file rename failed: ' + (errorData.message || 'Error renaming file'), 'warning');
-            }
-        }
-
-        // Show success message
-        if (recordUpdated && fileRenamed) {
-            window.showToast('REM record and file name updated successfully!', 'success');
-        } else if (recordUpdated) {
-            window.showToast('REM record updated successfully!', 'success');
-        }
-
-        // Hide file name field immediately after successful save
-        const fileNameField = document.getElementById('rem-file-name-field');
-        if (fileNameField) {
-            fileNameField.style.display = 'none';
-        }
-
-        remExitEditMode();
-        await updateRemData();
-
-        // Refresh file list if file was renamed
-        if (fileRenamed) {
-            loadRemFileList(window.currentRemRecord);
-        }
-
     } catch (error) {
         console.error('Error:', error);
         window.showToast('Error updating. Please try again.', 'error');
@@ -356,7 +281,7 @@ async function remSaveEdit() {
  */
 function remCancelEdit() {
     // Revert values
-    const fields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks', 'rem-file-name'];
+    const fields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
     fields.forEach(id => {
         const element = document.getElementById(id);
         if (element && window.remOriginalValues[id] !== undefined) {
@@ -371,13 +296,101 @@ function remCancelEdit() {
         }
     });
 
-    // Hide file name field
-    const fileNameField = document.getElementById('rem-file-name-field');
-    if (fileNameField) {
-        fileNameField.style.display = 'none';
+    remExitEditMode();
+}
+
+/**
+ * Enters file name edit mode.
+ */
+function remEnterFileNameEditMode() {
+    const fileLabel = document.getElementById('rem-file-label-preview');
+    if (!fileLabel || window.currentFileIndex === undefined) return;
+
+    // Store original file name
+    window.remOriginalFileName = fileLabel.value;
+
+    // Make file name editable
+    fileLabel.readOnly = false;
+    fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
+    fileLabel.focus();
+
+    // Hide pencil icon and show save/cancel icons
+    document.getElementById('rem-edit-file-name-btn').style.display = 'none';
+    document.getElementById('rem-file-name-save-icons').style.display = 'flex';
+
+    // Attach event listeners for save/cancel
+    const saveBtn = document.getElementById('rem-save-file-name-icon');
+    const cancelBtn = document.getElementById('rem-cancel-file-name-icon');
+
+    if (saveBtn) {
+        saveBtn.onclick = remSaveFileName;
+    }
+    if (cancelBtn) {
+        cancelBtn.onclick = remCancelFileNameEdit;
+    }
+}
+
+/**
+ * Saves the edited file name.
+ */
+async function remSaveFileName() {
+    const fileLabel = document.getElementById('rem-file-label-preview');
+    const newName = fileLabel.value.trim();
+
+    if (!newName) {
+        window.showToast('File name cannot be empty', 'error');
+        return;
     }
 
-    remExitEditMode();
+    try {
+        const response = await fetch(`/rem/${window.currentRemRecord.docket_no}/files/${window.currentFileIndex}/rename`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ new_name: newName })
+        });
+
+        if (response.ok) {
+            window.showToast('File renamed successfully!', 'success');
+            remExitFileNameEditMode();
+            // Refresh file list
+            loadRemFileList(window.currentRemRecord);
+        } else {
+            const errorData = await response.json();
+            window.showToast(errorData.message || 'Error renaming file', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        window.showToast('Error renaming file. Please try again.', 'error');
+    }
+}
+
+/**
+ * Cancels file name editing and reverts changes.
+ */
+function remCancelFileNameEdit() {
+    const fileLabel = document.getElementById('rem-file-label-preview');
+    if (fileLabel && window.remOriginalFileName !== undefined) {
+        fileLabel.value = window.remOriginalFileName;
+    }
+    remExitFileNameEditMode();
+}
+
+/**
+ * Exits file name edit mode.
+ */
+function remExitFileNameEditMode() {
+    const fileLabel = document.getElementById('rem-file-label-preview');
+    if (fileLabel) {
+        fileLabel.readOnly = true;
+        fileLabel.classList.remove('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
+    }
+
+    // Hide save/cancel icons and show pencil icon
+    document.getElementById('rem-file-name-save-icons').style.display = 'none';
+    document.getElementById('rem-edit-file-name-btn').style.display = 'inline-block';
 }
 
 /**
@@ -397,12 +410,14 @@ function remExitEditMode() {
         }
     });
 
-    // Hide SAVE and CANCEL, show EDIT, EXPORT, and ARCHIVE
+    // Hide edit icons and show edit button
+    document.getElementById('rem-edit-icons').style.display = 'none';
     document.getElementById('rem-edit-btn').style.display = 'inline-block';
-    document.getElementById('export-rem-btn').style.display = 'inline-block';
-    document.getElementById('archive-rem-btn').style.display = 'inline-block';
-    document.getElementById('rem-save-btn').style.display = 'none';
-    document.getElementById('rem-cancel-btn').style.display = 'none';
+
+    // Show pencil icon for file name editing if file is selected
+    if (window.currentFileIndex !== undefined) {
+        document.getElementById('rem-edit-file-name-btn').style.display = 'inline-block';
+    }
 }
 
 // =========================================
@@ -415,12 +430,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listeners for edit functionality
     const editBtn = document.getElementById('rem-edit-btn');
-    const saveBtn = document.getElementById('rem-save-btn');
-    const cancelBtn = document.getElementById('rem-cancel-btn');
+    const saveIcon = document.getElementById('rem-save-icon');
+    const cancelIcon = document.getElementById('rem-cancel-icon');
+    const editFileNameBtn = document.getElementById('rem-edit-file-name-btn');
 
     if (editBtn) editBtn.addEventListener('click', remEnterEditMode);
-    if (saveBtn) saveBtn.addEventListener('click', remSaveEdit);
-    if (cancelBtn) cancelBtn.addEventListener('click', remCancelEdit);
+    if (saveIcon) saveIcon.addEventListener('click', remSaveEdit);
+    if (cancelIcon) cancelIcon.addEventListener('click', remCancelEdit);
+    if (editFileNameBtn) editFileNameBtn.addEventListener('click', remEnterFileNameEditMode);
 });
 
 // =========================================

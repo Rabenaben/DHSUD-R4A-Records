@@ -297,7 +297,7 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
     const filePlaceholder = document.getElementById(placeholderId);
 
     // Show loading state immediately
-    fileLabel.textContent = 'Loading...';
+    fileLabel.value = 'Loading...';
     filePreview.style.display = 'none';
     filePlaceholder.innerHTML = `
         <div class="flex flex-col items-center justify-center h-full">
@@ -315,12 +315,12 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
                 const files = data.files || [];
                 const file = files.find(f => f.index == fileIndex);
                 if (file) {
-                    fileLabel.textContent = file.name;
+                    fileLabel.value = file.name;
                     filePreview.src = `/${type}/${record.docket_no}/preview/${fileIndex}`;
                     filePreview.style.display = 'block';
                     filePlaceholder.style.display = 'none';
                 } else {
-                    fileLabel.textContent = '';
+                    fileLabel.value = '';
                     filePreview.style.display = 'none';
                     filePlaceholder.innerHTML = `
                         <div class="flex flex-col items-center justify-center h-full">
@@ -335,7 +335,7 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
             })
             .catch(error => {
                 console.error('Error fetching file:', error);
-                fileLabel.textContent = '';
+                fileLabel.value = '';
                 filePreview.style.display = 'none';
                 filePlaceholder.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full">
@@ -348,7 +348,7 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
                 filePlaceholder.style.display = 'flex';
             });
     } else {
-        fileLabel.textContent = '';
+        fileLabel.value = '';
         filePreview.style.display = 'none';
         filePlaceholder.innerHTML = `
             <div class="flex flex-col items-center justify-center h-full">
@@ -626,8 +626,13 @@ function showGenericFilePreview(record, fileIndex, type) {
     // Store the current file index for export
     window.currentFileIndex = fileIndex;
 
+    // Show pencil icon for file name editing
+    const editBtnId = type === 'hoa' ? 'hoa-edit-file-name-btn' : 'rem-edit-file-name-btn';
+    const editBtn = document.getElementById(editBtnId);
+    if (editBtn) editBtn.style.display = 'inline-block';
+
     // Load file preview
-    const labelId = type === 'hoa' ? 'file-label' : 'rem-file-label';
+    const labelId = type === 'hoa' ? 'hoa-file-label-preview' : 'rem-file-label-preview';
     const previewId = type === 'hoa' ? 'file-preview' : 'rem-file-preview';
     const placeholderId = type === 'hoa' ? 'file-placeholder' : 'rem-file-placeholder';
     loadFilePreview(record, fileIndex, type, labelId, previewId, placeholderId);

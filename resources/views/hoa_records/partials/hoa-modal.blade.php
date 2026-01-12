@@ -13,7 +13,23 @@
         <!-- Form Section -->
         <div class="flex-1/4">
             <!-- Basic Information -->
-            <h3 class="mb-2 mt-4 text-[15px] font-semibold">Basic Information</h3>
+            <h3 class="mb-2 mt-4 flex items-center justify-between text-[15px] font-semibold">
+                Basic Information
+                <div class="flex items-center space-x-2" id="hoa-edit-icons" style="display: none;">
+                    <button id="hoa-save-icon" class="text-green-600 hover:text-green-800" title="Save Changes">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </button>
+                    <button id="hoa-cancel-icon" class="text-red-600 hover:text-red-800" title="Cancel Changes">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button id="hoa-edit-btn"
+                    class="rounded-lg bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700">EDIT</button>
+            </h3>
             <div class="mb-2.5">
                 <div class="mb-2.5">
                     <x-input-label value="Docket No." />
@@ -62,38 +78,33 @@
                     class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                     id="remarks" placeholder="Remarks" readonly></textarea>
             </div>
-
-            <div id="file-name-field" style="display: none;">
-                <x-input-label value="File Name" />
-                <x-modal-input id="file-name" placeholder="File Name" readonly />
-            </div>
         </div>
 
         <!-- File Section -->
         <div class="flex basis-3/4 flex-col items-center">
-            <div class="mb-4 mt-2 text-lg font-bold text-gray-800 text-center" id="file-label"></div>
+            <div class="mb-4 mt-2 text-center text-lg font-bold text-gray-800" id="hoa-file-label"></div>
             <!-- File List View -->
             <div id="hoa-file-list-view"
-                class="h-full w-full rounded-lg border border-gray-300 bg-white overflow-hidden"
-                style="display: block;">
-                <div class="mb-2 flex items-center justify-between p-4 bg-gray-50">
+                class="h-full w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
+                style="display: block; max-height: 400px;">
+                <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
                     <h4 class="text-sm font-semibold text-gray-900">Files</h4>
                     <div class="flex items-center space-x-2">
                         <x-secondary-button id="hoa-add-file-btn">Add File</x-secondary-button>
                     </div>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto h-full flex justify-center">
+                <div class="flex h-full justify-center overflow-x-auto overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     File Name</th>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Date Modified</th>
                                 <th
-                                    class="px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 w-1/3">
+                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Last Updated By</th>
                             </tr>
                         </thead>
@@ -106,11 +117,11 @@
 
             <!-- File Preview View -->
             <div id="hoa-file-preview-view"
-                class="flex flex-col h-full w-full rounded-lg border border-gray-300 bg-gray-100"
+                class="flex h-full w-full flex-col rounded-lg border border-gray-300 bg-gray-100"
                 style="display: none;">
-                <div class="flex items-center justify-between p-4">
+                <div class="flex items-center p-4">
                     <button
-                        class="ml-2 mt-2 flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
+                        class="flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
                         onclick="hoaShowFileList()">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
@@ -118,18 +129,37 @@
                         </svg>
                         Back to Files
                     </button>
-                    <div class="text-lg font-bold text-gray-800 text-center flex-1" id="file-label"></div>
+                    <div class="flex items-center ml-4">
+                        <input type="text"
+                            class="border-none bg-transparent text-lg font-bold text-gray-800 outline-none"
+                            id="hoa-file-label-preview" readonly />
+                        <button id="hoa-edit-file-name-btn" class="ml-2 text-gray-600 hover:text-gray-800" title="Edit File Name" style="display: none;">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <div class="flex items-center space-x-2 ml-2" id="hoa-file-name-save-icons" style="display: none;">
+                            <button id="hoa-save-file-name-icon" class="text-green-600 hover:text-green-800" title="Save File Name">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <button id="hoa-cancel-file-name-icon" class="text-red-600 hover:text-red-800" title="Cancel File Name Edit">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex-1 w-full" id="file-preview-container" style="height: 400px;">
-                    <iframe id="file-preview" class="w-full h-full" style="display: none;"></iframe>
-                    <div id="file-placeholder" class="flex items-center justify-center h-full text-gray-500">No file
+                <div class="w-full flex-1" id="file-preview-container" style="height: 400px;">
+                    <iframe id="file-preview" class="h-full w-full" style="display: none;"></iframe>
+                    <div id="file-placeholder" class="flex h-full items-center justify-center text-gray-500">No file
                         selected</div>
                 </div>
             </div>
 
-            <div class="flex gap-3 p-4 justify-center" id="hoa-file-actions" style="display: none;">
-                <button id="hoa-edit-btn"
-                    class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700">EDIT</button>
+            <div class="flex justify-center gap-3 p-4" id="hoa-file-actions" style="display: none;">
                 <button id="hoa-save-btn"
                     class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
                     style="display: none;">SAVE</button>

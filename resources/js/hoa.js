@@ -53,14 +53,14 @@ function openHoaModal(record) {
     // Attach edit functionality event listeners after modal is opened
     setTimeout(() => {
         const editBtn = document.getElementById('hoa-edit-btn');
-        const saveBtn = document.getElementById('hoa-save-btn');
-        const cancelBtn = document.getElementById('hoa-cancel-btn');
-        const renameBtn = document.getElementById('hoa-rename-btn');
+        const saveIcon = document.getElementById('hoa-save-icon');
+        const cancelIcon = document.getElementById('hoa-cancel-icon');
+        const editFileNameBtn = document.getElementById('hoa-edit-file-name-btn');
 
         if (editBtn) editBtn.addEventListener('click', hoaEnterEditMode);
-        if (saveBtn) saveBtn.addEventListener('click', hoaSaveEdit);
-        if (cancelBtn) cancelBtn.addEventListener('click', hoaCancelEdit);
-        if (renameBtn) renameBtn.addEventListener('click', hoaRenameFile);
+        if (saveIcon) saveIcon.addEventListener('click', hoaSaveEdit);
+        if (cancelIcon) cancelIcon.addEventListener('click', hoaCancelEdit);
+        if (editFileNameBtn) editFileNameBtn.addEventListener('click', hoaEnterFileNameEditMode);
     }, 100); // Small delay to ensure modal is rendered
 }
 
@@ -91,11 +91,45 @@ function hoaShowFilePreview(record, fileIndex) {
 }
 
 /**
- * Renames the currently selected file.
+ * Enters file name edit mode.
  */
-async function hoaRenameFile() {
-    const newName = prompt('Enter new file name:');
-    if (!newName || newName.trim() === '') {
+function hoaEnterFileNameEditMode() {
+    const fileLabel = document.getElementById('hoa-file-label-preview');
+    if (!fileLabel || window.currentFileIndex === undefined) return;
+
+    // Store original file name
+    window.hoaOriginalFileName = fileLabel.value;
+
+    // Make file name editable
+    fileLabel.readOnly = false;
+    fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
+    fileLabel.focus();
+
+    // Hide pencil icon and show save/cancel icons
+    document.getElementById('hoa-edit-file-name-btn').style.display = 'none';
+    document.getElementById('hoa-file-name-save-icons').style.display = 'flex';
+
+    // Attach event listeners for save/cancel
+    const saveBtn = document.getElementById('hoa-save-file-name-icon');
+    const cancelBtn = document.getElementById('hoa-cancel-file-name-icon');
+
+    if (saveBtn) {
+        saveBtn.onclick = hoaSaveFileName;
+    }
+    if (cancelBtn) {
+        cancelBtn.onclick = hoaCancelFileNameEdit;
+    }
+}
+
+/**
+ * Saves the edited file name.
+ */
+async function hoaSaveFileName() {
+    const fileLabel = document.getElementById('hoa-file-label-preview');
+    const newName = fileLabel.value.trim();
+
+    if (!newName) {
+        window.showToast('File name cannot be empty', 'error');
         return;
     }
 
@@ -106,12 +140,12 @@ async function hoaRenameFile() {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify({ new_name: newName.trim() })
+            body: JSON.stringify({ new_name: newName })
         });
 
         if (response.ok) {
-            const result = await response.json();
             window.showToast('File renamed successfully!', 'success');
+            hoaExitFileNameEditMode();
             // Refresh file list
             loadHoaFileList(window.currentRecord);
         } else {
@@ -125,12 +159,38 @@ async function hoaRenameFile() {
 }
 
 /**
+ * Cancels file name editing and reverts changes.
+ */
+function hoaCancelFileNameEdit() {
+    const fileLabel = document.getElementById('hoa-file-label-preview');
+    if (fileLabel && window.hoaOriginalFileName !== undefined) {
+        fileLabel.value = window.hoaOriginalFileName;
+    }
+    hoaExitFileNameEditMode();
+}
+
+/**
+ * Exits file name edit mode.
+ */
+function hoaExitFileNameEditMode() {
+    const fileLabel = document.getElementById('hoa-file-label-preview');
+    if (fileLabel) {
+        fileLabel.readOnly = true;
+        fileLabel.classList.remove('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
+    }
+
+    // Hide save/cancel icons and show pencil icon
+    document.getElementById('hoa-file-name-save-icons').style.display = 'none';
+    document.getElementById('hoa-edit-file-name-btn').style.display = 'inline-block';
+}
+
+/**
  * Enters edit mode for the HOA record.
  */
 function hoaEnterEditMode() {
     // Store original values
-    const editableFields = ['status', 'quantity', 'remarks', 'file-name'];
-    const allFields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks', 'file-name'];
+    const editableFields = ['status', 'quantity', 'remarks'];
+    const allFields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
     window.hoaOriginalValues = {};
     allFields.forEach(id => {
         const element = document.getElementById(id);
@@ -146,11 +206,11 @@ function hoaEnterEditMode() {
         }
     });
 
-    // Show file name field and populate file name if a file is selected
-    const fileNameField = document.getElementById('file-name-field');
-    const fileNameInput = document.getElementById('file-name');
-    if (fileNameField && fileNameInput && window.currentFileIndex !== undefined) {
-        fileNameField.style.display = 'block';
+    // Make file name editable if a file is selected
+    const fileLabel = document.getElementById('hoa-file-label-preview');
+    if (fileLabel && window.currentFileIndex !== undefined) {
+        fileLabel.readOnly = false;
+        fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
 
         // Get file name from the files array
         fetch(`/${window.currentRecordType || 'hoa'}/${window.currentRecord.docket_no}/files`)
@@ -159,24 +219,22 @@ function hoaEnterEditMode() {
                 const files = data.files || [];
                 const file = files.find(f => f.index == window.currentFileIndex);
                 if (file) {
-                    fileNameInput.value = file.name;
+                    fileLabel.value = file.name;
                     window.hoaOriginalValues['file-name'] = file.name;
+                    fileLabel.focus();
                 }
             })
             .catch(error => {
                 console.error('Error fetching file name:', error);
             });
-    } else if (fileNameField) {
-        // Hide file name field if no file is selected
-        fileNameField.style.display = 'none';
     }
 
-    // Hide EDIT, EXPORT, and ARCHIVE, show SAVE and CANCEL
+    // Hide EDIT button and show edit icons
     document.getElementById('hoa-edit-btn').style.display = 'none';
-    document.getElementById('export-hoa-btn').style.display = 'none';
-    document.getElementById('archive-hoa-btn').style.display = 'none';
-    document.getElementById('hoa-save-btn').style.display = 'inline-block';
-    document.getElementById('hoa-cancel-btn').style.display = 'inline-block';
+    document.getElementById('hoa-edit-icons').style.display = 'flex';
+
+    // Hide pencil icon during record edit
+    document.getElementById('hoa-edit-file-name-btn').style.display = 'none';
 }
 
 /**
@@ -195,16 +253,8 @@ async function hoaSaveEdit() {
         remarks: document.getElementById('remarks').value,
     };
 
-    // Check if file name was changed
-    const fileNameInput = document.getElementById('file-name');
-    const originalFileName = window.hoaOriginalValues['file-name'];
-    const newFileName = fileNameInput ? fileNameInput.value : null;
-
-    let recordUpdated = false;
-    let fileRenamed = false;
-
     try {
-        // Update record first
+        // Update record
         const recordResponse = await fetch(`/hoa/${window.currentRecord.docket_no}`, {
             method: 'PUT',
             headers: {
@@ -217,47 +267,13 @@ async function hoaSaveEdit() {
         if (recordResponse.ok) {
             const result = await recordResponse.json();
             window.currentRecord = result.hoa;
-            recordUpdated = true;
+            window.showToast('HOA record updated successfully!', 'success');
+            hoaExitEditMode();
+            await updateHoaData();
         } else {
             const errorData = await recordResponse.json();
             window.showToast(errorData.message || 'Error updating record', 'error');
-            return;
         }
-
-        // Rename file if name changed
-        if (newFileName && originalFileName && newFileName !== originalFileName && window.currentFileIndex !== undefined) {
-            const renameResponse = await fetch(`/hoa/${window.currentRecord.docket_no}/files/${window.currentFileIndex}/rename`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ new_name: newFileName })
-            });
-
-            if (renameResponse.ok) {
-                fileRenamed = true;
-            } else {
-                const errorData = await renameResponse.json();
-                window.showToast('Record updated but file rename failed: ' + (errorData.message || 'Error renaming file'), 'warning');
-            }
-        }
-
-        // Show success message
-        if (recordUpdated && fileRenamed) {
-            window.showToast('HOA record and file name updated successfully!', 'success');
-        } else if (recordUpdated) {
-            window.showToast('HOA record updated successfully!', 'success');
-        }
-
-        hoaExitEditMode();
-        await updateHoaData();
-
-        // Refresh file list if file was renamed
-        if (fileRenamed) {
-            loadHoaFileList(window.currentRecord);
-        }
-
     } catch (error) {
         console.error('Error:', error);
         window.showToast('Error updating. Please try again.', 'error');
@@ -269,7 +285,7 @@ async function hoaSaveEdit() {
  */
 function hoaCancelEdit() {
     // Revert values
-    const fields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks', 'file-name'];
+    const fields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
     fields.forEach(id => {
         const element = document.getElementById(id);
         if (element && window.hoaOriginalValues[id] !== undefined) {
@@ -282,10 +298,10 @@ function hoaCancelEdit() {
         }
     });
 
-    // Hide file name field
-    const fileNameField = document.getElementById('file-name-field');
-    if (fileNameField) {
-        fileNameField.style.display = 'none';
+    // Revert file name
+    const fileLabel = document.getElementById('file-label');
+    if (fileLabel && window.hoaOriginalValues['file-name'] !== undefined) {
+        fileLabel.value = window.hoaOriginalValues['file-name'];
     }
 
     hoaExitEditMode();
@@ -296,7 +312,7 @@ function hoaCancelEdit() {
  */
 function hoaExitEditMode() {
     // Make fields readonly
-    const fields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks', 'file-name'];
+    const fields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
     fields.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -308,18 +324,14 @@ function hoaExitEditMode() {
         }
     });
 
-    // Hide file name field
-    const fileNameField = document.getElementById('file-name-field');
-    if (fileNameField) {
-        fileNameField.style.display = 'none';
-    }
-
-    // Hide SAVE and CANCEL, show EDIT, EXPORT, and ARCHIVE
+    // Hide edit icons and show edit button
+    document.getElementById('hoa-edit-icons').style.display = 'none';
     document.getElementById('hoa-edit-btn').style.display = 'inline-block';
-    document.getElementById('export-hoa-btn').style.display = 'inline-block';
-    document.getElementById('archive-hoa-btn').style.display = 'inline-block';
-    document.getElementById('hoa-save-btn').style.display = 'none';
-    document.getElementById('hoa-cancel-btn').style.display = 'none';
+
+    // Show pencil icon for file name editing if file is selected
+    if (window.currentFileIndex !== undefined) {
+        document.getElementById('hoa-edit-file-name-btn').style.display = 'inline-block';
+    }
 }
 
 
