@@ -206,35 +206,9 @@ function hoaEnterEditMode() {
         }
     });
 
-    // Make file name editable if a file is selected
-    const fileLabel = document.getElementById('hoa-file-label-preview');
-    if (fileLabel && window.currentFileIndex !== undefined) {
-        fileLabel.readOnly = false;
-        fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
-
-        // Get file name from the files array
-        fetch(`/${window.currentRecordType || 'hoa'}/${window.currentRecord.docket_no}/files`)
-            .then(response => response.json())
-            .then(data => {
-                const files = data.files || [];
-                const file = files.find(f => f.index == window.currentFileIndex);
-                if (file) {
-                    fileLabel.value = file.name;
-                    window.hoaOriginalValues['file-name'] = file.name;
-                    fileLabel.focus();
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching file name:', error);
-            });
-    }
-
     // Hide EDIT button and show edit icons
     document.getElementById('hoa-edit-btn').style.display = 'none';
     document.getElementById('hoa-edit-icons').style.display = 'flex';
-
-    // Hide pencil icon during record edit
-    document.getElementById('hoa-edit-file-name-btn').style.display = 'none';
 }
 
 /**
@@ -297,12 +271,6 @@ function hoaCancelEdit() {
             }
         }
     });
-
-    // Revert file name
-    const fileLabel = document.getElementById('hoa-file-label-preview');
-    if (fileLabel && window.hoaOriginalValues['file-name'] !== undefined) {
-        fileLabel.value = window.hoaOriginalValues['file-name'];
-    }
 
     hoaExitEditMode();
 }

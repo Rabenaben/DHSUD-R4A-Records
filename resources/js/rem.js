@@ -230,9 +230,6 @@ function remEnterEditMode() {
     // Hide EDIT button and show edit icons
     document.getElementById('rem-edit-btn').style.display = 'none';
     document.getElementById('rem-edit-icons').style.display = 'flex';
-
-    // Hide pencil icon during record edit
-    document.getElementById('rem-edit-file-name-btn').style.display = 'none';
 }
 
 /**
