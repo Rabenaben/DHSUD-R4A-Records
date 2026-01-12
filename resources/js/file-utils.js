@@ -658,8 +658,9 @@ function showGenericFileList(type) {
     document.getElementById(`${type}-file-preview-view`).style.display = 'none';
     document.getElementById(`${type}-file-actions`).style.display = 'none';
     // Clear the file label
-    const labelId = type === 'hoa' ? 'file-label' : 'rem-file-label';
-    document.getElementById(labelId).textContent = '';
+    const labelId = type === 'hoa' ? 'hoa-file-label' : 'rem-file-label';
+    const element = document.getElementById(labelId);
+    if (element) element.textContent = '';
 }
 
 /**

@@ -299,7 +299,7 @@ function hoaCancelEdit() {
     });
 
     // Revert file name
-    const fileLabel = document.getElementById('file-label');
+    const fileLabel = document.getElementById('hoa-file-label-preview');
     if (fileLabel && window.hoaOriginalValues['file-name'] !== undefined) {
         fileLabel.value = window.hoaOriginalValues['file-name'];
     }

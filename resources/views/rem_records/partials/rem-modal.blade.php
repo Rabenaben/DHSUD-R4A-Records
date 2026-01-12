@@ -81,8 +81,8 @@
         <div class="flex basis-3/4 flex-col items-center">
             <div class="mb-4 mt-2 text-center text-lg font-bold text-gray-800" id="rem-file-label"></div>
             <!-- File List View -->
-            <div class="h-full w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
-                id="rem-file-list-view" style="display: block; max-height: 400px;">
+            <div class="flex-1 w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
+                id="rem-file-list-view" style="display: block;">
                 <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
                     <h4 class="text-sm font-semibold text-gray-900">Files</h4>
                     <div class="flex items-center space-x-2">
