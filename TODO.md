@@ -3,4 +3,6 @@
 - [x] Update HoaController update method to validate 'region' field
 - [x] Update add-record-modal.blade.php to add Region dropdown before Docket No. for HOA type
 - [ ] Test the modal to ensure Region dropdown appears and saves correctly
-- [ ] If needed, update records table to display Region column
+- [x] If needed, update records table to display Region column
+- [x] Swap File Location and Docket No. fields in borrower modal
+- [x] Modify borrower modal behavior: close borrower modal after adding new borrowing record from existing borrower, keep history modal open with updated data

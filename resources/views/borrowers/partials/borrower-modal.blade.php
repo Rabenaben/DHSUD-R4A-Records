@@ -19,8 +19,18 @@
             </div>
             <input type="hidden" id="existing-borrower-name" value="">
 
-            <!-- Docket No. and File Location -->
+or            <!-- File Location and Docket No. -->
             <div class="mb-4 flex gap-4">
+                <div class="flex-1">
+                    <x-input-label value="File Location" />
+                    <select
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        id="file-location" name="file_location" required>
+                        <option value="">Select File Location</option>
+                        <option value="REM Records">REM Records</option>
+                        <option value="HOA Records">HOA Records</option>
+                    </select>
+                </div>
                 <div class="flex-1">
                     <x-input-label value="Docket No." />
                     <x-modal-input id="docket-no" name="docket_number" placeholder="Docket No." list="docket-list" required />
@@ -34,16 +44,6 @@
                             <option value="{{ $docket }}">
                         @endforeach
                     </datalist>
-                </div>
-                <div class="flex-1">
-                    <x-input-label value="File Location" />
-                    <select
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        id="file-location" name="file_location" required>
-                        <option value="">Select File Location</option>
-                        <option value="REM Records">REM Records</option>
-                        <option value="HOA Records">HOA Records</option>
-                    </select>
                 </div>
             </div>
 
