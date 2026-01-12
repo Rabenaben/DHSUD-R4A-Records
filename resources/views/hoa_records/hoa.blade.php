@@ -19,11 +19,17 @@
                 <div class="flex w-full flex-wrap justify-between gap-3">
                     @foreach (['RIV', 'STR', 'RIZAL', 'CALABARZON', 'NCR HOA', 'NCR HOA N', 'R4A'] as $region)
                         <button
-                            class="wrap-break-word flex-1 whitespace-normal rounded-md bg-white px-3 py-1 text-center shadow-sm transition hover:bg-gray-200">
+                            class="region-btn wrap-break-word flex-1 whitespace-normal rounded-md bg-white px-3 py-1 text-center shadow-sm transition hover:bg-gray-200"
+                            data-region="{{ $region }}">
                             {{ $region }}
                         </button>
                     @endforeach
                 </div>
+            </div>
+
+            <!-- Region Filter Status -->
+            <div class="mt-2 text-sm text-gray-600" id="region-filter-status" style="display: none;">
+                Showing <span id="filtered-count">0</span> of <span id="total-count">0</span> records for region: <span id="active-region" class="font-semibold"></span>
             </div>
 
             @include('hoa_records.partials.search-filter-bar')

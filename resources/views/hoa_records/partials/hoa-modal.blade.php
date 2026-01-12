@@ -34,6 +34,10 @@
             </h3>
             <div class="mb-2.5">
                 <div class="mb-2.5">
+                    <x-input-label value="Region" />
+                    <x-modal-input id="region" placeholder="Region" readonly />
+                </div>
+                <div class="mb-2.5">
                     <x-input-label value="Docket No." />
                     <x-modal-input id="docket-no" placeholder="Docket No." readonly />
                 </div>

@@ -20,6 +20,7 @@ class HoaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'region' => 'required|string|in:RIV,STR,RIZAL,CALABARZON,NCR HOA,NCR HOA N,R4A',
             'docket_no' => 'required|string|unique:hoa_database,docket_no',
             'hoa_name' => 'required|string',
             'location' => 'required|string',
@@ -55,6 +56,7 @@ class HoaController extends Controller
         $hoa = HoaDatabase::where('docket_no', $docketNo)->firstOrFail();
 
         $request->validate([
+            'region' => 'required|string|in:RIV,STR,RIZAL,CALABARZON,NCR HOA,NCR HOA N,R4A',
             'docket_no' => 'required|string|unique:hoa_database,docket_no,' . $hoa->id,
             'hoa_name' => 'required|string',
             'location' => 'required|string',
