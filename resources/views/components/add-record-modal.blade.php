@@ -40,11 +40,11 @@
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <x-input-label value="Docket No.<span style='color: red;'>*</span>" />
-                            <x-text-input id="add-rem-docket-no" name="docket_no" required />
+                            <x-text-input id="add-rem-docket-no" name="docket_no" class="w-full" required />
                         </div>
                         <div>
                             <x-input-label value="Project Name<span style='color: red;'>*</span>" />
-                            <x-text-input id="add-rem-project-name" name="project_name" required />
+                            <x-text-input id="add-rem-project-name" name="project_name" class="w-full" required />
                         </div>
                     </div>
                 @endif
@@ -54,32 +54,30 @@
                 <!-- Location -->
                 <div>
                     <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Location</h3>
-                    <div class="space-y-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
                             <x-input-label value="Location<span style='color: red;'>*</span>" />
                             <x-text-input id="add-location" name="location" required />
                         </div>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <x-input-label value="Province<span style='color: red;'>*</span>" />
-                                <select id="add-province" name="province_id"
-                                    class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                                    required>
-                                    <option value="">Select Province</option>
-                                    @foreach ($provinces as $province)
-                                        <option value="{{ $province->province_id }}">{{ $province->province_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <x-input-label value="Municipality<span style='color: red;'>*</span>" />
-                                <select id="add-municipality" name="municipality_id"
-                                    class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                                    required disabled>
-                                    <option value="">Select Municipality</option>
-                                </select>
-                            </div>
+                        <div>
+                            <x-input-label value="Province<span style='color: red;'>*</span>" />
+                            <select id="add-province" name="province_id"
+                                class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="">Select Province</option>
+                                @foreach ($provinces as $province)
+                                    <option value="{{ $province->province_id }}">{{ $province->province_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <x-input-label value="Municipality<span style='color: red;'>*</span>" />
+                            <select id="add-municipality" name="municipality_id"
+                                class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                required disabled>
+                                <option value="">Select Municipality</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -119,7 +117,7 @@
                     <div>
                         <x-input-label value="Quantity<span style='color: red;'>*</span>" />
                         <x-text-input id="{{ $type === 'hoa' ? 'add-quantity' : 'add-rem-quantity' }}" name="quantity"
-                            type="number" required />
+                            type="number" class="w-full" required />
                     </div>
                 </div>
                 <div class="mt-4">
