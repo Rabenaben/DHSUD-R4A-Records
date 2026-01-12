@@ -16,21 +16,21 @@
             <h3 class="mb-2 mt-4 flex items-center justify-between text-[15px] font-semibold">
                 Basic Information
                 <div class="flex items-center space-x-2" id="rem-edit-icons" style="display: none;">
-                    <button id="rem-save-icon" class="text-green-600 hover:text-green-800" title="Save Changes">
+                    <button class="text-green-600 hover:text-green-800" id="rem-save-icon" title="Save Changes">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
                             </path>
                         </svg>
                     </button>
-                    <button id="rem-cancel-icon" class="text-red-600 hover:text-red-800" title="Cancel Changes">
+                    <button class="text-red-600 hover:text-red-800" id="rem-cancel-icon" title="Cancel Changes">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
-                <button id="rem-edit-btn"
-                    class="rounded-lg bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700">EDIT</button>
+                <button class="rounded-lg bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700"
+                    id="rem-edit-btn">EDIT</button>
             </h3>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
@@ -75,11 +75,6 @@
                     class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                     id="rem-remarks" placeholder="Remarks" readonly></textarea>
             </div>
-
-            <div id="rem-file-name-field" style="display: none;">
-                <x-input-label value="File Name" />
-                <x-modal-input id="rem-file-name" placeholder="File Name" readonly />
-            </div>
         </div>
 
         <!-- File Section -->
@@ -87,7 +82,7 @@
             <div class="mb-4 mt-2 text-center text-lg font-bold text-gray-800" id="rem-file-label"></div>
             <!-- File List View -->
             <div class="h-full w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
-                id="rem-file-list-view" style="display: block;">
+                id="rem-file-list-view" style="display: block; max-height: 400px;">
                 <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
                     <h4 class="text-sm font-semibold text-gray-900">Files</h4>
                     <div class="flex items-center space-x-2">
@@ -119,18 +114,46 @@
             <!-- File Preview View -->
             <div class="flex h-full w-full flex-col rounded-lg border border-gray-300 bg-gray-100"
                 id="rem-file-preview-view" style="display: none;">
-                <div class="flex items-center justify-between p-4">
+                <div class="flex items-center p-4">
                     <button
                         class="flex items-center gap-2 rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
                         onclick="remShowFileList()">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 19l-7-7 7-7">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
                             </path>
                         </svg>
                         Back to Files
                     </button>
-                    <div class="flex-1 text-center text-lg font-bold text-gray-800" id="rem-file-label-preview"></div>
+                    <div class="ml-4 flex items-center">
+                        <input
+                            class="border-none bg-transparent text-center text-lg font-bold text-gray-800 outline-none"
+                            id="rem-file-label-preview" type="text" readonly />
+                        <button class="ml-2 text-gray-600 hover:text-gray-800" id="rem-edit-file-name-btn"
+                            title="Edit File Name" style="display: none;">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                </path>
+                            </svg>
+                        </button>
+                        <div class="ml-2 flex items-center space-x-2" id="rem-file-name-save-icons"
+                            style="display: none;">
+                            <button class="text-green-600 hover:text-green-800" id="rem-save-file-name-icon"
+                                title="Save File Name">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" id="rem-cancel-file-name-icon"
+                                title="Cancel File Name Edit">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="w-full flex-1" id="rem-file-preview-container" style="height: 400px;">
                     <iframe class="h-full w-full" id="rem-file-preview" style="display: none;"></iframe>
@@ -141,8 +164,6 @@
             </div>
 
             <div class="flex justify-center gap-3 p-4" id="rem-file-actions" style="display: none;">
-                <button class="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700"
-                    id="rem-edit-btn">EDIT</button>
                 <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
                     id="rem-save-btn" style="display: none;">SAVE</button>
                 <button class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700"
