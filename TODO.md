@@ -1,19 +1,2 @@
-<<<<<<< HEAD
-# TODO: Modify HOA and REM Modals
-
-## Tasks
-- [x] Move edit button to upper right of left panel beside Basic Information (already positioned in HOA, check REM)
-- [x] Remove file name field below remarks in both modals
-- [x] Make file name above preview editable when edit button is clicked
-- [x] Update hoa.js to handle editable file name in preview
-- [x] Update rem.js to handle editable file name in preview
-- [x] Test changes in both modals
-
-## Files to Edit
-- [x] resources/views/hoa_records/partials/hoa-modal.blade.php
-- [x] resources/views/rem_records/partials/rem-modal.blade.php
-- [x] resources/js/hoa.js
-- [x] resources/js/rem.js
-=======
-- [x] Restructure #rem-file-preview-view in resources/views/rem_records/partials/rem-modal.blade.php to match HOA modal layout
->>>>>>> deb547113ad7bf0ace7ae29080b2169aec74a589
+- [ ] Edit hoa-modal.blade.php: Add "mx-auto w-80" to the class of the input field with id="hoa-file-label-preview" to center it and increase width.
+- [ ] Edit rem-modal.blade.php: Add "mx-auto w-80" to the class of the input field with id="rem-file-label-preview" to center it and increase width.

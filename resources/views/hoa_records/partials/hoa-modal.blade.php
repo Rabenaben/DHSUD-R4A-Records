@@ -8,7 +8,7 @@
         </svg>
         Close
     </button>
-    <div class="flex flex-col gap-6 p-4 lg:flex-row">
+    <div class="flex flex-col gap-6 p-4 lg:flex-row max-h-[80vh] overflow-hidden">
 
         <!-- Form Section -->
         <div class="flex-1/4">
@@ -129,8 +129,8 @@
                         </svg>
                         Back to Files
                     </button>
-                    <div class="ml-4 flex items-center">
-                        <input class="border-none bg-transparent text-lg font-bold text-gray-800 outline-none"
+                    <div class="ml-4 flex-1 flex items-center justify-center">
+                        <input class="w-full border-none bg-transparent text-center text-lg font-bold text-gray-800 outline-none"
                             id="hoa-file-label-preview" type="text" readonly />
                         <button class="ml-2 text-gray-600 hover:text-gray-800" id="hoa-edit-file-name-btn"
                             title="Edit File Name" style="display: none;">
