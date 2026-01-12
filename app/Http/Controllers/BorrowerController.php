@@ -112,6 +112,9 @@ class BorrowerController extends Controller
         // Update docket status to BORROWED
         $this->updateDocketStatus($validated['file_location'], $validated['docket_number'], 'BORROWED');
 
+        // Log the borrow activity
+        $this->logActivity($validated['docket_number'], null, $validated['file_location'], 'Borrow');
+
         return response()->json([
             'success' => true,
             'borrower' => $borrower,
