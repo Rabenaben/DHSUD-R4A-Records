@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TODO: Modify HOA and REM Modals
 
 ## Tasks
@@ -13,3 +14,6 @@
 - [x] resources/views/rem_records/partials/rem-modal.blade.php
 - [x] resources/js/hoa.js
 - [x] resources/js/rem.js
+=======
+- [x] Restructure #rem-file-preview-view in resources/views/rem_records/partials/rem-modal.blade.php to match HOA modal layout
+>>>>>>> deb547113ad7bf0ace7ae29080b2169aec74a589
