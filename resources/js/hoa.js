@@ -23,6 +23,13 @@ let addRecordForm;
 let municipalitySelect;
 
 // =========================================
+// Global Variables for Filtering
+// =========================================
+
+let activeRegionFilter = null;
+let regionFilterStatus, filteredCountSpan, totalCountSpan, activeRegionSpan;
+
+// =========================================
 // Modal Functions
 // =========================================
 
@@ -32,6 +39,7 @@ let municipalitySelect;
  */
 function openHoaModal(record) {
     const fieldConfig = {
+        region: 'region',
         docket_no: 'docket-no',
         hoa_name: 'hoa-name',
         province: 'province',
@@ -190,7 +198,7 @@ function hoaExitFileNameEditMode() {
 function hoaEnterEditMode() {
     // Store original values
     const editableFields = ['status', 'quantity', 'remarks'];
-    const allFields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+    const allFields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
     window.hoaOriginalValues = {};
     allFields.forEach(id => {
         const element = document.getElementById(id);
@@ -217,6 +225,7 @@ function hoaEnterEditMode() {
 async function hoaSaveEdit() {
     const docketNo = document.getElementById('docket-no').value;
     const formData = {
+        region: document.getElementById('region').value,
         docket_no: docketNo,
         hoa_name: document.getElementById('hoa-name').value,
         location: window.currentRecord.location, // Keep original location
@@ -259,7 +268,7 @@ async function hoaSaveEdit() {
  */
 function hoaCancelEdit() {
     // Revert values
-    const fields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+    const fields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
     fields.forEach(id => {
         const element = document.getElementById(id);
         if (element && window.hoaOriginalValues[id] !== undefined) {
@@ -280,7 +289,7 @@ function hoaCancelEdit() {
  */
 function hoaExitEditMode() {
     // Make fields readonly
-    const fields = ['docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+    const fields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
     fields.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -315,6 +324,12 @@ function initHoaRecords() {
     // Declare modal elements
     addRecordForm = document.getElementById('add-record-form');
     municipalitySelect = document.getElementById('add-municipality');
+
+    // Declare filter elements
+    regionFilterStatus = document.getElementById('region-filter-status');
+    filteredCountSpan = document.getElementById('filtered-count');
+    totalCountSpan = document.getElementById('total-count');
+    activeRegionSpan = document.getElementById('active-region');
 
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
@@ -375,6 +390,8 @@ function initHoaRecords() {
         const selectedProvince = provinceFilter.value.toLowerCase();
         const selectedMunicipality = municipalityFilter.value.toLowerCase();
         let anyVisible = false;
+        let visibleCount = 0;
+        const totalRows = getTableRows().length;
 
         getTableRows().forEach(row => {
             const data = row.dataset;
@@ -382,10 +399,25 @@ function initHoaRecords() {
             const matchesStatus = !selectedStatus || data.status === selectedStatus;
             const matchesProvince = !selectedProvince || data.province.toLowerCase() === selectedProvince;
             const matchesMunicipality = !selectedMunicipality || data.municipality.toLowerCase() === selectedMunicipality;
+            const matchesRegion = !activeRegionFilter || data.region.toLowerCase() === activeRegionFilter;
 
-            row.style.display = matchesSearch && matchesStatus && matchesProvince && matchesMunicipality ? '' : 'none';
-            if (matchesSearch && matchesStatus && matchesProvince && matchesMunicipality) anyVisible = true;
+            const shouldShow = matchesSearch && matchesStatus && matchesProvince && matchesMunicipality && matchesRegion;
+            row.style.display = shouldShow ? '' : 'none';
+            if (shouldShow) {
+                anyVisible = true;
+                visibleCount++;
+            }
         });
+
+        // Update region filter status
+        if (activeRegionFilter) {
+            regionFilterStatus.style.display = 'block';
+            filteredCountSpan.textContent = visibleCount;
+            totalCountSpan.textContent = totalRows;
+            activeRegionSpan.textContent = activeRegionFilter;
+        } else {
+            regionFilterStatus.style.display = 'none';
+        }
 
         const noRecordsRow = document.getElementById('noRecordsRow');
         if (noRecordsRow) {
@@ -396,6 +428,25 @@ function initHoaRecords() {
             }
         }
     };
+
+    // Region button event listeners
+    const regionButtons = document.querySelectorAll('.region-btn');
+    regionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const region = button.dataset.region.toLowerCase();
+            if (activeRegionFilter === region) {
+                // Toggle off - clear filter
+                activeRegionFilter = null;
+                button.classList.remove('bg-blue-200', 'ring-2', 'ring-blue-500');
+            } else {
+                // Clear previous active button and set new active region
+                regionButtons.forEach(btn => btn.classList.remove('bg-blue-200', 'ring-2', 'ring-blue-500'));
+                activeRegionFilter = region;
+                button.classList.add('bg-blue-200', 'ring-2', 'ring-blue-500');
+            }
+            filterTable();
+        });
+    });
 
     // Attach event listeners
     searchInput.addEventListener('input', filterTable);
@@ -411,6 +462,9 @@ function initHoaRecords() {
 
     // Initial filter of municipalities
     filterMunicipalities();
+
+    // Initialize region filter status
+    filterTable();
 
     // Delegate click event for HOA rows
     tableBody.addEventListener('click', (e) => {
@@ -429,10 +483,12 @@ function initHoaRecords() {
         });
     }
 
-    // Add Record Button Click with Confirmation
+    // Add Record Button Click with Validation and Confirmation
     const addRecordSubmitBtn = document.getElementById('add-record-submit-btn');
     if (addRecordSubmitBtn) {
         addRecordSubmitBtn.addEventListener('click', () => {
+            // Validate form before opening confirmation modal
+            if (!validateHoaForm()) return;
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
         });
     }
@@ -608,7 +664,7 @@ function createHoaTableRow(record) {
     row.setAttribute('data-record', JSON.stringify(record));
 
     // Add data attributes for filtering
-    ['docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'].forEach(col => {
+    ['region', 'docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'].forEach(col => {
         let value = '';
         if (col === 'province') {
             value = record.province?.province_name || '';
@@ -617,10 +673,13 @@ function createHoaTableRow(record) {
         } else {
             value = record[col] || '';
         }
-        row.setAttribute(`data-${col}`, value.toLowerCase());
+        // Preserve uppercase for region, lowercase for others
+        const finalValue = col === 'region' ? value.toUpperCase() : value.toLowerCase();
+        row.setAttribute(`data-${col}`, finalValue);
     });
 
     row.innerHTML = `
+        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.region || '-'}</td>
         <td class="px-6 py-4 text-center text-sm text-gray-900">${record.docket_no}</td>
         <td class="px-6 py-4 text-center text-sm text-gray-900">${record.hoa_name}</td>
         <td class="px-6 py-4 text-center text-sm text-gray-900">${record.location}</td>
@@ -634,6 +693,39 @@ function createHoaTableRow(record) {
     `;
 
     return row;
+}
+
+// =========================================
+// Validation Functions
+// =========================================
+
+/**
+ * Validates the HOA add record form.
+ * @returns {boolean} True if valid, false otherwise.
+ */
+function validateHoaForm() {
+    const fields = [
+        { id: 'add-docket-no', name: 'Docket No' },
+        { id: 'add-hoa-name', name: 'HOA Name' },
+        { id: 'add-location', name: 'Location' },
+        { id: 'add-province', name: 'Province' },
+        { id: 'add-municipality', name: 'Municipality' },
+        { id: 'add-status', name: 'Status' },
+        { id: 'add-quantity', name: 'Quantity', min: 1 }
+    ];
+
+    for (let field of fields) {
+        const value = document.getElementById(field.id).value.trim();
+        if (!value) {
+            window.showToast(`${field.name} is required.`, 'error');
+            return false;
+        }
+        if (field.min && parseInt(value) < field.min) {
+            window.showToast(`${field.name} must be at least ${field.min}.`, 'error');
+            return false;
+        }
+    }
+    return true;
 }
 
 // =========================================

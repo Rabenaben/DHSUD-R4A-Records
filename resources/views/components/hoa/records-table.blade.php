@@ -12,7 +12,7 @@
     <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
         <thead class="sticky top-0 z-10 bg-blue-700">
             <tr>
-                @foreach (['Docket No', 'HOA Name', 'Location', 'Province', 'Municipality', 'Status'] as $header)
+                @foreach (['Region', 'Docket No', 'HOA Name', 'Location', 'Province', 'Municipality', 'Status'] as $header)
                     <th class="px-6 py-3 text-center text-sm font-semibold text-white">{{ $header }}</th>
                 @endforeach
             </tr>
@@ -24,14 +24,15 @@
                     $statusClass = $statusClasses[$record->status] ?? $statusClasses['DEFAULT'];
                 @endphp
                 <tr class="hoa-row cursor-pointer transition hover:bg-blue-100" data-record='@json($record)'
-                    @foreach (['docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'] as $col)
-                            data-{{ $col }}="{{ strtolower(
+                    @foreach (['region', 'docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'] as $col)
+                            data-{{ $col }}="{{ $col === 'region' ? strtoupper($record->{$col} ?? '') : strtolower(
                                 $col === 'province'
                                     ? $record->province->province_name ?? ''
                                     : ($col === 'municipality'
                                         ? $record->municipality->municipality_name ?? ''
                                         : $record->{$col} ?? ''),
                             ) }}" @endforeach>
+                    <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->region ?? '-' }}</td>
                     <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->docket_no }}</td>
                     <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->hoa_name }}</td>
                     <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->location }}</td>

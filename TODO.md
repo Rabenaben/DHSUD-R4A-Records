@@ -1,2 +1,6 @@
-- [ ] Edit hoa-modal.blade.php: Add "mx-auto w-80" to the class of the input field with id="hoa-file-label-preview" to center it and increase width.
-- [ ] Edit rem-modal.blade.php: Add "mx-auto w-80" to the class of the input field with id="rem-file-label-preview" to center it and increase width.
+- [x] Update HoaDatabase model to include 'region' in fillable array
+- [x] Update HoaController store method to validate 'region' field
+- [x] Update HoaController update method to validate 'region' field
+- [x] Update add-record-modal.blade.php to add Region dropdown before Docket No. for HOA type
+- [ ] Test the modal to ensure Region dropdown appears and saves correctly
+- [ ] If needed, update records table to display Region column

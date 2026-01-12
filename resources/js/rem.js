@@ -418,6 +418,37 @@ function remExitEditMode() {
 }
 
 // =========================================
+// Validation Functions
+// =========================================
+
+/**
+ * Validates the REM add record form.
+ * @returns {boolean} True if valid, false otherwise.
+ */
+function validateRemForm() {
+    const fields = [
+        { id: 'add-rem-docket-no', name: 'Docket No' },
+        { id: 'add-rem-project-name', name: 'Project Name' },
+        { id: 'add-rem-province', name: 'Province' },
+        { id: 'add-rem-status', name: 'Status' },
+        { id: 'add-rem-quantity', name: 'Quantity', min: 1 }
+    ];
+
+    for (let field of fields) {
+        const value = document.getElementById(field.id).value.trim();
+        if (!value) {
+            window.showToast(`${field.name} is required.`, 'error');
+            return false;
+        }
+        if (field.min && parseInt(value) < field.min) {
+            window.showToast(`${field.name} must be at least ${field.min}.`, 'error');
+            return false;
+        }
+    }
+    return true;
+}
+
+// =========================================
 // Initialization
 // =========================================
 
@@ -467,6 +498,8 @@ function initAddRemRecordModal() {
 
     if (addRemRecordSubmitBtn) {
         addRemRecordSubmitBtn.addEventListener('click', () => {
+            // Validate form before opening confirmation modal
+            if (!validateRemForm()) return;
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
             // Update confirmation message for REM records after modal opens
             setTimeout(() => {
