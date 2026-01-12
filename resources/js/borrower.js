@@ -164,31 +164,41 @@ function initBorrowerRecords() {
 
         if (!tableBody) return;
 
-        // Hide no records row if it exists
-        if (noRecordsRow) {
-            noRecordsRow.classList.add('hidden');
+        // Check if a row for this borrower already exists
+        const existingRow = document.querySelector(`tr[data-borrower-name="${borrower.borrower_name}"]`);
+
+        if (existingRow) {
+            // Update the existing row's status to 'Borrowed'
+            const statusCell = existingRow.querySelector('td:nth-child(3)');
+            if (statusCell) {
+                statusCell.textContent = borrower.status || 'Borrowed';
+            }
+            existingRow.setAttribute('data-status', borrower.status || 'Borrowed');
+        } else {
+            // Hide no records row if it exists
+            if (noRecordsRow) {
+                noRecordsRow.classList.add('hidden');
+            }
+
+            // Create new row
+            const newRow = document.createElement('tr');
+            newRow.setAttribute('data-id', borrower.id);
+            newRow.setAttribute('data-borrower-name', borrower.borrower_name);
+            newRow.setAttribute('data-status', borrower.status || 'N/A');
+
+            newRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                    <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower(${borrower.id})">Edit</button>
+                </td>
+            `;
+
+            // Insert at the top of the table
+            tableBody.insertBefore(newRow, tableBody.firstChild);
         }
-
-        // Create new row
-        const newRow = document.createElement('tr');
-        newRow.setAttribute('data-id', borrower.id);
-        newRow.setAttribute('data-borrower-name', borrower.borrower_name);
-        newRow.setAttribute('data-status', borrower.status || 'N/A');
-
-        newRow.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.id}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower(${borrower.id})">Edit</button>
-            </td>
-        `;
-
-        // Insert at the top of the table
-        tableBody.insertBefore(newRow, tableBody.firstChild);
     };
-
-
 
     // Function to reset modal for adding new record
     const resetModalForAdding = (fromHistory = false, borrowerName = null) => {
