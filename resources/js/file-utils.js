@@ -630,10 +630,12 @@ function showGenericFilePreview(record, fileIndex, type) {
     // Store the current file index for export
     window.currentFileIndex = fileIndex;
 
-    // Show pencil icon for file name editing
+    // Show pencil icon for file name editing (only for non-staff users)
     const editBtnId = type === 'hoa' ? 'hoa-edit-file-name-btn' : 'rem-edit-file-name-btn';
     const editBtn = document.getElementById(editBtnId);
-    if (editBtn) editBtn.style.display = 'inline-block';
+    if (editBtn && window.userRole !== 'Staff') {
+        editBtn.style.display = 'inline-block';
+    }
 
     // Load file preview
     const labelId = type === 'hoa' ? 'hoa-file-label-preview' : 'rem-file-label-preview';
