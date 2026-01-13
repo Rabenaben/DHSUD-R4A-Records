@@ -18,10 +18,12 @@
                         class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
                         id="searchInput" type="text" placeholder="Search by ID, Borrower Name...">
                 </div>
+                @unless(auth()->user()->role === 'Staff')
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                     id="add-record-btn">
                     Add Record
                 </button>
+                @endunless
             </div>
 
             <!-- Borrower Table -->
@@ -30,12 +32,18 @@
                     <table class="min-w-full divide-y divide-blue-400" id="borrowers-table">
                         <thead class="bg-gray-50">
                             <tr>
-                                @foreach (['ID', 'Borrower Name', 'Status', 'Action'] as $header)
+                                @foreach (['ID', 'Borrower Name', 'Status'] as $header)
                                     <th
                                         class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
                                         {{ $header }}
                                     </th>
                                 @endforeach
+                                @unless(auth()->user()->role === 'Staff')
+                                <th
+                                    class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                                    Action
+                                </th>
+                                @endunless
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
@@ -53,14 +61,16 @@
                                         {{ $borrower->borrower_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
                                         {{ $borrower->status }}</td>
+                                    @unless(auth()->user()->role === 'Staff')
                                     <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
                                         <button class="text-blue-600 hover:text-blue-900"
                                             onclick="editBorrower({{ $borrower->id }})">Edit</button>
                                     </td>
+                                    @endunless
                                 </tr>
                             @empty
                                 <tr id="noRecordsRow">
-                                    <td class="p-3 text-center text-sm text-gray-500" colspan="4">No records found.
+                                    <td class="p-3 text-center text-sm text-gray-500" colspan="{{ auth()->user()->role === 'Staff' ? 3 : 4 }}">No records found.
                                     </td>
                                 </tr>
                             @endforelse

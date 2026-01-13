@@ -102,9 +102,11 @@ function exitFileNameEditMode(prefix) {
         fileLabel.classList.remove('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
     }
 
-    // Hide save/cancel icons and show pencil icon
-    document.getElementById(`${prefix}-file-name-save-icons`).style.display = 'none';
-    document.getElementById(`${prefix}-edit-file-name-btn`).style.display = 'inline-block';
+    // Hide save/cancel icons and show pencil icon (with null checks for staff users)
+    const saveIcons = document.getElementById(`${prefix}-file-name-save-icons`);
+    const editBtn = document.getElementById(`${prefix}-edit-file-name-btn`);
+    if (saveIcons) saveIcons.style.display = 'none';
+    if (editBtn) editBtn.style.display = 'inline-block';
 }
 
 // =========================================

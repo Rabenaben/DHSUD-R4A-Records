@@ -1,9 +1,17 @@
-# User Access Control Implementation
+# Role Access Control for Staff Accounts
 
-## Steps to Implement
-- [x] Create RoleMiddleware to check user roles
-- [x] Register the middleware in bootstrap/app.php
-- [x] Apply middleware to routes that require Admin access (e.g., accounts routes)
-- [x] Update navigation.blade.php to conditionally show Accounts link based on role
-- [x] Update accounts/user.blade.php to conditionally show add/edit buttons for Admin only
-- [x] Test access for Admin and Staff roles
+## Tasks to Complete
+
+- [x] Hide edit, archive, and add file buttons in hoa-modal.blade.php for staff
+- [x] Hide edit, archive, and add file buttons in rem-modal.blade.php for staff
+- [x] Hide add docket button in search-filter-bar.blade.php for staff
+- [x] Hide add docket button in folder-table.blade.php for staff
+- [x] Hide unarchive button in archive.blade.php for staff
+- [x] Hide pencil icon (edit file name) in hoa-modal.blade.php for staff
+- [x] Hide pencil icon (edit file name) in rem-modal.blade.php for staff
+- [x] Hide add record button in borrowers.blade.php for staff
+- [x] Hide Action column and edit buttons in borrowers.blade.php for staff
+
+## Implementation Details
+
+Use `@unless(auth()->user()->role === 'Staff')` to conditionally show buttons only for non-staff users.

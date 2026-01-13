@@ -24,7 +24,9 @@
         </select>
 
         <!-- Add Docket Button -->
+        @unless(auth()->user()->role === 'Staff')
         <button class="rounded-xl border border-gray-300 bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" id="addRemDocketBtn">Add Docket</button>
+        @endunless
     </div>
 
     <!-- Table -->
@@ -41,7 +43,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200" id="remTableBody">
                 @forelse($records as $record)
-                    <tr class="data-row cursor-pointer transition hover:bg-gray-50" data-record='@json($record)'>
+                    <tr class="data-row @unless(auth()->user()->role === 'Staff') cursor-pointer @endunless transition hover:bg-gray-50" data-record='@json($record)'>
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $record->docket_no }}</td>
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $record->project_name ?? '-' }}</td>
                         <td class="px-6 py-4 text-sm">

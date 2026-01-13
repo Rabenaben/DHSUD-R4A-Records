@@ -33,5 +33,7 @@
     </select>
 
     <!-- Add Docket Button -->
+    @unless(auth()->user()->role === 'Staff')
     <button class="rounded-xl border border-gray-300 bg-blue-600 px-4 py-2 text-white-300 hover:bg-blue-700" id="addDocketBtn">Add Docket</button>
+    @endunless
 </div>

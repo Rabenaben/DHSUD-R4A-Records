@@ -97,7 +97,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.file_location}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(log.created_at).toLocaleString()}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.action}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.user ? log.user.name : 'Unknown'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.user ? `${log.user.name} - ${log.user.remarks || 'N/A'}` : 'Unknown'}</td>
                         `;
                         tbody.appendChild(row);
                     });

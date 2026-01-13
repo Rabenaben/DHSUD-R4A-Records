@@ -15,6 +15,7 @@
             <!-- Basic Information -->
             <h3 class="mb-2 mt-4 flex items-center justify-between text-[15px] font-semibold">
                 Basic Information
+                @unless(auth()->user()->role === 'Staff')
                 <div class="flex items-center space-x-2" id="hoa-edit-icons" style="display: none;">
                     <button class="text-green-600 hover:text-green-800" id="hoa-save-icon" title="Save Changes">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,6 +32,7 @@
                 </div>
                 <button class="rounded-lg bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700"
                     id="hoa-edit-btn">EDIT</button>
+                @endunless
             </h3>
             <div class="mb-2.5">
                 <div class="mb-2.5">
@@ -94,7 +96,9 @@
                 <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
                     <h4 class="text-sm font-semibold text-gray-900">Files</h4>
                     <div class="flex items-center space-x-2">
+                        @unless(auth()->user()->role === 'Staff')
                         <x-secondary-button id="hoa-add-file-btn">Add File</x-secondary-button>
+                        @endunless
                     </div>
                 </div>
                 <div class="flex h-full justify-center overflow-x-auto overflow-y-auto">
@@ -136,6 +140,7 @@
                     <div class="ml-4 flex-1 flex items-center justify-center">
                         <input class="w-full border-none bg-transparent text-center text-lg font-bold text-gray-800 outline-none"
                             id="hoa-file-label-preview" type="text" readonly />
+                        @unless(auth()->user()->role === 'Staff')
                         <button class="ml-2 text-gray-600 hover:text-gray-800" id="hoa-edit-file-name-btn"
                             title="Edit File Name" style="display: none;">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,6 +166,7 @@
                                 </svg>
                             </button>
                         </div>
+                        @endunless
                     </div>
                 </div>
                 <div class="w-full flex-1" id="file-preview-container" style="height: 400px;">
@@ -178,9 +184,11 @@
                 <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900"
                     id="export-hoa-btn" onclick="exportHoaFile()">EXPORT
                     FILE</button>
+                @unless(auth()->user()->role === 'Staff')
                 <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700"
                     id="archive-hoa-btn">ARCHIVE
                     FILE</button>
+                @endunless
             </div>
         </div>
     </div>

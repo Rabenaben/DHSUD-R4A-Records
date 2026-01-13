@@ -23,7 +23,7 @@
                 @php
                     $statusClass = $statusClasses[$record->status] ?? $statusClasses['DEFAULT'];
                 @endphp
-                <tr class="hoa-row cursor-pointer transition hover:bg-blue-100" data-record='@json($record)'
+                <tr class="hoa-row @unless(auth()->user()->role === 'Staff') cursor-pointer @endunless transition hover:bg-blue-100" data-record='@json($record)'
                     @foreach (['region', 'docket_no', 'hoa_name', 'location', 'province', 'municipality', 'remarks', 'status'] as $col)
                             data-{{ $col }}="{{ $col === 'region' ? strtoupper($record->{$col} ?? '') : strtolower(
                                 $col === 'province'

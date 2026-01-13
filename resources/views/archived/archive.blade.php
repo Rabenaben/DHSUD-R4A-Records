@@ -26,7 +26,9 @@
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">File Name</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">Date Added</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">Last Updated By</th>
+                            @unless(auth()->user()->role === 'Staff')
                             <th class="px-6 py-3 text-left text-sm font-semibold text-white">Action</th>
+                            @endunless
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-red-50">
@@ -39,9 +41,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['date_added'] ? \Carbon\Carbon::parse($file['date_added'])->format('M d, Y H:i') : 'N/A' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['last_updated_by'] ?? 'Unknown' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @unless(auth()->user()->role === 'Staff')
                                     <button class="unarchive-file-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs" data-type="{{ $file['type'] }}" data-docket="{{ $file['docket_no'] }}" data-file-index="{{ $file['file_index'] }}">
                                         Unarchive
                                     </button>
+                                    @endunless
                                 </td>
                             </tr>
                         @endforeach
