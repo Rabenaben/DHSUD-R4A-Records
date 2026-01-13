@@ -7,8 +7,6 @@
 // =========================================
 
 // Make functions global for external access
-window.openFileListModal = openFileListModal;
-window.renderFileList = renderFileList;
 window.handleFileUpload = handleFileUpload;
 window.handleConfirmSaveFile = handleConfirmSaveFile;
 window.loadFilePreview = loadFilePreview;
@@ -263,8 +261,11 @@ function archiveFile(type, docketNo, fileIndex) {
                             document.getElementById(`${type}-file-preview-view`).style.display = 'none';
                             document.getElementById(`${type}-file-actions`).style.display = 'none';
                             // Clear the file label
-                            const labelId = type === 'hoa' ? 'file-label' : 'rem-file-label';
-                            document.getElementById(labelId).textContent = '';
+                            const labelId = type === 'hoa' ? 'hoa-file-label' : 'rem-file-label';
+                            const labelElement = document.getElementById(labelId);
+                            if (labelElement) labelElement.textContent = '';
+                            // Exit file name edit mode to reset icons
+                            window.exitFileNameEditMode(type);
                         }
                     } else {
                         window.showToast('Failed to archive file.', 'error');
@@ -527,6 +528,9 @@ function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
     // Load file list
     loadGenericFileList(type, record);
 
+    // Ensure the modal starts in file list view
+    showGenericFileList(type);
+
     // Open modal
     window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: type } }));
 
@@ -661,6 +665,8 @@ function showGenericFileList(type) {
     const labelId = type === 'hoa' ? 'hoa-file-label' : 'rem-file-label';
     const element = document.getElementById(labelId);
     if (element) element.textContent = '';
+    // Exit file name edit mode to reset icons
+    window.exitFileNameEditMode(type);
 }
 
 /**

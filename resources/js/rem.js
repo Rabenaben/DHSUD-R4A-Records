@@ -43,9 +43,35 @@ function openRemModal(record) {
         const saveBtn = document.getElementById('rem-save-btn');
         const cancelBtn = document.getElementById('rem-cancel-btn');
 
-        if (editBtn) editBtn.addEventListener('click', remEnterEditMode);
-        if (saveBtn) saveBtn.addEventListener('click', remSaveEdit);
-        if (cancelBtn) cancelBtn.addEventListener('click', remCancelEdit);
+        if (editBtn) editBtn.addEventListener('click', () => {
+            const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            window.enterEditMode('rem', editableFields, allFields);
+        });
+        if (saveBtn) saveBtn.addEventListener('click', () => {
+            const buildFormData = () => ({
+                docket_no: document.getElementById('rem-docket-no').value,
+                project_name: document.getElementById('rem-project-name').value,
+                province: document.getElementById('rem-province').value,
+                status: document.getElementById('rem-status').value,
+                quantity: document.getElementById('rem-quantity').value || null,
+                remarks: document.getElementById('rem-remarks').value,
+            });
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            window.saveEdit('rem', buildFormData, allFields, () => {
+                // Reload current province folder after edit
+                if (window.currentProvince) {
+                    const folderContainer = document.getElementById('folderContainer');
+                    if (folderContainer) {
+                        loadFolderContent({ dataset: { province: window.currentProvince } }, folderContainer, window.originalFolderHTML);
+                    }
+                }
+            });
+        });
+        if (cancelBtn) cancelBtn.addEventListener('click', () => {
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            window.cancelEdit('rem', allFields);
+        });
     }, 100); // Small delay to ensure modal is rendered
 }
 
@@ -64,6 +90,7 @@ function initFolderClicks() {
 
     // Save original folder section HTML
     const originalFolderHTML = folderContainer.innerHTML;
+    window.originalFolderHTML = originalFolderHTML;
 
     document.querySelectorAll('.folder').forEach(folder => {
         folder.addEventListener('click', () => loadFolderContent(folder, folderContainer, originalFolderHTML));
@@ -200,253 +227,16 @@ function attachBackButton(container, originalHTML) {
  * Fetches updated REM data and updates the table and status cards.
  */
 async function updateRemData() {
-    updateGenericData('rem');
+    window.updateData('rem');
 }
 
-/**
- * Enters edit mode for the REM record.
- */
-function remEnterEditMode() {
-    // Store original values
-    const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
-    const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
-    window.remOriginalValues = {};
-    allFields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            window.remOriginalValues[id] = element.value;
-            if (editableFields.includes(id)) {
-                if (id === 'rem-status') {
-                    element.removeAttribute('disabled');
-                    element.classList.remove('bg-gray-100');
-                    element.classList.add('bg-white');
-                } else {
-                    element.removeAttribute('readonly');
-                }
-            }
-        }
-    });
 
-    // Hide EDIT button and show edit icons
-    document.getElementById('rem-edit-btn').style.display = 'none';
-    document.getElementById('rem-edit-icons').style.display = 'flex';
-}
-
-/**
- * Saves the edited REM record.
- */
-async function remSaveEdit() {
-    const docketNo = document.getElementById('rem-docket-no').value;
-    const formData = {
-        docket_no: docketNo,
-        project_name: document.getElementById('rem-project-name').value,
-        province: document.getElementById('rem-province').value,
-        status: document.getElementById('rem-status').value,
-        quantity: document.getElementById('rem-quantity').value || null,
-        remarks: document.getElementById('rem-remarks').value,
-    };
-
-    try {
-        // Update record
-        const recordResponse = await fetch(`/rem/${window.currentRemRecord.docket_no}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (recordResponse.ok) {
-            const result = await recordResponse.json();
-            window.currentRemRecord = result.rem;
-            window.showToast('REM record updated successfully!', 'success');
-            remExitEditMode();
-            await updateRemData();
-        } else {
-            const errorData = await recordResponse.json();
-            window.showToast(errorData.message || 'Error updating record', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        window.showToast('Error updating. Please try again.', 'error');
-    }
-}
-
-/**
- * Cancels the edit and reverts to original values.
- */
-function remCancelEdit() {
-    // Revert values
-    const fields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
-    fields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element && window.remOriginalValues[id] !== undefined) {
-            element.value = window.remOriginalValues[id];
-            if (id === 'rem-status') {
-                element.setAttribute('disabled', true);
-                element.classList.add('bg-gray-100');
-                element.classList.remove('bg-white');
-            } else {
-                element.setAttribute('readonly', true);
-            }
-        }
-    });
-
-    remExitEditMode();
-}
-
-/**
- * Enters file name edit mode.
- */
-function remEnterFileNameEditMode() {
-    const fileLabel = document.getElementById('rem-file-label-preview');
-    if (!fileLabel || window.currentFileIndex === undefined) return;
-
-    // Store original file name
-    window.remOriginalFileName = fileLabel.value;
-
-    // Make file name editable
-    fileLabel.readOnly = false;
-    fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
-    fileLabel.focus();
-
-    // Hide pencil icon and show save/cancel icons
-    document.getElementById('rem-edit-file-name-btn').style.display = 'none';
-    document.getElementById('rem-file-name-save-icons').style.display = 'flex';
-
-    // Attach event listeners for save/cancel
-    const saveBtn = document.getElementById('rem-save-file-name-icon');
-    const cancelBtn = document.getElementById('rem-cancel-file-name-icon');
-
-    if (saveBtn) {
-        saveBtn.onclick = remSaveFileName;
-    }
-    if (cancelBtn) {
-        cancelBtn.onclick = remCancelFileNameEdit;
-    }
-}
-
-/**
- * Saves the edited file name.
- */
-async function remSaveFileName() {
-    const fileLabel = document.getElementById('rem-file-label-preview');
-    const newName = fileLabel.value.trim();
-
-    if (!newName) {
-        window.showToast('File name cannot be empty', 'error');
-        return;
-    }
-
-    try {
-        const response = await fetch(`/rem/${window.currentRemRecord.docket_no}/files/${window.currentFileIndex}/rename`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ new_name: newName })
-        });
-
-        if (response.ok) {
-            window.showToast('File renamed successfully!', 'success');
-            remExitFileNameEditMode();
-            // Refresh file list
-            loadRemFileList(window.currentRemRecord);
-        } else {
-            const errorData = await response.json();
-            window.showToast(errorData.message || 'Error renaming file', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        window.showToast('Error renaming file. Please try again.', 'error');
-    }
-}
-
-/**
- * Cancels file name editing and reverts changes.
- */
-function remCancelFileNameEdit() {
-    const fileLabel = document.getElementById('rem-file-label-preview');
-    if (fileLabel && window.remOriginalFileName !== undefined) {
-        fileLabel.value = window.remOriginalFileName;
-    }
-    remExitFileNameEditMode();
-}
-
-/**
- * Exits file name edit mode.
- */
-function remExitFileNameEditMode() {
-    const fileLabel = document.getElementById('rem-file-label-preview');
-    if (fileLabel) {
-        fileLabel.readOnly = true;
-        fileLabel.classList.remove('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
-    }
-
-    // Hide save/cancel icons and show pencil icon
-    document.getElementById('rem-file-name-save-icons').style.display = 'none';
-    document.getElementById('rem-edit-file-name-btn').style.display = 'inline-block';
-}
-
-/**
- * Exits edit mode.
- */
-function remExitEditMode() {
-    // Make fields readonly
-    const fields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
-    fields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            if (id === 'rem-status') {
-                element.setAttribute('disabled', true);
-            } else {
-                element.setAttribute('readonly', true);
-            }
-        }
-    });
-
-    // Hide edit icons and show edit button
-    document.getElementById('rem-edit-icons').style.display = 'none';
-    document.getElementById('rem-edit-btn').style.display = 'inline-block';
-
-    // Show pencil icon for file name editing if file is selected
-    if (window.currentFileIndex !== undefined) {
-        document.getElementById('rem-edit-file-name-btn').style.display = 'inline-block';
-    }
-}
 
 // =========================================
 // Validation Functions
 // =========================================
 
-/**
- * Validates the REM add record form.
- * @returns {boolean} True if valid, false otherwise.
- */
-function validateRemForm() {
-    const fields = [
-        { id: 'add-rem-docket-no', name: 'Docket No' },
-        { id: 'add-rem-project-name', name: 'Project Name' },
-        { id: 'add-rem-province', name: 'Province' },
-        { id: 'add-rem-status', name: 'Status' },
-        { id: 'add-rem-quantity', name: 'Quantity', min: 1 }
-    ];
 
-    for (let field of fields) {
-        const value = document.getElementById(field.id).value.trim();
-        if (!value) {
-            window.showToast(`${field.name} is required.`, 'error');
-            return false;
-        }
-        if (field.min && parseInt(value) < field.min) {
-            window.showToast(`${field.name} must be at least ${field.min}.`, 'error');
-            return false;
-        }
-    }
-    return true;
-}
 
 // =========================================
 // Initialization
@@ -462,10 +252,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelIcon = document.getElementById('rem-cancel-icon');
     const editFileNameBtn = document.getElementById('rem-edit-file-name-btn');
 
-    if (editBtn) editBtn.addEventListener('click', remEnterEditMode);
-    if (saveIcon) saveIcon.addEventListener('click', remSaveEdit);
-    if (cancelIcon) cancelIcon.addEventListener('click', remCancelEdit);
-    if (editFileNameBtn) editFileNameBtn.addEventListener('click', remEnterFileNameEditMode);
+    if (editBtn) editBtn.addEventListener('click', () => {
+        const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
+        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+        window.enterEditMode('rem', editableFields, allFields);
+    });
+    if (saveIcon) saveIcon.addEventListener('click', () => {
+        const buildFormData = () => ({
+            docket_no: document.getElementById('rem-docket-no').value,
+            project_name: document.getElementById('rem-project-name').value,
+            province: document.getElementById('rem-province').value,
+            status: document.getElementById('rem-status').value,
+            quantity: document.getElementById('rem-quantity').value || null,
+            remarks: document.getElementById('rem-remarks').value,
+        });
+        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+        window.saveEdit('rem', buildFormData, allFields, () => {
+            // Reload current province folder after edit
+            if (window.currentProvince) {
+                const folderContainer = document.getElementById('folderContainer');
+                if (folderContainer) {
+                    loadFolderContent({ dataset: { province: window.currentProvince } }, folderContainer, window.originalFolderHTML);
+                }
+            }
+        });
+    });
+    if (cancelIcon) cancelIcon.addEventListener('click', () => {
+        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+        window.cancelEdit('rem', allFields);
+    });
+    if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('rem'));
 });
 
 // =========================================
@@ -499,7 +315,14 @@ function initAddRemRecordModal() {
     if (addRemRecordSubmitBtn) {
         addRemRecordSubmitBtn.addEventListener('click', () => {
             // Validate form before opening confirmation modal
-            if (!validateRemForm()) return;
+            const fields = [
+                { id: 'add-rem-docket-no', name: 'Docket No' },
+                { id: 'add-rem-project-name', name: 'Project Name' },
+                { id: 'add-rem-province', name: 'Province' },
+                { id: 'add-rem-status', name: 'Status' },
+                { id: 'add-rem-quantity', name: 'Quantity', min: 1 }
+            ];
+            if (!window.validateForm(fields)) return;
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
             // Update confirmation message for REM records after modal opens
             setTimeout(() => {

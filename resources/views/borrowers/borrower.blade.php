@@ -59,7 +59,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr id="noRecordsRow">
                                     <td class="p-3 text-center text-sm text-gray-500" colspan="4">No records found.
                                     </td>
                                 </tr>

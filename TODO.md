@@ -1,8 +1,8 @@
-- [x] Update HoaDatabase model to include 'region' in fillable array
-- [x] Update HoaController store method to validate 'region' field
-- [x] Update HoaController update method to validate 'region' field
-- [x] Update add-record-modal.blade.php to add Region dropdown before Docket No. for HOA type
-- [ ] Test the modal to ensure Region dropdown appears and saves correctly
-- [x] If needed, update records table to display Region column
-- [x] Swap File Location and Docket No. fields in borrower modal
-- [x] Modify borrower modal behavior: close borrower modal after adding new borrowing record from existing borrower, keep history modal open with updated data
+# Refactoring HOA and REM JS Files
+
+## Tasks
+- [x] Create resources/js/record-utils.js with generic functions for file name editing, record editing, and validation
+- [x] Update resources/js/hoa.js to use generic functions from record-utils.js
+- [x] Update resources/js/rem.js to use generic functions from record-utils.js
+- [x] Verify that record-utils.js is included in the HTML templates or app.js
+- [x] Test the refactored functionality to ensure it works correctly

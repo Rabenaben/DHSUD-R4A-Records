@@ -65,10 +65,31 @@ function openHoaModal(record) {
         const cancelIcon = document.getElementById('hoa-cancel-icon');
         const editFileNameBtn = document.getElementById('hoa-edit-file-name-btn');
 
-        if (editBtn) editBtn.addEventListener('click', hoaEnterEditMode);
-        if (saveIcon) saveIcon.addEventListener('click', hoaSaveEdit);
-        if (cancelIcon) cancelIcon.addEventListener('click', hoaCancelEdit);
-        if (editFileNameBtn) editFileNameBtn.addEventListener('click', hoaEnterFileNameEditMode);
+        if (editBtn) editBtn.addEventListener('click', () => {
+            const editableFields = ['status', 'quantity', 'remarks'];
+            const allFields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            window.enterEditMode('hoa', editableFields, allFields);
+        });
+        if (saveIcon) saveIcon.addEventListener('click', () => {
+            const buildFormData = () => ({
+                region: document.getElementById('region').value,
+                docket_no: document.getElementById('docket-no').value,
+                hoa_name: document.getElementById('hoa-name').value,
+                location: window.currentRecord.location, // Keep original location
+                province_id: window.currentRecord.province_id,
+                municipality_id: window.currentRecord.municipality_id,
+                status: document.getElementById('status').value,
+                quantity: document.getElementById('quantity').value || null,
+                remarks: document.getElementById('remarks').value,
+            });
+            const allFields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            window.saveEdit('hoa', buildFormData, allFields);
+        });
+        if (cancelIcon) cancelIcon.addEventListener('click', () => {
+            const allFields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            window.cancelEdit('hoa', allFields);
+        });
+        if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('hoa'));
     }, 100); // Small delay to ensure modal is rendered
 }
 
@@ -80,236 +101,11 @@ function loadHoaFileList(record) {
     loadGenericFileList('hoa', record);
 }
 
-/**
- * Renders the HOA file list in the modal table body.
- * @param {Array} files - Array of file objects.
- * @param {Object} record - The record data.
- */
-function renderHoaFileList(files, record) {
-    renderGenericFileList(files, record, 'hoa');
-}
 
-/**
- * Shows the file preview for HOA records.
- * @param {Object} record - The record data.
- * @param {number} fileIndex - The index of the file.
- */
-function hoaShowFilePreview(record, fileIndex) {
-    showGenericFilePreview(record, fileIndex, 'hoa');
-}
 
-/**
- * Enters file name edit mode.
- */
-function hoaEnterFileNameEditMode() {
-    const fileLabel = document.getElementById('hoa-file-label-preview');
-    if (!fileLabel || window.currentFileIndex === undefined) return;
 
-    // Store original file name
-    window.hoaOriginalFileName = fileLabel.value;
 
-    // Make file name editable
-    fileLabel.readOnly = false;
-    fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
-    fileLabel.focus();
 
-    // Hide pencil icon and show save/cancel icons
-    document.getElementById('hoa-edit-file-name-btn').style.display = 'none';
-    document.getElementById('hoa-file-name-save-icons').style.display = 'flex';
-
-    // Attach event listeners for save/cancel
-    const saveBtn = document.getElementById('hoa-save-file-name-icon');
-    const cancelBtn = document.getElementById('hoa-cancel-file-name-icon');
-
-    if (saveBtn) {
-        saveBtn.onclick = hoaSaveFileName;
-    }
-    if (cancelBtn) {
-        cancelBtn.onclick = hoaCancelFileNameEdit;
-    }
-}
-
-/**
- * Saves the edited file name.
- */
-async function hoaSaveFileName() {
-    const fileLabel = document.getElementById('hoa-file-label-preview');
-    const newName = fileLabel.value.trim();
-
-    if (!newName) {
-        window.showToast('File name cannot be empty', 'error');
-        return;
-    }
-
-    try {
-        const response = await fetch(`/hoa/${window.currentRecord.docket_no}/files/${window.currentFileIndex}/rename`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ new_name: newName })
-        });
-
-        if (response.ok) {
-            window.showToast('File renamed successfully!', 'success');
-            hoaExitFileNameEditMode();
-            // Refresh file list
-            loadHoaFileList(window.currentRecord);
-        } else {
-            const errorData = await response.json();
-            window.showToast(errorData.message || 'Error renaming file', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        window.showToast('Error renaming file. Please try again.', 'error');
-    }
-}
-
-/**
- * Cancels file name editing and reverts changes.
- */
-function hoaCancelFileNameEdit() {
-    const fileLabel = document.getElementById('hoa-file-label-preview');
-    if (fileLabel && window.hoaOriginalFileName !== undefined) {
-        fileLabel.value = window.hoaOriginalFileName;
-    }
-    hoaExitFileNameEditMode();
-}
-
-/**
- * Exits file name edit mode.
- */
-function hoaExitFileNameEditMode() {
-    const fileLabel = document.getElementById('hoa-file-label-preview');
-    if (fileLabel) {
-        fileLabel.readOnly = true;
-        fileLabel.classList.remove('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
-    }
-
-    // Hide save/cancel icons and show pencil icon
-    document.getElementById('hoa-file-name-save-icons').style.display = 'none';
-    document.getElementById('hoa-edit-file-name-btn').style.display = 'inline-block';
-}
-
-/**
- * Enters edit mode for the HOA record.
- */
-function hoaEnterEditMode() {
-    // Store original values
-    const editableFields = ['status', 'quantity', 'remarks'];
-    const allFields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
-    window.hoaOriginalValues = {};
-    allFields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            window.hoaOriginalValues[id] = element.value;
-            if (editableFields.includes(id)) {
-                if (id === 'status') {
-                    element.removeAttribute('disabled');
-                } else {
-                    element.removeAttribute('readonly');
-                }
-            }
-        }
-    });
-
-    // Hide EDIT button and show edit icons
-    document.getElementById('hoa-edit-btn').style.display = 'none';
-    document.getElementById('hoa-edit-icons').style.display = 'flex';
-}
-
-/**
- * Saves the edited HOA record.
- */
-async function hoaSaveEdit() {
-    const docketNo = document.getElementById('docket-no').value;
-    const formData = {
-        region: document.getElementById('region').value,
-        docket_no: docketNo,
-        hoa_name: document.getElementById('hoa-name').value,
-        location: window.currentRecord.location, // Keep original location
-        province_id: window.currentRecord.province_id,
-        municipality_id: window.currentRecord.municipality_id,
-        status: document.getElementById('status').value,
-        quantity: document.getElementById('quantity').value || null,
-        remarks: document.getElementById('remarks').value,
-    };
-
-    try {
-        // Update record
-        const recordResponse = await fetch(`/hoa/${window.currentRecord.docket_no}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (recordResponse.ok) {
-            const result = await recordResponse.json();
-            window.currentRecord = result.hoa;
-            window.showToast('HOA record updated successfully!', 'success');
-            hoaExitEditMode();
-            await updateHoaData();
-        } else {
-            const errorData = await recordResponse.json();
-            window.showToast(errorData.message || 'Error updating record', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        window.showToast('Error updating. Please try again.', 'error');
-    }
-}
-
-/**
- * Cancels the edit and reverts to original values.
- */
-function hoaCancelEdit() {
-    // Revert values
-    const fields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
-    fields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element && window.hoaOriginalValues[id] !== undefined) {
-            element.value = window.hoaOriginalValues[id];
-            if (id === 'status') {
-                element.setAttribute('disabled', true);
-            } else {
-                element.setAttribute('readonly', true);
-            }
-        }
-    });
-
-    hoaExitEditMode();
-}
-
-/**
- * Exits edit mode.
- */
-function hoaExitEditMode() {
-    // Make fields readonly
-    const fields = ['region', 'docket-no', 'hoa-name', 'province', 'municipality', 'status', 'quantity', 'remarks'];
-    fields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            if (id === 'status') {
-                element.setAttribute('disabled', true);
-            } else {
-                element.setAttribute('readonly', true);
-            }
-        }
-    });
-
-    // Hide edit icons and show edit button
-    document.getElementById('hoa-edit-icons').style.display = 'none';
-    document.getElementById('hoa-edit-btn').style.display = 'inline-block';
-
-    // Show pencil icon for file name editing if file is selected
-    if (window.currentFileIndex !== undefined) {
-        document.getElementById('hoa-edit-file-name-btn').style.display = 'inline-block';
-    }
-}
 
 
 
@@ -488,7 +284,16 @@ function initHoaRecords() {
     if (addRecordSubmitBtn) {
         addRecordSubmitBtn.addEventListener('click', () => {
             // Validate form before opening confirmation modal
-            if (!validateHoaForm()) return;
+            const fields = [
+                { id: 'add-docket-no', name: 'Docket No' },
+                { id: 'add-hoa-name', name: 'HOA Name' },
+                { id: 'add-location', name: 'Location' },
+                { id: 'add-province', name: 'Province' },
+                { id: 'add-municipality', name: 'Municipality' },
+                { id: 'add-status', name: 'Status' },
+                { id: 'add-quantity', name: 'Quantity', min: 1 }
+            ];
+            if (!window.validateForm(fields)) return;
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
         });
     }
@@ -642,7 +447,7 @@ function initAddRecordModal() {
  * Fetches updated HOA data and updates the table and status cards.
  */
 async function updateHoaData() {
-    updateGenericData('hoa');
+    window.updateData('hoa');
 }
 
 /**
@@ -699,34 +504,7 @@ function createHoaTableRow(record) {
 // Validation Functions
 // =========================================
 
-/**
- * Validates the HOA add record form.
- * @returns {boolean} True if valid, false otherwise.
- */
-function validateHoaForm() {
-    const fields = [
-        { id: 'add-docket-no', name: 'Docket No' },
-        { id: 'add-hoa-name', name: 'HOA Name' },
-        { id: 'add-location', name: 'Location' },
-        { id: 'add-province', name: 'Province' },
-        { id: 'add-municipality', name: 'Municipality' },
-        { id: 'add-status', name: 'Status' },
-        { id: 'add-quantity', name: 'Quantity', min: 1 }
-    ];
 
-    for (let field of fields) {
-        const value = document.getElementById(field.id).value.trim();
-        if (!value) {
-            window.showToast(`${field.name} is required.`, 'error');
-            return false;
-        }
-        if (field.min && parseInt(value) < field.min) {
-            window.showToast(`${field.name} must be at least ${field.min}.`, 'error');
-            return false;
-        }
-    }
-    return true;
-}
 
 // =========================================
 // Initialization
@@ -735,15 +513,6 @@ function validateHoaForm() {
 document.addEventListener('DOMContentLoaded', () => {
     initHoaRecords();
     initAddRecordModal();
-
-    // Add event listeners for edit functionality
-    const editBtn = document.getElementById('hoa-edit-btn');
-    const saveBtn = document.getElementById('hoa-save-btn');
-    const cancelBtn = document.getElementById('hoa-cancel-btn');
-
-    if (editBtn) editBtn.addEventListener('click', hoaEnterEditMode);
-    if (saveBtn) saveBtn.addEventListener('click', hoaSaveEdit);
-    if (cancelBtn) cancelBtn.addEventListener('click', hoaCancelEdit);
 });
 
 
