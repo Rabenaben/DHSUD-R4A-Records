@@ -1,8 +1,9 @@
-# Refactoring HOA and REM JS Files
+# User Access Control Implementation
 
-## Tasks
-- [x] Create resources/js/record-utils.js with generic functions for file name editing, record editing, and validation
-- [x] Update resources/js/hoa.js to use generic functions from record-utils.js
-- [x] Update resources/js/rem.js to use generic functions from record-utils.js
-- [x] Verify that record-utils.js is included in the HTML templates or app.js
-- [x] Test the refactored functionality to ensure it works correctly
+## Steps to Implement
+- [x] Create RoleMiddleware to check user roles
+- [x] Register the middleware in bootstrap/app.php
+- [x] Apply middleware to routes that require Admin access (e.g., accounts routes)
+- [x] Update navigation.blade.php to conditionally show Accounts link based on role
+- [x] Update accounts/user.blade.php to conditionally show add/edit buttons for Admin only
+- [x] Test access for Admin and Staff roles

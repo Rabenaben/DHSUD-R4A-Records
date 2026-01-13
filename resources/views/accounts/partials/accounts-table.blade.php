@@ -11,8 +11,9 @@
             </select>
         </div>
         <div class="flex items-center space-x-4">
-
+            @if(auth()->user()->role === 'Admin')
             <button class="ml-4 rounded bg-blue-500 px-4 py-2 text-white" id="add-user-btn">Add User</button>
+            @endif
         </div>
     </div>
 

@@ -33,8 +33,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/rem/folder/{province}', 'loadFolder')->name('folder.load');
     });
 
-    // User management routes (UserController)
-    Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
+    // User management routes (UserController) - Admin only
+    Route::controller(UserController::class)->prefix('users')->name('users.')->middleware('role:Admin')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
         Route::patch('/{id}/archive', 'archive')->name('archive');
@@ -42,8 +42,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::patch('/{id}', 'update')->name('update');
     });
 
-    // Accounts route
-    Route::get('/accounts', [UserController::class, 'index'])->name('accounts');
+    // Accounts route - Admin only
+    Route::get('/accounts', [UserController::class, 'index'])->middleware('role:Admin')->name('accounts');
 
     Route::controller(ActivityController::class)->prefix('activity')->name('activity.')->group(function () {
         Route::get('/logs', 'getLogs')->name('logs');

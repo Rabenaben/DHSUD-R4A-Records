@@ -14,6 +14,8 @@
         </span>
     </td>
     <td class="px-6 py-4 text-center text-sm text-gray-500">
+        @if(auth()->user()->role === 'Admin')
         <button class="edit-btn text-blue-600 hover:text-blue-900" data-id="{{ $user->id }}">Edit</button>
+        @endif
     </td>
 </tr>
