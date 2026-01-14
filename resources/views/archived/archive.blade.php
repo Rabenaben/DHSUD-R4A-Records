@@ -63,4 +63,5 @@
     </div>
 
     <x-confirm-archive-file-modal />
+    @include('archived.partials.archive-modal')
 </x-app-layout>

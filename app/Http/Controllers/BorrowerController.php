@@ -163,9 +163,17 @@ class BorrowerController extends Controller
     {
         $borrowers = Borrower::where('borrower_name', $borrowerName)->orderBy('date_borrowed', 'desc')->get();
 
-        // Add status from docket tables
+        // Add status and province information
         foreach ($borrowers as $borrower) {
             $borrower->status = is_null($borrower->date_returned) ? 'Borrowed' : 'Returned';
+
+            // Add province for REM records
+            if ($borrower->file_location === 'REM Records') {
+                $remRecord = RemDatabase::where('docket_no', trim($borrower->docket_number))->first();
+                $borrower->province = $remRecord ? $remRecord->province : null;
+            } else {
+                $borrower->province = null;
+            }
         }
 
         return response()->json([

@@ -118,7 +118,89 @@ function unarchiveFile(type, docketNo, fileIndex, button) {
     });
 }
 
+// Archive modal functionality
+function initArchiveModal() {
+    document.addEventListener('click', function(e) {
+        const row = e.target.closest('.archive-row');
+        if (!row) return;
+
+        // Prevent opening modal if unarchive button was clicked
+        if (e.target.classList.contains('unarchive-file-btn')) return;
+
+        const type = row.dataset.type;
+        const docketNo = row.dataset.docket;
+        const recordName = row.dataset.name;
+        const fileName = row.dataset.file;
+        const dateAdded = row.querySelector('td:nth-child(5)').textContent.trim();
+        const lastUpdatedBy = row.querySelector('td:nth-child(6)').textContent.trim();
+        const fileIndex = row.querySelector('.unarchive-file-btn').dataset.fileIndex;
+
+        // Populate modal fields
+        document.getElementById('archive-type').value = type;
+        document.getElementById('archive-docket-no').value = docketNo;
+        document.getElementById('archive-record-name').value = recordName;
+        document.getElementById('archive-file-name').value = fileName;
+        document.getElementById('archive-date-added').value = dateAdded;
+        document.getElementById('archive-last-updated-by').value = lastUpdatedBy;
+        document.getElementById('archive-file-label-preview').value = fileName;
+
+        // Store current archive data for export
+        window.currentArchiveType = type;
+        window.currentArchiveDocketNo = docketNo;
+        window.currentArchiveFileIndex = fileIndex;
+
+        // Load file preview
+        loadArchiveFilePreview(type, docketNo, fileIndex);
+
+        // Open modal
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'archive' } }));
+    });
+}
+
+function loadArchiveFilePreview(type, docketNo, fileIndex) {
+    const filePreview = document.getElementById('archive-file-preview');
+    const filePlaceholder = document.getElementById('archive-file-placeholder');
+    const lowerType = type.toLowerCase();
+
+    // Show loading state
+    filePreview.style.display = 'none';
+    filePlaceholder.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
+            <span class="text-gray-500">Loading preview...</span>
+        </div>
+    `;
+    filePlaceholder.style.display = 'flex';
+
+    // Set the preview src directly (assuming archived files can be previewed like active files)
+    filePreview.src = `/${lowerType}/${docketNo}/preview/${fileIndex}`;
+    filePreview.style.display = 'block';
+    filePlaceholder.style.display = 'none';
+
+    // Handle load error
+    filePreview.onerror = function() {
+        filePreview.style.display = 'none';
+        filePlaceholder.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full">
+                <svg class="w-12 h-12 text-red-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-gray-500">Error loading preview</span>
+            </div>
+        `;
+        filePlaceholder.style.display = 'flex';
+    };
+}
+
+function exportArchiveFile() {
+    if (window.currentArchiveType && window.currentArchiveDocketNo && window.currentArchiveFileIndex !== undefined) {
+        const url = `/records/${window.currentArchiveType}/${window.currentArchiveDocketNo}/download/${window.currentArchiveFileIndex}`;
+        window.open(url, '_blank');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initArchiveSearch();
     initUnarchiveButtons();
+    initArchiveModal();
 });

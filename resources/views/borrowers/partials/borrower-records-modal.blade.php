@@ -28,7 +28,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Docket No.</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                File Name</th>
+                                File Type</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Date Borrowed</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">

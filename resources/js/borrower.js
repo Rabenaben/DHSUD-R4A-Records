@@ -21,7 +21,8 @@ function initBorrowerRecords() {
 
         getTableRows().forEach(row => {
             const data = row.dataset;
-            const matchesSearch = Object.values(data).some(val => val.toLowerCase().includes(query));
+            const matchesSearch = Object.values(data).some(val => val && val.toLowerCase().includes(query)) ||
+                                  (data.docketNumber && data.docketNumber.toLowerCase().includes(query));
 
             row.style.display = matchesSearch ? '' : 'none';
             if (matchesSearch) anyVisible = true;
@@ -190,9 +191,6 @@ function initBorrowerRecords() {
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.id}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                    <button class="text-blue-600 hover:text-blue-900" onclick="editBorrower(${borrower.id})">Edit</button>
-                </td>
             `;
 
             // Insert at the top of the table
@@ -287,6 +285,7 @@ function initBorrowerRecords() {
     let currentPage = 1;
     const itemsPerPage = 3;
     let currentHistory = [];
+    let filteredHistory = [];
 
     // Function to populate history modal
     const populateHistoryModal = (borrowerName, history) => {
@@ -339,7 +338,7 @@ function initBorrowerRecords() {
             row.className = 'hover:bg-gray-50';
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.docket_number}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.file_location}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.file_location === 'HOA Records' ? 'HOA' : record.file_location === 'REM Records' ? (record.province ? `REM - ${record.province}` : 'REM') : record.file_location}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(record.date_borrowed).toLocaleString()}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.date_returned ? '' : 'cursor-pointer text-blue-600 hover:text-blue-800'}" id="returned-date-${record.id}" ${record.date_returned ? '' : `onclick="window.openVerifyReturnedDateModal(${record.id})"`}>${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

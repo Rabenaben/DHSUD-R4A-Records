@@ -1,17 +1,9 @@
-# Role Access Control for Staff Accounts
+# TODO: Implement Modal for Archived Files
 
-## Tasks to Complete
-
-- [x] Hide edit, archive, and add file buttons in hoa-modal.blade.php for staff
-- [x] Hide edit, archive, and add file buttons in rem-modal.blade.php for staff
-- [x] Hide add docket button in search-filter-bar.blade.php for staff
-- [x] Hide add docket button in folder-table.blade.php for staff
-- [x] Hide unarchive button in archive.blade.php for staff
-- [x] Hide pencil icon (edit file name) in hoa-modal.blade.php for staff
-- [x] Hide pencil icon (edit file name) in rem-modal.blade.php for staff
-- [x] Hide add record button in borrowers.blade.php for staff
-- [x] Hide Action column and edit buttons in borrowers.blade.php for staff
-
-## Implementation Details
-
-Use `@unless(auth()->user()->role === 'Staff')` to conditionally show buttons only for non-staff users.
+## Steps to Complete
+- [x] Create resources/views/archived/partials/archive-modal.blade.php (modeled after hoa-modal and rem-modal, with read-only fields for basic info and file preview section)
+- [x] Update resources/views/archived/archive.blade.php to include the new archive-modal component
+- [x] Update resources/js/archive.js to add click event listener on '.archive-row' elements: open modal, populate fields, load file preview
+- [ ] Test modal opening on row click
+- [ ] Verify data population and file preview functionality
+- [ ] Ensure no conflicts with existing unarchive buttons

@@ -16,7 +16,7 @@
                 <div class="flex min-w-0 flex-1 items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
                     <input
                         class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
-                        id="searchInput" type="text" placeholder="Search by ID, Borrower Name...">
+                        id="searchInput" type="text" placeholder="Search by ID, Borrower Name, Docket No...">
                 </div>
                 @unless(auth()->user()->role === 'Staff')
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
@@ -29,7 +29,7 @@
             <!-- Borrower Table -->
             <div class="mt-4 overflow-hidden bg-white shadow-sm sm:rounded-lg">
                 <div class="border-b border-gray-200 bg-white p-6">
-                    <table class="min-w-full divide-y divide-blue-400" id="borrowers-table">
+                    <table class="w-full divide-y divide-blue-400" id="borrowers-table">
                         <thead class="bg-gray-50">
                             <tr>
                                 @foreach (['ID', 'Borrower Name', 'Status'] as $header)
@@ -38,12 +38,6 @@
                                         {{ $header }}
                                     </th>
                                 @endforeach
-                                @unless(auth()->user()->role === 'Staff')
-                                <th
-                                    class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
-                                    Action
-                                </th>
-                                @endunless
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
@@ -53,7 +47,9 @@
                                     data-file-location="{{ $borrower->file_location }}"
                                     data-date-borrowed="{{ $borrower->date_borrowed }}"
                                     data-date-returned="{{ $borrower->date_returned }}"
-                                    data-status="{{ $borrower->status }}">
+                                    data-status="{{ $borrower->status }}"
+                                    class="cursor-pointer hover:bg-gray-50"
+                                    onclick="editBorrower({{ $borrower->id }})">
                                     <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
                                         {{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
                                     <td
@@ -61,16 +57,10 @@
                                         {{ $borrower->borrower_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
                                         {{ $borrower->status }}</td>
-                                    @unless(auth()->user()->role === 'Staff')
-                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
-                                        <button class="text-blue-600 hover:text-blue-900"
-                                            onclick="editBorrower({{ $borrower->id }})">Edit</button>
-                                    </td>
-                                    @endunless
                                 </tr>
                             @empty
                                 <tr id="noRecordsRow">
-                                    <td class="p-3 text-center text-sm text-gray-500" colspan="{{ auth()->user()->role === 'Staff' ? 3 : 4 }}">No records found.
+                                    <td class="p-3 text-center text-sm text-gray-500" colspan="3">No records found.
                                     </td>
                                 </tr>
                             @endforelse
