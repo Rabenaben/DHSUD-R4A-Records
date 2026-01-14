@@ -340,7 +340,7 @@ function initBorrowerRecords() {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.docket_number}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.file_location === 'HOA Records' ? 'HOA' : record.file_location === 'REM Records' ? (record.province ? `REM - ${record.province}` : 'REM') : record.file_location}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(record.date_borrowed).toLocaleString()}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.date_returned ? '' : 'cursor-pointer text-blue-600 hover:text-blue-800'}" id="returned-date-${record.id}" ${record.date_returned ? '' : `onclick="window.openVerifyReturnedDateModal(${record.id})"`}>${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${record.date_returned ? '' : (window.userRole && window.userRole.toLowerCase() !== 'staff' ? 'cursor-pointer text-blue-600 hover:text-blue-800' : '')}" id="returned-date-${record.id}" ${record.date_returned ? '' : (window.userRole && window.userRole.toLowerCase() !== 'staff' ? `onclick="window.openVerifyReturnedDateModal(${record.id})"` : '')}>${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${record.status === 'Returned' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
                         ${record.status}

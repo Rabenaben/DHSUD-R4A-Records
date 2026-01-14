@@ -83,5 +83,6 @@
 
         <script>
             window.nextId = {{ $nextId }};
+            window.userRole = '{{ auth()->user()->role }}';
         </script>
 </x-app-layout>

@@ -75,10 +75,12 @@
         <!-- Add New Borrowing Record Button -->
         <div class="border-t pt-6">
             <div class="flex justify-end">
+                @unless(auth()->user()->role === 'Staff')
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                     id="add-new-record-btn" type="button">
                     Add New Borrowing Record
                 </button>
+                @endunless
             </div>
         </div>
 
