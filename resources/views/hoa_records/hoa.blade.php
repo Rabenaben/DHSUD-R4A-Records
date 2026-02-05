@@ -17,7 +17,7 @@
             <!-- Region Tabs -->
             <div class="flex items-center justify-between rounded-lg bg-gray-300 p-2 shadow-sm">
                 <div class="flex w-full flex-wrap justify-between gap-3">
-                    @foreach (['RIV', 'STR', 'RIZAL', 'CALABARZON', 'NCR HOA', 'NCR HOA N', 'R4A'] as $region)
+                    @foreach (['RIV', 'STR', 'NCR HOA', 'NCR HOA N', 'R4A'] as $region)
                         <button
                             class="region-btn wrap-break-word flex-1 whitespace-normal rounded-md bg-white px-3 py-1 text-center shadow-sm transition hover:bg-gray-200"
                             data-region="{{ $region }}">
@@ -35,7 +35,9 @@
             @include('hoa_records.partials.search-filter-bar')
 
             <!-- Table Component -->
-            <x-hoa.records-table :records="$hoaRecords ?? []" />
+            <div id="hoa-records-component">
+                <x-hoa.records-table :records="$hoaRecords ?? []" />
+            </div>
         </div>
 
         @include('hoa_records.partials.hoa-modal')

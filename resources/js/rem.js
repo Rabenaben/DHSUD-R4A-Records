@@ -27,6 +27,7 @@ function openRemModal(record) {
         docket_no: 'rem-docket-no',
         project_name: 'rem-project-name',
         province: 'rem-province',
+        municipality: 'rem-municipality',
         status: 'rem-status',
         quantity: 'rem-quantity',
         remarks: 'rem-remarks'
@@ -40,37 +41,11 @@ function openRemModal(record) {
     // Attach edit functionality event listeners after modal is opened
     setTimeout(() => {
         const editBtn = document.getElementById('rem-edit-btn');
-        const saveBtn = document.getElementById('rem-save-btn');
-        const cancelBtn = document.getElementById('rem-cancel-btn');
 
         if (editBtn) editBtn.addEventListener('click', () => {
             const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
             const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
             window.enterEditMode('rem', editableFields, allFields);
-        });
-        if (saveBtn) saveBtn.addEventListener('click', () => {
-            const buildFormData = () => ({
-                docket_no: document.getElementById('rem-docket-no').value,
-                project_name: document.getElementById('rem-project-name').value,
-                province: document.getElementById('rem-province').value,
-                status: document.getElementById('rem-status').value,
-                quantity: document.getElementById('rem-quantity').value || null,
-                remarks: document.getElementById('rem-remarks').value,
-            });
-            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
-            window.saveEdit('rem', buildFormData, allFields, () => {
-                // Reload current province folder after edit
-                if (window.currentProvince) {
-                    const folderContainer = document.getElementById('folderContainer');
-                    if (folderContainer) {
-                        loadFolderContent({ dataset: { province: window.currentProvince } }, folderContainer, window.originalFolderHTML);
-                    }
-                }
-            });
-        });
-        if (cancelBtn) cancelBtn.addEventListener('click', () => {
-            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
-            window.cancelEdit('rem', allFields);
         });
     }, 100); // Small delay to ensure modal is rendered
 }
@@ -252,16 +227,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelIcon = document.getElementById('rem-cancel-icon');
     const editFileNameBtn = document.getElementById('rem-edit-file-name-btn');
 
-    if (editBtn) editBtn.addEventListener('click', () => {
-        const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
-        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
-        window.enterEditMode('rem', editableFields, allFields);
-    });
+        if (editBtn) editBtn.addEventListener('click', () => {
+            const editableFields = ['rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            window.enterEditMode('rem', editableFields, allFields);
+        });
     if (saveIcon) saveIcon.addEventListener('click', () => {
         const buildFormData = () => ({
             docket_no: document.getElementById('rem-docket-no').value,
             project_name: document.getElementById('rem-project-name').value,
             province: document.getElementById('rem-province').value,
+            municipality: document.getElementById('rem-municipality').value,
             status: document.getElementById('rem-status').value,
             quantity: document.getElementById('rem-quantity').value || null,
             remarks: document.getElementById('rem-remarks').value,
@@ -278,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     if (cancelIcon) cancelIcon.addEventListener('click', () => {
-        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
         window.cancelEdit('rem', allFields);
     });
     if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('rem'));
@@ -346,6 +322,12 @@ function initAddRemRecordModal() {
             const provinceInput = document.getElementById('add-rem-province');
             if (provinceInput && provinceInput.disabled && provinceInput.value) {
                 data.province = provinceInput.value;
+            }
+
+            // Ensure municipality is included
+            const municipalityInput = document.getElementById('add-rem-municipality');
+            if (municipalityInput) {
+                data.municipality = municipalityInput.value;
             }
 
             try {

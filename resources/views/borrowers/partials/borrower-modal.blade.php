@@ -19,7 +19,7 @@
             </div>
             <input type="hidden" id="existing-borrower-name" value="">
 
-or            <!-- File Location and Docket No. -->
+            <!-- File Location and Docket No. -->
             <div class="mb-4 flex gap-4">
                 <div class="flex-1">
                     <x-input-label value="File Location" />

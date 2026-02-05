@@ -8,10 +8,10 @@
         </svg>
         Close
     </button>
-    <div class="flex flex-col gap-6 p-4 lg:flex-row max-h-[80vh] overflow-hidden">
+    <div class="flex flex-col gap-6 p-4 lg:flex-row min-h-[90vh] max-h-[90vh] overflow-hidden">
 
         <!-- Form Section -->
-        <div class="basis-1/4">
+        <div class="basis-1/4 overflow-y-auto">
             <!-- Basic Information -->
             <h3 class="mb-2 mt-4 flex items-center justify-between text-[15px] font-semibold">
                 Basic Information
@@ -51,6 +51,10 @@
                 <div class="flex-1">
                     <x-input-label value="Province" />
                     <x-modal-input id="rem-province" placeholder="Province" readonly />
+                </div>
+                <div class="flex-1">
+                    <x-input-label value="Municipality" />
+                    <x-modal-input id="rem-municipality" placeholder="Municipality" readonly />
                 </div>
             </div>
 
@@ -133,14 +137,26 @@
                             class="w-full border-none bg-transparent text-center text-lg font-bold text-gray-800 outline-none"
                             id="rem-file-label-preview" type="text" readonly />
                         @unless(auth()->user()->role === 'Staff')
-                        <button class="ml-2 text-gray-600 hover:text-gray-800" id="rem-edit-file-name-btn"
-                            title="Edit File Name" style="display: none;">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                </path>
-                            </svg>
-                        </button>
+                        <div class="ml-2 flex items-center space-x-2" id="rem-file-edit-actions">
+                            <button class="text-gray-600 hover:text-gray-800" id="rem-edit-file-name-btn"
+                                title="Edit File Name">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button class="text-blue-600 hover:text-blue-800" id="export-rem-btn" title="Export File" onclick="exportRemFile()">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" id="archive-rem-btn" title="Archive File">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                                </svg>
+                            </button>
+                        </div>
                         <div class="ml-2 flex items-center space-x-2" id="rem-file-name-save-icons"
                             style="display: none;">
                             <button class="text-green-600 hover:text-green-800" id="rem-save-file-name-icon"
@@ -161,27 +177,12 @@
                         @endunless
                     </div>
                 </div>
-                <div class="w-full flex-1" id="rem-file-preview-container" style="height: 400px;">
+                <div class="w-full flex-1 h-4/5" id="rem-file-preview-container">
                     <iframe class="h-full w-full" id="rem-file-preview" style="display: none;"></iframe>
                     <div class="flex h-full items-center justify-center text-gray-500" id="rem-file-placeholder">No
                         file
                         selected</div>
                 </div>
-            </div>
-
-            <div class="flex justify-center gap-3 p-4" id="rem-file-actions" style="display: none;">
-                <button class="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
-                    id="rem-save-btn" style="display: none;">SAVE</button>
-                <button class="rounded-lg bg-gray-600 px-6 py-2 font-semibold text-white hover:bg-gray-700"
-                    id="rem-cancel-btn" style="display: none;">CANCEL</button>
-                <button class="rounded-lg bg-blue-800 px-6 py-2 font-semibold text-white hover:bg-blue-900"
-                    id="export-rem-btn" onclick="exportRemFile()">EXPORT
-                    FILE</button>
-                @unless(auth()->user()->role === 'Staff')
-                <button class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white hover:bg-red-700"
-                    id="archive-rem-btn">ARCHIVE
-                    FILE</button>
-                @endunless
             </div>
         </div>
     </div>

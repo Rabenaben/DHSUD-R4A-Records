@@ -13,6 +13,7 @@ class RemDatabase extends Model
         'docket_no',
         'project_name',
         'province',
+        'municipality',
         'status',
         'quantity',
         'remarks',

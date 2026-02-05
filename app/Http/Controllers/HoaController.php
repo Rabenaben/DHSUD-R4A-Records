@@ -20,9 +20,11 @@ class HoaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'region' => 'required|string|in:RIV,STR,RIZAL,CALABARZON,NCR HOA,NCR HOA N,R4A',
+            'hoa_id' => 'required|integer',
             'docket_no' => 'required|string|unique:hoa_database,docket_no',
             'hoa_name' => 'required|string',
+            'classification' => 'required|string',
+            'hoa_status' => 'required|string|in:REGISTERED,NOT REGISTERED,DENIED,SUSPENDED,REVOKED/CANCELLED,DISSOLVED',
             'location' => 'required|string',
             'province_id' => 'required|exists:provinces,province_id',
             'municipality_id' => 'required|exists:municipalities,municipality_id',
@@ -56,9 +58,11 @@ class HoaController extends Controller
         $hoa = HoaDatabase::where('docket_no', $docketNo)->firstOrFail();
 
         $request->validate([
-            'region' => 'required|string|in:RIV,STR,RIZAL,CALABARZON,NCR HOA,NCR HOA N,R4A',
+            'hoa_id' => 'required|integer',
             'docket_no' => 'required|string|unique:hoa_database,docket_no,' . $hoa->id,
             'hoa_name' => 'required|string',
+            'classification' => 'required|string',
+            'hoa_status' => 'required|string|in:REGISTERED,NOT REGISTERED,DENIED,SUSPENDED,REVOKED/CANCELLED,DISSOLVED',
             'location' => 'required|string',
             'province_id' => 'required|exists:provinces,province_id',
             'municipality_id' => 'required|exists:municipalities,municipality_id',

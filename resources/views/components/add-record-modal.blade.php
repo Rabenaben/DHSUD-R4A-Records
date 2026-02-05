@@ -13,19 +13,8 @@
                 @if ($type === 'hoa')
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
-                            <x-input-label value="Region<span style='color: red;'>*</span>" />
-                            <select id="add-region" name="region"
-                                class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                                required>
-                                <option value="">Select Region</option>
-                                <option value="RIV">RIV</option>
-                                <option value="STR">STR</option>
-                                <option value="RIZAL">RIZAL</option>
-                                <option value="CALABARZON">CALABARZON</option>
-                                <option value="NCR HOA">NCR HOA</option>
-                                <option value="NCR HOA N">NCR HOA N</option>
-                                <option value="R4A">R4A</option>
-                            </select>
+                            <x-input-label value="HOA ID<span style='color: red;'>*</span>" />
+                            <x-text-input id="add-hoa-id" name="hoa_id" type="number" required />
                         </div>
                         <div>
                             <x-input-label value="Docket No.<span style='color: red;'>*</span>" />
@@ -34,6 +23,24 @@
                         <div>
                             <x-input-label value="HOA Name<span style='color: red;'>*</span>" />
                             <x-text-input id="add-hoa-name" name="hoa_name" required />
+                        </div>
+                        <div>
+                            <x-input-label value="Classification<span style='color: red;'>*</span>" />
+                            <x-text-input id="add-classification" name="classification" required />
+                        </div>
+                        <div>
+                            <x-input-label value="HOA Status<span style='color: red;'>*</span>" />
+                            <select id="add-hoa-status" name="hoa_status"
+                                class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="">Select HOA Status</option>
+                                <option value="REGISTERED">REGISTERED</option>
+                                <option value="NOT REGISTERED">NOT REGISTERED</option>
+                                <option value="DENIED">DENIED</option>
+                                <option value="SUSPENDED">SUSPENDED</option>
+                                <option value="REVOKED/CANCELLED">REVOKED/CANCELLED</option>
+                                <option value="DISSOLVED">DISSOLVED</option>
+                            </select>
                         </div>
                     </div>
                 @else
@@ -82,20 +89,26 @@
                     </div>
                 </div>
             @else
-                <!-- Province -->
-                <div class="province-section">
-                    <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Province</h3>
-                    <div>
-                        <x-input-label value="Province<span style='color: red;'>*</span>" />
-                        <select id="add-rem-province" name="province"
-                            class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                            required>
-                            <option value="">Select Province</option>
-                            @foreach ($provinces as $province)
-                                <option value="{{ is_object($province) ? $province->province_name : $province }}">
-                                    {{ is_object($province) ? $province->province_name : $province }}</option>
-                            @endforeach
-                        </select>
+                <!-- Location -->
+                <div>
+                    <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Location</h3>
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <x-input-label value="Province<span style='color: red;'>*</span>" />
+                            <select id="add-rem-province" name="province"
+                                class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="">Select Province</option>
+                                @foreach ($provinces as $province)
+                                    <option value="{{ is_object($province) ? $province->province_name : $province }}">
+                                        {{ is_object($province) ? $province->province_name : $province }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <x-input-label value="Municipality<span style='color: red;'>*</span>" />
+                            <x-text-input id="add-rem-municipality" name="municipality" class="w-full" required />
+                        </div>
                     </div>
                 </div>
             @endif

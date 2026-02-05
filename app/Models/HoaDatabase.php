@@ -10,8 +10,11 @@ class HoaDatabase extends Model
     protected $primaryKey = 'id';      // primary key
 
     protected $fillable = [
+        'hoa_id',
         'docket_no',
         'hoa_name',
+        'classification',
+        'hoa_status',
         'location',
         'province_id',
         'municipality_id',

@@ -77,9 +77,9 @@ class DisplayController extends Controller
     {
         $data = $this->getCounts(HoaDatabase::class);
 
-        // Get all HOA records with province and municipality relationships
+        // Get paginated HOA records with province and municipality relationships
         $hoaRecords = HoaDatabase::with(['province', 'municipality'])
-            ->get();
+            ->paginate(10);
 
         // Get all provinces for the add record modal
         $provinces = \App\Models\Province::orderBy('province_name')->get();
@@ -96,7 +96,7 @@ class DisplayController extends Controller
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,   // pass objects now
             'municipalities' => $municipalities, // pass municipalities
-            'hoaRecords' => $hoaRecords, // pass all HOA records
+            'hoaRecords' => $hoaRecords, // pass paginated HOA records
         ]);
     }
 
@@ -128,6 +128,75 @@ class DisplayController extends Controller
             'nextId' => $nextId,
             'hoaDockets' => $hoaDockets,
             'remDockets' => $remDockets,
+        ]);
+    }
+
+    // 🔹 Load HOA Records for AJAX Pagination
+    public function loadHoaRecordsAjax(Request $request)
+    {
+        $page = $request->get('page', 1);
+        $search = $request->get('search', '');
+        $status = $request->get('status', '');
+        $province = $request->get('province', '');
+        $municipality = $request->get('municipality', '');
+        $region = $request->get('region', '');
+
+        $query = HoaDatabase::with(['province', 'municipality']);
+
+        // Apply filters
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('docket_no', 'like', '%' . $search . '%')
+                  ->orWhere('hoa_name', 'like', '%' . $search . '%')
+                  ->orWhere('location', 'like', '%' . $search . '%')
+                  ->orWhereHas('province', function ($subQ) use ($search) {
+                      $subQ->where('province_name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('municipality', function ($subQ) use ($search) {
+                      $subQ->where('municipality_name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        if (!empty($status)) {
+            $query->where('status', $status);
+        }
+
+        if (!empty($province)) {
+            $query->whereHas('province', function ($q) use ($province) {
+                $q->where('province_name', $province);
+            });
+        }
+
+        if (!empty($municipality)) {
+            $query->whereHas('municipality', function ($q) use ($municipality) {
+                $q->where('municipality_name', $municipality);
+            });
+        }
+
+        if (!empty($region)) {
+            $patterns = [
+                'riv' => '%riv%',
+                'str' => '%str%',
+                'ncr hoa' => '%ncr%',
+                'ncr hoa n' => '%ncr%',
+                'r4a' => '%r4a%',
+            ];
+            if (isset($patterns[$region])) {
+                $query->whereRaw('LOWER(docket_no) LIKE ?', [$patterns[$region]]);
+            }
+        }
+
+        $hoaRecords = $query->paginate(10, ['*'], 'page', $page);
+
+        // Set the correct path for pagination links
+        $hoaRecords->setPath('/hoa_records');
+
+        return response()->json([
+            'table_html' => view('components.hoa.records-table', ['records' => $hoaRecords])->render(),
+            'pagination_html' => $hoaRecords->links(),
+            'current_page' => $hoaRecords->currentPage(),
+            'last_page' => $hoaRecords->lastPage(),
         ]);
     }
 

@@ -259,7 +259,8 @@ function archiveFile(type, docketNo, fileIndex) {
                             // Switch to file list view
                             document.getElementById(`${type}-file-list-view`).style.display = 'block';
                             document.getElementById(`${type}-file-preview-view`).style.display = 'none';
-                            document.getElementById(`${type}-file-actions`).style.display = 'none';
+                            const fileActions = document.getElementById(`${type}-file-actions`);
+                            if (fileActions) fileActions.style.display = 'none';
                             // Clear the file label
                             const labelId = type === 'hoa' ? 'hoa-file-label' : 'rem-file-label';
                             const labelElement = document.getElementById(labelId);
@@ -646,7 +647,6 @@ function showGenericFilePreview(record, fileIndex, type) {
     // Switch to preview view
     document.getElementById(`${type}-file-list-view`).style.display = 'none';
     document.getElementById(`${type}-file-preview-view`).style.display = 'block';
-    document.getElementById(`${type}-file-actions`).style.display = 'flex';
 
     // Attach archive button event
     const archiveBtn = document.getElementById(`archive-${type}-btn`);
@@ -662,7 +662,6 @@ function showGenericFilePreview(record, fileIndex, type) {
 function showGenericFileList(type) {
     document.getElementById(`${type}-file-list-view`).style.display = 'block';
     document.getElementById(`${type}-file-preview-view`).style.display = 'none';
-    document.getElementById(`${type}-file-actions`).style.display = 'none';
     // Clear the file label
     const labelId = type === 'hoa' ? 'hoa-file-label' : 'rem-file-label';
     const element = document.getElementById(labelId);

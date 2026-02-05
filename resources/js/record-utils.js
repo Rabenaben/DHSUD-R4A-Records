@@ -22,8 +22,8 @@ function enterFileNameEditMode(prefix) {
     fileLabel.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
     fileLabel.focus();
 
-    // Hide pencil icon and show save/cancel icons
-    document.getElementById(`${prefix}-edit-file-name-btn`).style.display = 'none';
+    // Hide file edit actions and show save/cancel icons
+    document.getElementById(`${prefix}-file-edit-actions`).style.display = 'none';
     document.getElementById(`${prefix}-file-name-save-icons`).style.display = 'flex';
 
     // Attach event listeners for save/cancel
@@ -102,11 +102,11 @@ function exitFileNameEditMode(prefix) {
         fileLabel.classList.remove('border', 'border-gray-300', 'rounded', 'px-2', 'py-1');
     }
 
-    // Hide save/cancel icons and show pencil icon (with null checks for staff users)
+    // Hide save/cancel icons and show file edit actions (with null checks for staff users)
     const saveIcons = document.getElementById(`${prefix}-file-name-save-icons`);
-    const editBtn = document.getElementById(`${prefix}-edit-file-name-btn`);
+    const fileEditActions = document.getElementById(`${prefix}-file-edit-actions`);
     if (saveIcons) saveIcons.style.display = 'none';
-    if (editBtn) editBtn.style.display = 'inline-block';
+    if (fileEditActions) fileEditActions.style.display = 'flex';
 }
 
 // =========================================
