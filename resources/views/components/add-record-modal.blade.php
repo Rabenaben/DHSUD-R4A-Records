@@ -2,7 +2,7 @@
 
 <!-- Add Record Modal -->
 <x-modal name="{{ $type === 'hoa' ? 'add-record' : 'add-rem-record' }}" maxWidth=".25 xl">
-    <div class="p-6">
+    <div class="p-6 {{ $type === 'hoa' ? 'max-h-screen overflow-y-auto' : '' }}">
         <h2 class="mb-4 text-lg font-semibold text-gray-900">Add New {{ strtoupper($type) }} Docket</h2>
 
         <form id="{{ $type === 'hoa' ? 'add-record-form' : 'add-rem-record-form' }}" class="space-y-6">
