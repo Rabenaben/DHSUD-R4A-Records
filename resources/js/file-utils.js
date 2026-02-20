@@ -521,6 +521,9 @@ function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
     window.currentRecord = record;
     window.currentRecordType = type;
 
+    // Reset edit mode state when opening a new record
+    window.resetEditModeState(type);
+
     // Set field values using config
     Object.entries(fieldConfig).forEach(([key, id]) => {
         setValue(id, transformedRecord[key] ?? '');

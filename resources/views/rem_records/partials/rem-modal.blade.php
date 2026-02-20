@@ -1,3 +1,5 @@
+@props(['provinces' => []])
+
 <!-- REM Modal -->
 <x-modal name="rem" maxWidth="7xl">
     <button
@@ -36,24 +38,38 @@
             </h3>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
-                    <x-input-label value="Docket No." />
+                    <x-input-label for="rem-docket-no" value="Docket No." required :class="'required-label'" />
                     <x-modal-input id="rem-docket-no" placeholder="Docket No." readonly />
                 </div>
                 <div class="flex-1">
-                    <x-input-label value="Project Name" />
+                    <x-input-label for="rem-project-name" value="Project Name" required :class="'required-label'" />
                     <x-modal-input id="rem-project-name" placeholder="Project Name" readonly />
                 </div>
             </div>
 
             <!-- Location -->
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Location</h3>
+            <div class="mb-2.5">
+                <x-input-label for="rem-location" value="Location" required :class="'required-label'" />
+                <x-modal-input id="rem-location" placeholder="Location" readonly />
+            </div>
+
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
-                    <x-input-label value="Province" />
-                    <x-modal-input id="rem-province" placeholder="Province" readonly />
+                    <x-input-label for="rem-province" value="Province" required :class="'required-label'" />
+                    <select id="rem-province" 
+                        class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none focus:border-blue-600"
+                        disabled>
+                        <option value="">Select Province</option>
+                        @foreach ($provinces as $province)
+                            <option value="{{ is_object($province) ? $province->province_name : $province }}">
+                                {{ is_object($province) ? $province->province_name : $province }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="flex-1">
-                    <x-input-label value="Municipality" />
+                    <x-input-label for="rem-municipality" value="Municipality" required :class="'required-label'" />
                     <x-modal-input id="rem-municipality" placeholder="Municipality" readonly />
                 </div>
             </div>
@@ -62,7 +78,7 @@
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Additional Information</h3>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
-                    <x-input-label value="Status" />
+                    <x-input-label for="rem-status" value="Status" required :class="'required-label'" />
                     <select class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none"
                         id="rem-status" disabled>
                         <option value="ON-SHELF">ON-SHELF</option>
@@ -70,13 +86,13 @@
                     </select>
                 </div>
                 <div class="flex-1">
-                    <x-input-label value="Quantity" />
+                    <x-input-label for="rem-quantity" value="Quantity" required :class="'required-label'" />
                     <x-modal-input id="rem-quantity" placeholder="Quantity" readonly />
                 </div>
             </div>
 
             <div>
-                <x-input-label value="Remarks" />
+                <x-input-label for="rem-remarks" value="Remarks" />
                 <textarea
                     class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                     id="rem-remarks" placeholder="Remarks" readonly></textarea>

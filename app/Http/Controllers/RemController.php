@@ -19,11 +19,12 @@ class RemController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'docket_no' => 'required|string|unique:rem,docket_no',
+            'docket_no' => 'required|string',
             'project_name' => 'required|string',
+            'location' => 'required|string',
             'province' => 'required|string',
             'municipality' => 'required|string',
-            'status' => 'required|in:ON-SHELF,BORROWED,UNAVAILABLE',
+            'status' => 'required|in:ON-SHELF,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);
@@ -45,11 +46,12 @@ class RemController extends Controller
         $rem = RemDatabase::where('docket_no', $docketNo)->firstOrFail();
 
         $request->validate([
-            'docket_no' => 'required|string|unique:rem,docket_no,' . $rem->id,
+            'docket_no' => 'required|string',
             'project_name' => 'required|string',
+            'location' => 'required|string',
             'province' => 'required|string',
-            'municipality' => 'nullable|string',
-            'status' => 'required|in:ON-SHELF,BORROWED,UNAVAILABLE',
+            'municipality' => 'required|string',
+            'status' => 'required|in:ON-SHELF,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);

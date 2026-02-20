@@ -70,6 +70,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
 
     // HOA routes (HoaController)
     Route::controller(HoaController::class)->prefix('hoa')->name('hoa.')->group(function () {
+        Route::get('/provinces', 'getProvinces')->name('provinces');
         Route::get('/municipalities', 'getMunicipalities')->name('municipalities');
         Route::get('/updated-data', 'getUpdatedData')->name('updated-data');
         Route::post('/', 'store')->name('store');

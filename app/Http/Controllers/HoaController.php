@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HoaDatabase;
 use App\Models\Municipality;
+use App\Models\Province;
 
 class HoaController extends Controller
 {
@@ -17,18 +18,32 @@ class HoaController extends Controller
         $this->recordType = 'HOA';
     }
 
+    public function getProvinces()
+    {
+        $provinces = Province::orderBy('province_name')->get();
+        return response()->json($provinces);
+    }
+
+    public function getMunicipalities(Request $request)
+    {
+        $provinceId = $request->query('province_id');
+        $municipalities = Municipality::where('province_id', $provinceId)->orderBy('municipality_name')->get();
+
+        return response()->json($municipalities);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'hoa_id' => 'required|integer',
-            'docket_no' => 'required|string|unique:hoa_database,docket_no',
+            'docket_no' => 'required|string',
             'hoa_name' => 'required|string',
             'classification' => 'required|string',
             'hoa_status' => 'required|string|in:REGISTERED,NOT REGISTERED,DENIED,SUSPENDED,REVOKED/CANCELLED,DISSOLVED',
             'location' => 'required|string',
             'province_id' => 'required|exists:provinces,province_id',
             'municipality_id' => 'required|exists:municipalities,municipality_id',
-            'status' => 'required|in:ON-SHELF,BORROWED,UNAVAILABLE',
+            'status' => 'required|in:ON-SHELF,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);
@@ -45,28 +60,20 @@ class HoaController extends Controller
         ]);
     }
 
-    public function getMunicipalities(Request $request)
-    {
-        $provinceId = $request->query('province_id');
-        $municipalities = Municipality::where('province_id', $provinceId)->orderBy('municipality_name')->get();
-
-        return response()->json($municipalities);
-    }
-
     public function update(Request $request, $docketNo)
     {
         $hoa = HoaDatabase::where('docket_no', $docketNo)->firstOrFail();
 
         $request->validate([
             'hoa_id' => 'required|integer',
-            'docket_no' => 'required|string|unique:hoa_database,docket_no,' . $hoa->id,
+            'docket_no' => 'required|string',
             'hoa_name' => 'required|string',
             'classification' => 'required|string',
             'hoa_status' => 'required|string|in:REGISTERED,NOT REGISTERED,DENIED,SUSPENDED,REVOKED/CANCELLED,DISSOLVED',
             'location' => 'required|string',
             'province_id' => 'required|exists:provinces,province_id',
             'municipality_id' => 'required|exists:municipalities,municipality_id',
-            'status' => 'required|in:ON-SHELF,BORROWED,UNAVAILABLE',
+            'status' => 'required|in:ON-SHELF,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);

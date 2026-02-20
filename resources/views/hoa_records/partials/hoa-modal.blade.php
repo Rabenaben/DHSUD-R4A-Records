@@ -35,24 +35,30 @@
                 @endunless
             </h3>
             <div class="mb-2.5">
-                <div class="mb-2.5">
-                    <x-input-label value="Region" />
-                    <x-modal-input id="region" placeholder="Region" readonly />
+                <div class="mb-2.5 flex gap-2.5">
+                    <div class="flex-1">
+                        <x-input-label for="hoa-id" value="HOA ID" required :class="'required-label'" />
+                        <x-modal-input id="hoa-id" placeholder="HOA ID" readonly />
+                    </div>
+                    <div class="flex-1">
+                        <x-input-label for="region" value="Region" />
+                        <x-modal-input id="region" placeholder="Region" readonly />
+                    </div>
                 </div>
                 <div class="mb-2.5">
-                    <x-input-label value="Docket No." />
+                    <x-input-label for="docket-no" value="Docket No." required :class="'required-label'" />
                     <x-modal-input id="docket-no" placeholder="Docket No." readonly />
                 </div>
                 <div class="mb-2.5">
-                    <x-input-label value="HOA Name" />
+                    <x-input-label for="hoa-name" value="HOA Name" required :class="'required-label'" />
                     <x-modal-input id="hoa-name" placeholder="HOA Name" readonly />
                 </div>
                 <div class="mb-2.5">
-                    <x-input-label value="Classification" />
+                    <x-input-label for="classification" value="Classification" required :class="'required-label'" />
                     <x-modal-input id="classification" placeholder="Classification" readonly />
                 </div>
                 <div class="mb-2.5">
-                    <x-input-label value="HOA Status" />
+                    <x-input-label for="hoa-status" value="HOA Status" required :class="'required-label'" />
                     <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600" id="hoa-status" disabled>
                         <option value="REGISTERED">REGISTERED</option>
                         <option value="NOT REGISTERED">NOT REGISTERED</option>
@@ -67,17 +73,25 @@
             <!-- Location -->
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Location</h3>
             <div class="mb-2.5">
-                <x-input-label value="Location" />
+                <x-input-label for="location" value="Location" required :class="'required-label'" />
                 <x-modal-input id="location" placeholder="Location" readonly />
             </div>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
-                    <x-input-label value="Province" />
-                    <x-modal-input id="province" placeholder="Province" readonly />
+                    <x-input-label for="province" value="Province" required :class="'required-label'" />
+                    <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
+                        id="province" disabled>
+                        <option value="">Loading...</option>
+                    </select>
+                    <input type="hidden" id="province-id" value="" />
                 </div>
                 <div class="flex-1">
-                    <x-input-label value="Municipality" />
-                    <x-modal-input id="municipality" placeholder="Municipality" readonly />
+                    <x-input-label for="municipality" value="Municipality" required :class="'required-label'" />
+                    <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
+                        id="municipality" disabled>
+                        <option value="">Select Province First</option>
+                    </select>
+                    <input type="hidden" id="municipality-id" value="" />
                 </div>
             </div>
 
@@ -85,7 +99,7 @@
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Additional Information</h3>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
-                    <x-input-label value="Status" />
+                    <x-input-label for="status" value="Status" required :class="'required-label'" />
                     <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                         id="status" disabled>
                         <option value="ON-SHELF">ON-SHELF</option>
@@ -93,13 +107,13 @@
                     </select>
                 </div>
                 <div class="flex-1">
-                    <x-input-label value="Quantity" />
+                    <x-input-label for="quantity" value="Quantity" :required="true" :class="'required-label'" />
                     <x-modal-input id="quantity" placeholder="Quantity" readonly />
                 </div>
             </div>
 
             <div>
-                <x-input-label value="Remarks" />
+                <x-input-label for="remarks" value="Remarks" />
                 <textarea
                     class="min-h-[50px] w-full resize-none rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                     id="remarks" placeholder="Remarks" readonly></textarea>

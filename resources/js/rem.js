@@ -26,6 +26,7 @@ function openRemModal(record) {
     const fieldConfig = {
         docket_no: 'rem-docket-no',
         project_name: 'rem-project-name',
+        location: 'rem-location',
         province: 'rem-province',
         municipality: 'rem-municipality',
         status: 'rem-status',
@@ -43,8 +44,8 @@ function openRemModal(record) {
         const editBtn = document.getElementById('rem-edit-btn');
 
         if (editBtn) editBtn.addEventListener('click', () => {
-            const editableFields = ['rem-status', 'rem-quantity', 'rem-remarks'];
-            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            const editableFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
             window.enterEditMode('rem', editableFields, allFields);
         });
     }, 100); // Small delay to ensure modal is rendered
@@ -205,14 +206,6 @@ async function updateRemData() {
     window.updateData('rem');
 }
 
-
-
-// =========================================
-// Validation Functions
-// =========================================
-
-
-
 // =========================================
 // Initialization
 // =========================================
@@ -228,21 +221,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const editFileNameBtn = document.getElementById('rem-edit-file-name-btn');
 
         if (editBtn) editBtn.addEventListener('click', () => {
-            const editableFields = ['rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
-            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            const editableFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
             window.enterEditMode('rem', editableFields, allFields);
         });
     if (saveIcon) saveIcon.addEventListener('click', () => {
+        // Validate fields before saving (quantity required, non-negative)
+        if (!validateRemFields('rem-')) return;
+
         const buildFormData = () => ({
             docket_no: document.getElementById('rem-docket-no').value,
             project_name: document.getElementById('rem-project-name').value,
+            location: document.getElementById('rem-location').value,
             province: document.getElementById('rem-province').value,
             municipality: document.getElementById('rem-municipality').value,
             status: document.getElementById('rem-status').value,
             quantity: document.getElementById('rem-quantity').value || null,
             remarks: document.getElementById('rem-remarks').value,
         });
-        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-status', 'rem-quantity', 'rem-remarks'];
+        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
         window.saveEdit('rem', buildFormData, allFields, () => {
             // Reload current province folder after edit
             if (window.currentProvince) {
@@ -254,11 +251,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     if (cancelIcon) cancelIcon.addEventListener('click', () => {
-        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+        const allFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
         window.cancelEdit('rem', allFields);
     });
     if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('rem'));
+
+    // Fix: Reset edit mode when REM modal is closed (without clicking cancel)
+    window.addEventListener('close-modal', (e) => {
+        if (e.detail.name === 'rem') {
+            const allFields = ['rem-docket-no', 'rem-project-name', 'rem-location', 'rem-province', 'rem-municipality', 'rem-status', 'rem-quantity', 'rem-remarks'];
+            window.exitEditMode('rem', allFields);
+            window.resetEditModeState('rem');
+        }
+    });
 });
+
+// =========================================
+// Validation Functions
+// =========================================
+
+/**
+ * Validates REM record fields (for both add and edit operations).
+ * @param {string} prefix - The prefix for field IDs (e.g., 'add-rem-' for add form, 'rem-' for edit modal).
+ * @returns {boolean} True if valid, false otherwise.
+ */
+function validateRemFields(prefix = '') {
+    const fields = [
+        { id: `${prefix}docket-no`, name: 'Docket No' },
+        { id: `${prefix}project-name`, name: 'Project Name' },
+        { id: `${prefix}location`, name: 'Location' },
+        { id: `${prefix}province`, name: 'Province' },
+        { id: `${prefix}municipality`, name: 'Municipality' },
+        { id: `${prefix}status`, name: 'Status' }
+    ];
+
+    // Check for empty required fields
+    for (const field of fields) {
+        const element = document.getElementById(field.id);
+        if (!element || !element.value.trim()) {
+            window.showToast(`${field.name} is required.`, 'error');
+            element?.focus();
+            return false;
+        }
+    }
+
+    // Validate quantity is required and must be a valid non-negative number (allows 0, not negative)
+    const quantityId = `${prefix}quantity`;
+    const quantityElement = document.getElementById(quantityId);
+    if (!quantityElement || !quantityElement.value.trim()) {
+        window.showToast('Quantity is required.', 'error');
+        quantityElement?.focus();
+        return false;
+    }
+    const quantityValue = quantityElement.value.trim();
+    if (isNaN(quantityValue) || parseFloat(quantityValue) < 0) {
+        window.showToast('Quantity must be a valid non-negative number.', 'error');
+        quantityElement.focus();
+        return false;
+    }
+
+    return true;
+}
 
 // =========================================
 // Add Record Modal Functions
@@ -273,6 +326,18 @@ function initAddRemRecordModal() {
     const cancelAddRemRecordBtn = document.getElementById('cancel-add-rem-record-btn');
     const addRemRecordSubmitBtn = document.getElementById('add-rem-record-submit-btn');
     const confirmSaveBtn = document.getElementById('confirm-save-record-yes-btn');
+
+    // Set default value of 0 for quantity field when opening add-rem-record modal
+    window.addEventListener('open-modal', (e) => {
+        if (e.detail.name === 'add-rem-record') {
+            const addRemQuantityField = document.getElementById('add-rem-quantity');
+            if (addRemQuantityField) {
+                addRemQuantityField.value = '0';
+            }
+            // Reset all asterisks to visible state (fixes bug where asterisks stay hidden after exiting edit mode)
+            window.resetAllAsterisks();
+        }
+    });
 
     if (cancelAddRemRecordBtn) {
         cancelAddRemRecordBtn.addEventListener('click', () => {
@@ -290,15 +355,8 @@ function initAddRemRecordModal() {
 
     if (addRemRecordSubmitBtn) {
         addRemRecordSubmitBtn.addEventListener('click', () => {
-            // Validate form before opening confirmation modal
-            const fields = [
-                { id: 'add-rem-docket-no', name: 'Docket No' },
-                { id: 'add-rem-project-name', name: 'Project Name' },
-                { id: 'add-rem-province', name: 'Province' },
-                { id: 'add-rem-status', name: 'Status' },
-                { id: 'add-rem-quantity', name: 'Quantity', min: 1 }
-            ];
-            if (!window.validateForm(fields)) return;
+            // Validate form using REM-specific validation (quantity required, non-negative)
+            if (!validateRemFields('add-rem-')) return;
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
             // Update confirmation message for REM records after modal opens
             setTimeout(() => {

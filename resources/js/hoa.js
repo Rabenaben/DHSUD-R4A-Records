@@ -34,11 +34,65 @@ let regionFilterStatus, filteredCountSpan, totalCountSpan, activeRegionSpan;
 // =========================================
 
 /**
+ * Loads provinces and municipalities for the modal dropdowns.
+ * @param {Object} record - The record data.
+ */
+async function loadHoaDropdowns(record) {
+    const provinceSelect = document.getElementById('province');
+    const municipalitySelect = document.getElementById('municipality');
+    const provinceIdInput = document.getElementById('province-id');
+    const municipalityIdInput = document.getElementById('municipality-id');
+
+    try {
+        // Load provinces
+        const provincesResponse = await fetch('/hoa/provinces');
+        const provinces = await provincesResponse.json();
+
+        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        provinces.forEach(province => {
+            const option = document.createElement('option');
+            option.value = province.province_id;
+            option.textContent = province.province_name;
+            provinceSelect.appendChild(option);
+        });
+
+        // Set selected province
+        const provinceId = record.province_id;
+        if (provinceId) {
+            provinceSelect.value = provinceId;
+            provinceIdInput.value = provinceId;
+
+            // Load municipalities for this province
+            const municipalitiesResponse = await fetch(`/hoa/municipalities?province_id=${provinceId}`);
+            const municipalities = await municipalitiesResponse.json();
+
+            municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+            municipalities.forEach(municipality => {
+                const option = document.createElement('option');
+                option.value = municipality.municipality_id;
+                option.textContent = municipality.municipality_name;
+                municipalitySelect.appendChild(option);
+            });
+
+            // Set selected municipality
+            const municipalityId = record.municipality_id;
+            if (municipalityId) {
+                municipalitySelect.value = municipalityId;
+                municipalityIdInput.value = municipalityId;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading dropdowns:', error);
+    }
+}
+
+/**
  * Opens the HOA modal for a specific record and loads the file list.
  * @param {Object} record - The record data.
  */
 function openHoaModal(record) {
     const fieldConfig = {
+        hoa_id: 'hoa-id',
         region: 'region',
         docket_no: 'docket-no',
         hoa_name: 'hoa-name',
@@ -52,7 +106,7 @@ function openHoaModal(record) {
         remarks: 'remarks'
     };
 
-    // Handle nested province and municipality
+    // Handle nested province and municipality - now using dropdown values
     const recordTransformer = (rec) => ({
         ...rec,
         province: rec.province?.province_name ?? 'N/A',
@@ -77,38 +131,93 @@ function openHoaModal(record) {
     }
     document.getElementById('region').value = region;
 
+    // Load dropdowns after modal is opened
+    loadHoaDropdowns(record);
+
     // Attach edit functionality event listeners after modal is opened
     setTimeout(() => {
         const editBtn = document.getElementById('hoa-edit-btn');
         const saveIcon = document.getElementById('hoa-save-icon');
         const cancelIcon = document.getElementById('hoa-cancel-icon');
         const editFileNameBtn = document.getElementById('hoa-edit-file-name-btn');
+        const provinceSelect = document.getElementById('province');
+        const municipalitySelect = document.getElementById('municipality');
 
         if (editBtn) editBtn.addEventListener('click', () => {
-            const editableFields = ['status', 'quantity', 'remarks'];
-            const allFields = ['region', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'location', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            const editableFields = ['hoa-id', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'location', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            const allFields = ['hoa-id', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'location', 'province', 'municipality', 'status', 'quantity', 'remarks'];
             window.enterEditMode('hoa', editableFields, allFields);
+
+            // Enable province and municipality dropdowns for editing
+            provinceSelect.removeAttribute('disabled');
+            municipalitySelect.removeAttribute('disabled');
         });
-        if (saveIcon) saveIcon.addEventListener('click', () => {
-            const buildFormData = () => ({
-                region: document.getElementById('region').value,
-                docket_no: document.getElementById('docket-no').value,
-                hoa_name: document.getElementById('hoa-name').value,
-                location: window.currentRecord.location, // Keep original location
-                province_id: window.currentRecord.province_id,
-                municipality_id: window.currentRecord.municipality_id,
-                status: document.getElementById('status').value,
-                quantity: document.getElementById('quantity').value || null,
-                remarks: document.getElementById('remarks').value,
-            });
-            const allFields = ['region', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'province', 'municipality', 'status', 'quantity', 'remarks'];
-            window.saveEdit('hoa', buildFormData, allFields);
-        });
+        if (saveIcon) {
+            // Remove any previously attached click handler
+            saveIcon.onclick = null;
+
+            saveIcon.onclick = () => {
+                // Validate fields using unified validation function
+                if (!validateHoaFields('')) return;
+
+                const quantityElement = document.getElementById('quantity');
+
+                const buildFormData = () => ({
+                    hoa_id: document.getElementById('hoa-id').value,
+                    docket_no: document.getElementById('docket-no').value,
+                    hoa_name: document.getElementById('hoa-name').value,
+                    classification: document.getElementById('classification').value,
+                    hoa_status: document.getElementById('hoa-status').value,
+                    location: document.getElementById('location').value,
+                    province_id: document.getElementById('province').value,
+                    municipality_id: document.getElementById('municipality').value,
+                    status: document.getElementById('status').value,
+                    quantity: quantityElement?.value.trim() || null,
+                    remarks: document.getElementById('remarks').value,
+                });
+
+                const allFields = [
+                    'hoa-id', 'docket-no', 'hoa-name', 'classification',
+                    'hoa-status', 'location', 'province', 'municipality',
+                    'status', 'quantity', 'remarks'
+                ];
+
+                window.saveEdit('hoa', buildFormData, allFields);
+            };
+        }
         if (cancelIcon) cancelIcon.addEventListener('click', () => {
-            const allFields = ['region', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'location', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            const allFields = ['hoa-id', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'location', 'province', 'municipality', 'status', 'quantity', 'remarks'];
             window.cancelEdit('hoa', allFields);
+            // Re-disable province and municipality dropdowns
+            provinceSelect.setAttribute('disabled', true);
+            municipalitySelect.setAttribute('disabled', true);
+            // Reload the dropdowns to original values
+            loadHoaDropdowns(window.currentRecord);
         });
         if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('hoa'));
+
+        // Province change handler in modal
+        provinceSelect.addEventListener('change', async () => {
+            const provinceId = provinceSelect.value;
+            municipalitySelect.innerHTML = '<option value="">Select Municipality</option>';
+            municipalitySelect.disabled = !provinceId;
+
+            if (provinceId) {
+                try {
+                    const response = await fetch(`/hoa/municipalities?province_id=${provinceId}`);
+                    const municipalities = await response.json();
+
+                    municipalities.forEach(municipality => {
+                        const option = document.createElement('option');
+                        option.value = municipality.municipality_id;
+                        option.textContent = municipality.municipality_name;
+                        municipalitySelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching municipalities:', error);
+                }
+            }
+        });
     }, 100); // Small delay to ensure modal is rendered
 }
 
@@ -119,14 +228,6 @@ function openHoaModal(record) {
 function loadHoaFileList(record) {
     loadGenericFileList('hoa', record);
 }
-
-
-
-
-
-
-
-
 
 // =========================================
 // Table Filtering Functions
@@ -280,20 +381,8 @@ function initHoaRecords() {
     const addRecordSubmitBtn = document.getElementById('add-record-submit-btn');
     if (addRecordSubmitBtn) {
         addRecordSubmitBtn.addEventListener('click', () => {
-            // Validate form before opening confirmation modal
-            const fields = [
-                { id: 'add-hoa-id', name: 'HOA ID', min: 1 },
-                { id: 'add-docket-no', name: 'Docket No' },
-                { id: 'add-hoa-name', name: 'HOA Name' },
-                { id: 'add-classification', name: 'Classification' },
-                { id: 'add-location', name: 'Location' },
-                { id: 'add-province', name: 'Province' },
-                { id: 'add-municipality', name: 'Municipality' },
-                { id: 'add-hoa-status', name: 'HOA Status' },
-                { id: 'add-status', name: 'Status' },
-                { id: 'add-quantity', name: 'Quantity', min: 1 }
-            ];
-            if (!window.validateForm(fields)) return;
+            // Validate form before opening confirmation modal using unified validation function
+            if (!validateHoaFields('add-')) return;
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
         });
     }
@@ -303,6 +392,13 @@ function initHoaRecords() {
         if (e.detail.name === 'add-record') {
             addRecordForm.reset();
             municipalitySelect.disabled = true;
+            // Set default value of 0 for quantity field
+            const addQuantityField = document.getElementById('add-quantity');
+            if (addQuantityField) {
+                addQuantityField.value = '0';
+            }
+            // Reset all asterisks to visible state (fixes bug where asterisks stay hidden after exiting edit mode)
+            window.resetAllAsterisks();
         }
     });
 
@@ -445,9 +541,34 @@ function initAddRecordModal() {
 
 /**
  * Fetches updated HOA data and updates the table and status cards.
+ * Uses pagination to avoid loading all records at once.
  */
 async function updateHoaData() {
-    window.updateData('hoa');
+    // Get the current page from the input or default to 1
+    const pageInput = document.getElementById('hoa-page-input');
+    const currentPage = pageInput ? parseInt(pageInput.value) : 1;
+
+    // Reload only the current page (this is efficient)
+    loadHoaPage(currentPage);
+
+    // Also update status counts (this is lightweight)
+    try {
+        const response = await fetch('/hoa/updated-data');
+        const data = await response.json();
+
+        // Update status cards
+        const totalEl = document.querySelector('.status-card-total h2');
+        const onShelfEl = document.querySelector('.status-card-onShelf h2');
+        const unavailableEl = document.querySelector('.status-card-unavailable h2');
+        const borrowedEl = document.querySelector('.status-card-borrowed h2');
+
+        if (totalEl) totalEl.textContent = data.counts.total;
+        if (onShelfEl) onShelfEl.textContent = data.counts.onShelf;
+        if (unavailableEl) unavailableEl.textContent = data.counts.unavailable;
+        if (borrowedEl) borrowedEl.textContent = data.counts.borrowed;
+    } catch (error) {
+        console.error('Error updating HOA status cards:', error);
+    }
 }
 
 /**
@@ -503,6 +624,52 @@ function createHoaTableRow(record) {
 // Validation Functions
 // =========================================
 
+/**
+ * Validates HOA record fields (for both add and edit operations).
+ * @param {string} prefix - The prefix for field IDs (e.g., 'add-' for add form, '' for edit modal).
+ * @returns {boolean} True if valid, false otherwise.
+ */
+function validateHoaFields(prefix = '') {
+    const fields = [
+        { id: `${prefix}hoa-id`, name: 'HOA ID' },
+        { id: `${prefix}docket-no`, name: 'Docket No.' },
+        { id: `${prefix}hoa-name`, name: 'HOA Name' },
+        { id: `${prefix}classification`, name: 'Classification' },
+        { id: `${prefix}hoa-status`, name: 'HOA Status' },
+        { id: `${prefix}location`, name: 'Location' },
+        { id: `${prefix}province`, name: 'Province' },
+        { id: `${prefix}municipality`, name: 'Municipality' },
+        { id: `${prefix}status`, name: 'Status' }
+    ];
+
+    // Check for empty required fields
+    for (const field of fields) {
+        const element = document.getElementById(field.id);
+        if (!element || !element.value.trim()) {
+            window.showToast(`${field.name} is required.`, 'error');
+            element?.focus();
+            return false;
+        }
+    }
+
+    // Validate quantity is required and must be a valid non-negative number (allows 0, not negative)
+    const quantityId = prefix === 'add-' ? 'add-quantity' : 'quantity';
+    const quantityElement = document.getElementById(quantityId);
+    if (!quantityElement || !quantityElement.value.trim()) {
+        window.showToast('Quantity is required.', 'error');
+        quantityElement?.focus();
+        return false;
+    }
+    const quantityValue = quantityElement.value.trim();
+    if (isNaN(quantityValue) || parseFloat(quantityValue) < 0) {
+        window.showToast('Quantity must be a valid non-negative number.', 'error');
+        quantityElement.focus();
+        return false;
+    }
+
+    return true;
+}
+
 
 
 // =========================================
@@ -518,7 +685,7 @@ function attachHoaPaginationListeners() {
     const pageInput = document.getElementById('hoa-page-input');
 
     if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
+        prevBtn.addEventListener('click', function () {
             const currentPage = parseInt(pageInput.value);
             if (currentPage > 1) {
                 loadHoaPage(currentPage - 1);
@@ -527,7 +694,7 @@ function attachHoaPaginationListeners() {
     }
 
     if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
+        nextBtn.addEventListener('click', function () {
             const currentPage = parseInt(pageInput.value);
             const maxPage = parseInt(pageInput.max);
             if (currentPage < maxPage) {
@@ -537,7 +704,7 @@ function attachHoaPaginationListeners() {
     }
 
     if (pageInput) {
-        pageInput.addEventListener('change', function() {
+        pageInput.addEventListener('change', function () {
             const page = parseInt(this.value);
             const min = parseInt(this.min);
             const max = parseInt(this.max);
@@ -549,7 +716,7 @@ function attachHoaPaginationListeners() {
             }
         });
 
-        pageInput.addEventListener('keydown', function(e) {
+        pageInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 this.blur(); // Trigger change event
             }
@@ -586,38 +753,33 @@ function loadHoaPage(page) {
             'Accept': 'application/json',
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        // Replace the entire records component
-        document.getElementById('hoa-records-component').innerHTML = data.table_html;
+        .then(response => response.json())
+        .then(data => {
+            // Replace the entire records component
+            document.getElementById('hoa-records-component').innerHTML = data.table_html;
 
-        // Check if there are any records and toggle the "No HOA records found" message
-        const tableBody = document.getElementById('hoaRecordsTable');
-        const noRecordsRow = document.getElementById('noRecordsRow');
-        if (tableBody && noRecordsRow) {
-            const hasRecords = tableBody.querySelectorAll('.hoa-row').length > 0;
-            noRecordsRow.style.display = hasRecords ? 'none' : 'table-row';
-        }
+            // Check if there are any records and toggle the "No HOA records found" message
+            const tableBody = document.getElementById('hoaRecordsTable');
+            const noRecordsRow = document.getElementById('noRecordsRow');
+            if (tableBody && noRecordsRow) {
+                const hasRecords = tableBody.querySelectorAll('.hoa-row').length > 0;
+                noRecordsRow.style.display = hasRecords ? 'none' : 'table-row';
+            }
 
-        // Reattach click listeners to the new table rows
-        attachHoaRowClickListeners();
+            // Reattach click listeners to the new table rows
+            attachHoaRowClickListeners();
 
-        // Reattach pagination listeners
-        attachHoaPaginationListeners();
-
-        // Update URL without reloading page (only page parameter to keep URL short)
-        const url = new URL(window.location);
-        url.searchParams.set('page', page);
-        window.history.pushState(null, null, url.toString());
-    })
-    .catch(error => {
-        console.error('AJAX Error:', error);
-        alert('Error loading records. Please try again.');
-    });
+            // Reattach pagination listeners
+            attachHoaPaginationListeners();
+        })
+        .catch(error => {
+            console.error('AJAX Error:', error);
+            alert('Error loading records. Please try again.');
+        });
 }
 
 // HOA Records AJAX Pagination (legacy for any remaining links)
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (e.target.closest('#hoa-pagination-container a')) {
         e.preventDefault();
         const link = e.target.closest('#hoa-pagination-container a');
@@ -636,6 +798,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initAddRecordModal();
     attachHoaRowClickListeners();
     attachHoaPaginationListeners();
+
+    // Fix: Reset edit mode when HOA modal is closed (without clicking cancel)
+    window.addEventListener('close-modal', (e) => {
+        if (e.detail.name === 'hoa') {
+            const allFields = ['hoa-id', 'docket-no', 'hoa-name', 'classification', 'hoa-status', 'location', 'province', 'municipality', 'status', 'quantity', 'remarks'];
+            window.exitEditMode('hoa', allFields);
+            window.resetEditModeState('hoa');
+            
+            // Also re-disable province and municipality dropdowns
+            const provinceSelect = document.getElementById('province');
+            const municipalitySelect = document.getElementById('municipality');
+            if (provinceSelect) provinceSelect.setAttribute('disabled', true);
+            if (municipalitySelect) municipalitySelect.setAttribute('disabled', true);
+        }
+    });
 });
-
-

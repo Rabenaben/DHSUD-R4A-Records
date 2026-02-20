@@ -114,6 +114,83 @@ function exitFileNameEditMode(prefix) {
 // =========================================
 
 /**
+ * Shows asterisks on all required labels in the modal.
+ * @param {string} prefix - The prefix for element IDs.
+ */
+function showRequiredAsterisks(prefix) {
+    // Find all required labels in the modal by looking for the label elements with required-label class
+    // These are typically siblings or children of the input elements with the prefix in their ID
+    const requiredLabels = document.querySelectorAll(`[for^="${prefix}-"], [for^="rem-"]`);
+    
+    requiredLabels.forEach(label => {
+        // Check if this label has a required-label class or is inside a container with required-label class
+        if (label.classList.contains('required-label')) {
+            const asterisk = label.querySelector('.text-red-500');
+            if (asterisk) {
+                asterisk.style.display = 'inline';
+            }
+        }
+        // Also check if label contains the asterisk directly
+        const labelText = label.innerHTML;
+        if (labelText.includes('text-red-500')) {
+            // The asterisk span is already part of the label
+            let asteriskSpan = label.querySelector('.text-red-500');
+            if (!asteriskSpan) {
+                // Create asterisk span if it doesn't exist as a child
+                const asteriskMatch = labelText.match(/<span class="text-red-500">(\*)<\/span>/);
+                if (asteriskMatch) {
+                    asteriskSpan = label.querySelector('span');
+                    if (asteriskSpan) {
+                        asteriskSpan.style.display = 'inline';
+                    }
+                }
+            } else {
+                asteriskSpan.style.display = 'inline';
+            }
+        }
+    });
+
+    // Alternative approach: Find all labels that have the required attribute passed to input-required-mark
+    // Look for the asterisk span directly by its class
+    const allAsterisks = document.querySelectorAll('.text-red-500');
+    allAsterisks.forEach(asterisk => {
+        // Only affect asterisks in the modal (not in other parts of the page)
+        const parentModal = asterisk.closest('.fixed, .relative, .absolute');
+        if (parentModal) {
+            asterisk.style.display = 'inline';
+        }
+    });
+}
+
+/**
+ * Hides asterisks on all required labels in the modal.
+ * @param {string} prefix - The prefix for element IDs.
+ */
+function hideRequiredAsterisks(prefix) {
+    // Find all asterisk spans in the document and hide those in modals
+    const allAsterisks = document.querySelectorAll('.text-red-500');
+    allAsterisks.forEach(asterisk => {
+        // Only affect asterisks in the modal area (not in other parts of the page)
+        const parentLabel = asterisk.closest('label');
+        if (parentLabel) {
+            asterisk.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * Resets all asterisk spans to their default visible state.
+ * This removes any inline display styles that may have been applied by hideRequiredAsterisks.
+ */
+function resetAllAsterisks() {
+    const allAsterisks = document.querySelectorAll('.text-red-500');
+    allAsterisks.forEach(asterisk => {
+        // Remove the inline display style to restore default visibility
+        asterisk.style.display = '';
+    });
+}
+
+/**
  * Enters edit mode for a record with given prefix and field configurations.
  * @param {string} prefix - The prefix for element IDs.
  * @param {Array} editableFields - Array of field IDs that can be edited.
@@ -133,6 +210,13 @@ function enterEditMode(prefix, editableFields, allFields) {
                         element.classList.remove('bg-gray-100');
                         element.classList.add('bg-white');
                     }
+                } else if (id.includes('province')) {
+                    // Handle province select dropdown - remove disabled
+                    element.removeAttribute('disabled');
+                    if (prefix === 'rem') {
+                        element.classList.remove('bg-gray-100');
+                        element.classList.add('bg-white');
+                    }
                 } else {
                     element.removeAttribute('readonly');
                 }
@@ -143,6 +227,9 @@ function enterEditMode(prefix, editableFields, allFields) {
     // Hide EDIT button and show edit icons
     document.getElementById(`${prefix}-edit-btn`).style.display = 'none';
     document.getElementById(`${prefix}-edit-icons`).style.display = 'flex';
+
+    // Show asterisks on required labels
+    showRequiredAsterisks(prefix);
 }
 
 /**
@@ -204,6 +291,13 @@ function cancelEdit(prefix, allFields) {
                     element.classList.add('bg-gray-100');
                     element.classList.remove('bg-white');
                 }
+            } else if (id.includes('province')) {
+                // Handle province select dropdown - re-disable
+                element.setAttribute('disabled', true);
+                if (prefix === 'rem') {
+                    element.classList.add('bg-gray-100');
+                    element.classList.remove('bg-white');
+                }
             } else {
                 element.setAttribute('readonly', true);
             }
@@ -225,6 +319,13 @@ function exitEditMode(prefix, allFields) {
         if (element) {
             if (id.includes('status')) {
                 element.setAttribute('disabled', true);
+            } else if (id.includes('province')) {
+                // Handle select dropdowns (province) - disable
+                element.setAttribute('disabled', true);
+                if (prefix === 'rem') {
+                    element.classList.add('bg-gray-100');
+                    element.classList.remove('bg-white');
+                }
             } else {
                 element.setAttribute('readonly', true);
             }
@@ -239,6 +340,26 @@ function exitEditMode(prefix, allFields) {
     if (window.currentFileIndex !== undefined) {
         document.getElementById(`${prefix}-edit-file-name-btn`).style.display = 'inline-block';
     }
+
+    // Hide asterisks on required labels
+    hideRequiredAsterisks(prefix);
+}
+
+/**
+ * Resets the edit mode state for a given prefix when opening a new record.
+ * This ensures the check/cross icons are hidden and fields are readonly.
+ * @param {string} prefix - The prefix for element IDs (e.g., 'hoa', 'rem').
+ */
+function resetEditModeState(prefix) {
+    const editIcons = document.getElementById(`${prefix}-edit-icons`);
+    const editBtn = document.getElementById(`${prefix}-edit-btn`);
+
+    // Hide edit icons and show edit button
+    if (editIcons) editIcons.style.display = 'none';
+    if (editBtn) editBtn.style.display = 'inline-block';
+
+    // Hide asterisks on required labels (view mode)
+    hideRequiredAsterisks(prefix);
 }
 
 // =========================================
@@ -315,3 +436,5 @@ window.exitEditMode = exitEditMode;
 window.updateData = updateData;
 window.validateForm = validateForm;
 window.initGenericModal = initGenericModal;
+window.resetEditModeState = resetEditModeState;
+window.resetAllAsterisks = resetAllAsterisks;

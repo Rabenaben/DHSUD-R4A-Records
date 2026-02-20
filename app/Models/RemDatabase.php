@@ -12,6 +12,7 @@ class RemDatabase extends Model
     protected $fillable = [
         'docket_no',
         'project_name',
+        'location',
         'province',
         'municipality',
         'status',

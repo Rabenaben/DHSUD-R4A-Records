@@ -13,23 +13,23 @@
                 @if ($type === 'hoa')
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
-                            <x-input-label value="HOA ID<span style='color: red;'>*</span>" />
+                            <x-input-label value="HOA ID" :required="true" />
                             <x-text-input id="add-hoa-id" name="hoa_id" type="number" required />
                         </div>
                         <div>
-                            <x-input-label value="Docket No.<span style='color: red;'>*</span>" />
+                            <x-input-label value="Docket No." :required="true" />
                             <x-text-input id="add-docket-no" name="docket_no" required />
                         </div>
                         <div>
-                            <x-input-label value="HOA Name<span style='color: red;'>*</span>" />
+                            <x-input-label value="HOA Name" :required="true" />
                             <x-text-input id="add-hoa-name" name="hoa_name" required />
                         </div>
                         <div>
-                            <x-input-label value="Classification<span style='color: red;'>*</span>" />
+                            <x-input-label value="Classification" :required="true" />
                             <x-text-input id="add-classification" name="classification" required />
                         </div>
                         <div>
-                            <x-input-label value="HOA Status<span style='color: red;'>*</span>" />
+                            <x-input-label value="HOA Status" :required="true" />
                             <select id="add-hoa-status" name="hoa_status"
                                 class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required>
@@ -46,11 +46,11 @@
                 @else
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <x-input-label value="Docket No.<span style='color: red;'>*</span>" />
+                            <x-input-label value="Docket No." :required="true" />
                             <x-text-input id="add-rem-docket-no" name="docket_no" class="w-full" required />
                         </div>
                         <div>
-                            <x-input-label value="Project Name<span style='color: red;'>*</span>" />
+                            <x-input-label value="Project Name" :required="true" />
                             <x-text-input id="add-rem-project-name" name="project_name" class="w-full" required />
                         </div>
                     </div>
@@ -63,11 +63,11 @@
                     <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Location</h3>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
-                            <x-input-label value="Location<span style='color: red;'>*</span>" />
+                            <x-input-label value="Location" :required="true" />
                             <x-text-input id="add-location" name="location" required />
                         </div>
                         <div>
-                            <x-input-label value="Province<span style='color: red;'>*</span>" />
+                            <x-input-label value="Province" :required="true" />
                             <select id="add-province" name="province_id"
                                 class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required>
@@ -79,7 +79,7 @@
                             </select>
                         </div>
                         <div>
-                            <x-input-label value="Municipality<span style='color: red;'>*</span>" />
+                            <x-input-label value="Municipality" :required="true" />
                             <select id="add-municipality" name="municipality_id"
                                 class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required disabled>
@@ -92,9 +92,13 @@
                 <!-- Location -->
                 <div>
                     <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Location</h3>
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
-                            <x-input-label value="Province<span style='color: red;'>*</span>" />
+                            <x-input-label value="Location" :required="true" />
+                            <x-text-input id="add-rem-location" name="location" class="w-full" required />
+                        </div>
+                        <div>
+                            <x-input-label value="Province" :required="true" />
                             <select id="add-rem-province" name="province"
                                 class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required>
@@ -106,7 +110,7 @@
                             </select>
                         </div>
                         <div>
-                            <x-input-label value="Municipality<span style='color: red;'>*</span>" />
+                            <x-input-label value="Municipality" :required="true" />
                             <x-text-input id="add-rem-municipality" name="municipality" class="w-full" required />
                         </div>
                     </div>
@@ -119,7 +123,7 @@
                     Information</h3>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <x-input-label value="Status<span style='color: red;'>*</span>" />
+                        <x-input-label value="Status" :required="true" />
                         <select id="{{ $type === 'hoa' ? 'add-status' : 'add-rem-status' }}" name="status"
                             class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                             required>
@@ -128,7 +132,7 @@
                         </select>
                     </div>
                     <div>
-                        <x-input-label value="Quantity<span style='color: red;'>*</span>" />
+                        <x-input-label value="Quantity" :required="true" />
                         <x-text-input id="{{ $type === 'hoa' ? 'add-quantity' : 'add-rem-quantity' }}" name="quantity"
                             type="number" class="w-full" required />
                     </div>
