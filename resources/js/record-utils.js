@@ -204,19 +204,9 @@ function enterEditMode(prefix, editableFields, allFields) {
         if (element) {
             window[`${prefix}OriginalValues`][id] = element.value;
             if (editableFields.includes(id)) {
-                if (id.includes('status')) {
+                if (id.includes('status') || id.includes('province') || id.includes('municipality')) {
+                    // Handle select dropdowns - remove disabled
                     element.removeAttribute('disabled');
-                    if (prefix === 'rem') {
-                        element.classList.remove('bg-gray-100');
-                        element.classList.add('bg-white');
-                    }
-                } else if (id.includes('province')) {
-                    // Handle province select dropdown - remove disabled
-                    element.removeAttribute('disabled');
-                    if (prefix === 'rem') {
-                        element.classList.remove('bg-gray-100');
-                        element.classList.add('bg-white');
-                    }
                 } else {
                     element.removeAttribute('readonly');
                 }
@@ -287,17 +277,9 @@ function cancelEdit(prefix, allFields) {
             element.value = window[`${prefix}OriginalValues`][id];
             if (id.includes('status')) {
                 element.setAttribute('disabled', true);
-                if (prefix === 'rem') {
-                    element.classList.add('bg-gray-100');
-                    element.classList.remove('bg-white');
-                }
-            } else if (id.includes('province')) {
-                // Handle province select dropdown - re-disable
+            } else if (id.includes('province') || id.includes('municipality')) {
+                // Handle province and municipality select dropdowns - re-disable
                 element.setAttribute('disabled', true);
-                if (prefix === 'rem') {
-                    element.classList.add('bg-gray-100');
-                    element.classList.remove('bg-white');
-                }
             } else {
                 element.setAttribute('readonly', true);
             }
@@ -319,13 +301,9 @@ function exitEditMode(prefix, allFields) {
         if (element) {
             if (id.includes('status')) {
                 element.setAttribute('disabled', true);
-            } else if (id.includes('province')) {
-                // Handle select dropdowns (province) - disable
+            } else if (id.includes('province') || id.includes('municipality')) {
+                // Handle select dropdowns (province and municipality) - disable
                 element.setAttribute('disabled', true);
-                if (prefix === 'rem') {
-                    element.classList.add('bg-gray-100');
-                    element.classList.remove('bg-white');
-                }
             } else {
                 element.setAttribute('readonly', true);
             }

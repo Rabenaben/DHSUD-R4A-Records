@@ -99,19 +99,23 @@
                         </div>
                         <div>
                             <x-input-label value="Province" :required="true" />
-                            <select id="add-rem-province" name="province"
+                            <select id="add-rem-province" name="province_id"
                                 class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required>
                                 <option value="">Select Province</option>
                                 @foreach ($provinces as $province)
-                                    <option value="{{ is_object($province) ? $province->province_name : $province }}">
+                                    <option value="{{ is_object($province) ? $province->province_id : $province }}">
                                         {{ is_object($province) ? $province->province_name : $province }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
                             <x-input-label value="Municipality" :required="true" />
-                            <x-text-input id="add-rem-municipality" name="municipality" class="w-full" required />
+                            <select id="add-rem-municipality" name="municipality_id"
+                                class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                required disabled>
+                                <option value="">Select Municipality</option>
+                            </select>
                         </div>
                     </div>
                 </div>

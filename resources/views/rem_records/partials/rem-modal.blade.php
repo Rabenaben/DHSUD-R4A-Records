@@ -58,11 +58,11 @@
                 <div class="flex-1">
                     <x-input-label for="rem-province" value="Province" required :class="'required-label'" />
                     <select id="rem-province" 
-                        class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none focus:border-blue-600"
+                        class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                         disabled>
                         <option value="">Select Province</option>
                         @foreach ($provinces as $province)
-                            <option value="{{ is_object($province) ? $province->province_name : $province }}">
+                            <option value="{{ is_object($province) ? $province->province_id : $province }}">
                                 {{ is_object($province) ? $province->province_name : $province }}
                             </option>
                         @endforeach
@@ -70,7 +70,11 @@
                 </div>
                 <div class="flex-1">
                     <x-input-label for="rem-municipality" value="Municipality" required :class="'required-label'" />
-                    <x-modal-input id="rem-municipality" placeholder="Municipality" readonly />
+                    <select id="rem-municipality" 
+                        class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
+                        disabled>
+                        <option value="">Select Municipality</option>
+                    </select>
                 </div>
             </div>
 
@@ -79,7 +83,7 @@
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
                     <x-input-label for="rem-status" value="Status" required :class="'required-label'" />
-                    <select class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2 outline-none"
+                    <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
                         id="rem-status" disabled>
                         <option value="ON-SHELF">ON-SHELF</option>
                         <option value="UNAVAILABLE">UNAVAILABLE</option>
@@ -113,9 +117,9 @@
                         @endunless
                     </div>
                 </div>
-                <div class="flex h-full justify-center overflow-x-auto overflow-y-auto">
+                <div class="h-full w-full overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 sticky top-0">
                             <tr>
                                 <th
                                     class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -128,7 +132,7 @@
                                     Last Updated By</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white" id="rem-file-list-body">
+                        <tbody class="divide-y divide-gray-200 bg-white max-h-[20vh] overflow-y-auto" id="rem-file-list-body">
                             {{-- Files will be rendered here via JS --}}
                         </tbody>
                     </table>

@@ -59,7 +59,8 @@ trait FileControllerTrait
         foreach ($request->file('files') as $file) {
             try {
                 $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs($this->folder, $fileName, 'local');
+                // Create a subfolder named after the docket number
+                $path = $file->storeAs($this->folder . '/' . $docketNo, $fileName, 'local');
 
                 // Add new file
                 $files[] = [
@@ -81,7 +82,7 @@ trait FileControllerTrait
         $record->save();
 
         // Log activity for uploaded files
-        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . $record->province;
+        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . $record->province->province_name;
         foreach ($uploadedFiles as $fileName) {
             $this->logActivity($docketNo, $fileName, $fileLocation, 'Uploaded a file');
         }
@@ -144,7 +145,7 @@ trait FileControllerTrait
         $record->save();
 
         // Log activity
-        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . $record->province;
+        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . $record->province->province_name;
         $this->logActivity($docketNo, $request->new_name, $fileLocation, 'Renamed a file from "' . $oldName . '"');
 
         return response()->json(['success' => true, 'message' => 'File renamed successfully.']);

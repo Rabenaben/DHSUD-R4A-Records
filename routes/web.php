@@ -59,13 +59,14 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::patch('/borrowers/{id}/return', 'updateReturnedDate')->name('borrowers.update.return');
     });
 
-    // Archive routes (ArchiveController)
+// Archive routes (ArchiveController)
     Route::controller(ArchiveController::class)
         ->prefix('records')
         ->name('records.')
         ->group(function () {
             Route::patch('/{type}/{docketNo}/files/{fileIndex}/archive', 'archiveFile');
             Route::patch('/{type}/{docketNo}/files/{fileIndex}/unarchive', 'unarchiveFile');
+            Route::get('/{type}/{docketNo}/download/{fileIndex}', 'downloadFile');
         });
 
     // HOA routes (HoaController)
@@ -84,6 +85,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
 
     // REM routes (RemController)
     Route::controller(RemController::class)->prefix('rem')->name('rem.')->group(function () {
+        Route::get('/provinces', 'getProvinces')->name('provinces');
+        Route::get('/municipalities', 'getMunicipalities')->name('municipalities');
         Route::get('/updated-data', 'getUpdatedData')->name('updated-data');
         Route::post('/', 'store')->name('store');
         Route::put('/{docketNo}', 'update')->name('update')->where('docketNo', '.*');

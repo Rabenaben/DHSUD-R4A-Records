@@ -134,9 +134,9 @@
                         @endunless
                     </div>
                 </div>
-                <div class="flex h-full justify-center overflow-x-auto overflow-y-auto">
+                <div class="h-full w-full overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 sticky top-0">
                             <tr>
                                 <th
                                     class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -149,7 +149,7 @@
                                     Last Updated By</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y bg-white" id="hoa-file-list-body">
+                        <tbody class="divide-y divide-gray-200 bg-white max-h-[20vh] overflow-y-auto" id="hoa-file-list-body">
                             {{-- Files will be rendered here via JS --}}
                         </tbody>
                     </table>

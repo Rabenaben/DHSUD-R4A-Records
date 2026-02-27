@@ -1,18 +1,15 @@
-# TODO: Make Location Required for REM Records
+# TODO - Create docket number folders for file uploads
 
-## Task Summary
-Require the location input for REM when adding a record and editing a record.
+## Task
+After uploading a file, create a folder named the docket number in hoa_files/ or rem_files/ to organize files.
 
-## Changes Required
+## Plan
+- [x] Review and understand FileControllerTrait.php
+- [x] Modify uploadFile method in FileControllerTrait.php to create docket number folders
+- [ ] Test the implementation
 
-### 1. Add Record Modal (`resources/views/components/add-record-modal.blade.php`)
-- [x] Change REM Location field from `:required="false"` to `:required="true"`
-
-### 2. Edit REM Modal (`resources/views/rem_records/partials/rem-modal.blade.php`)
-- [x] Add required class/mark to the Location input label
-
-### 3. JavaScript Validation (`resources/js/rem.js`)
-- [x] Add 'rem-location' to the required fields in `validateRemFields` function
-
-### 4. Server-side Validation (`app/Http/Controllers/RemController.php`)
-- [x] Change location validation from `'nullable|string'` to `'required|string'` in both `store` and `update` methods
+## Changes Made
+1. Updated `uploadFile` method in `app/Http/Controllers/FileControllerTrait.php`:
+   - Files are now stored in subfolders named after the docket number
+   - New path format: `hoa_files/{docket_no}/filename.pdf` or `rem_files/{docket_no}/filename.pdf`
+   - Laravel's `storeAs` method automatically creates the directory if it doesn't exist

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\RemDatabase;
 use App\Models\HoaDatabase;
 use App\Models\Municipality;
+use App\Models\Province;
 use App\Models\Borrower;
 
 class DisplayController extends Controller
@@ -44,30 +45,49 @@ class DisplayController extends Controller
     {
         $data = $this->getCounts(RemDatabase::class);
 
-        // Get all unique provinces from REM table, excluding archived
-        $provinces = RemDatabase::select('province')
+        // Get all unique provinces from REM table with province relationship (like HOA)
+        $remRecords = RemDatabase::with('province')
             ->where('status', '!=', 'ARCHIVED')
-            ->distinct()
-            ->pluck('province')
-            ->toArray();
+            ->get();
+
+        // Get unique provinces with their IDs
+        $provinces = $remRecords->map(function ($record) {
+            return $record->province;
+        })->filter()->unique('province_id')->values();
+
+        // Get all provinces for the add record modal
+        $allProvinces = Province::orderBy('province_name')->get();
+
+        // Get all municipalities with province relationship
+        $municipalities = Municipality::with('province')
+            ->orderBy('municipality_name')
+            ->get();
 
         return view('rem_records.rem', [
             'totalRemDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
-            'provinces' => $provinces,   // pass to Blade
+            'provinces' => $provinces,   // pass Province objects to Blade (for folder section)
+            'allProvinces' => $allProvinces, // pass all provinces for dropdowns
+            'municipalities' => $municipalities, // pass municipalities for dropdowns
         ]);
     }
 
-    public function loadFolder($province)
+    public function loadFolder($provinceId)
     {
-        $records = RemDatabase::where('province', $province)->get();
-        $provinceName = $province;
+        $records = RemDatabase::with(['province', 'municipality'])
+            ->where('province_id', $provinceId)
+            ->get();
+
+        // Get province name from the first record or lookup
+        $province = Province::find($provinceId);
+        $provinceName = $province ? $province->province_name : 'Unknown';
 
         return view('rem_records.partials.folder-table', [
             'records' => $records,
             'province' => $provinceName,
+            'provinceId' => $provinceId,
             'type' => 'REM'
         ]);
     }
@@ -82,7 +102,7 @@ class DisplayController extends Controller
             ->paginate(10);
 
         // Get all provinces for the add record modal
-        $provinces = \App\Models\Province::orderBy('province_name')->get();
+        $provinces = Province::orderBy('province_name')->get();
 
         // Get all municipalities with province relationship
         $municipalities = Municipality::with('province')

@@ -194,10 +194,14 @@ function loadArchiveFilePreview(type, docketNo, fileIndex) {
 
 function exportArchiveFile() {
     if (window.currentArchiveType && window.currentArchiveDocketNo && window.currentArchiveFileIndex !== undefined) {
-        const url = `/records/${window.currentArchiveType}/${window.currentArchiveDocketNo}/download/${window.currentArchiveFileIndex}`;
+        const type = window.currentArchiveType.toLowerCase();
+        const url = `/records/${type}/${window.currentArchiveDocketNo}/download/${window.currentArchiveFileIndex}`;
         window.open(url, '_blank');
     }
 }
+
+// Expose function to global scope for onclick handlers
+window.exportArchiveFile = exportArchiveFile;
 
 document.addEventListener('DOMContentLoaded', function() {
     initArchiveSearch();
