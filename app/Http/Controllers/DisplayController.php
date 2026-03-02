@@ -120,37 +120,6 @@ class DisplayController extends Controller
         ]);
     }
 
-    // 🔹 Borrowers Dashboard
-    public function borrowerDashboard()
-    {
-        $borrowers = Borrower::orderBy('date_borrowed', 'desc')->get()->unique('borrower_name');
-        $nextId = Borrower::max('id') + 1;
-
-        // Get unique docket numbers from HOA and REM databases, excluding borrowed ones
-        $hoaDockets = HoaDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
-        $remDockets = RemDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
-
-        // Attach status from borrower records to borrowers
-        foreach ($borrowers as $borrower) {
-            // Get all borrower records for this name
-            $allBorrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
-
-            // Check if any borrower record for this person has not been returned
-            $hasUnreturnedRecords = $allBorrowerRecords->contains(function ($record) {
-                return is_null($record->date_returned);
-            });
-
-            $borrower->status = $hasUnreturnedRecords ? 'Borrowed' : 'Returned';
-        }
-
-        return view('borrowers.borrower', [
-            'borrowers' => $borrowers,
-            'nextId' => $nextId,
-            'hoaDockets' => $hoaDockets,
-            'remDockets' => $remDockets,
-        ]);
-    }
-
     // 🔹 Load HOA Records for AJAX Pagination
     public function loadHoaRecordsAjax(Request $request)
     {
@@ -217,6 +186,41 @@ class DisplayController extends Controller
             'pagination_html' => $hoaRecords->links(),
             'current_page' => $hoaRecords->currentPage(),
             'last_page' => $hoaRecords->lastPage(),
+        ]);
+    }
+    
+    // 🔹 Borrowers Dashboard
+    public function borrowerDashboard()
+    {
+        $borrowers = Borrower::orderBy('date_borrowed', 'desc')->get()->unique('borrower_name');
+        $nextId = Borrower::max('id') + 1;
+
+        // Get unique docket numbers from HOA and REM databases, excluding borrowed ones
+        $hoaDockets = HoaDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
+        $remDockets = RemDatabase::where('status', '!=', 'BORROWED')->pluck('docket_no')->unique()->sort()->values();
+
+        // Divisions array
+        $divisions = ['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD'];
+
+        // Attach status from borrower records to borrowers
+        foreach ($borrowers as $borrower) {
+            // Get all borrower records for this name
+            $allBorrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
+
+            // Check if any borrower record for this person has not been returned
+            $hasUnreturnedRecords = $allBorrowerRecords->contains(function ($record) {
+                return is_null($record->date_returned);
+            });
+
+            $borrower->status = $hasUnreturnedRecords ? 'Borrowed' : 'Returned';
+        }
+
+        return view('borrowers.borrower', [
+            'borrowers' => $borrowers,
+            'nextId' => $nextId,
+            'hoaDockets' => $hoaDockets,
+            'remDockets' => $remDockets,
+            'divisions' => $divisions,
         ]);
     }
 

@@ -19,7 +19,7 @@
             </div>
             <input type="hidden" id="existing-borrower-name" value="">
 
-            <!-- File Location, Docket No., and Division -->
+            <!-- File Location and Docket No. -->
             <div class="mb-4 flex gap-4">
                 <div class="flex-1">
                     <x-input-label value="File Location" />
@@ -44,17 +44,6 @@
                             <option value="{{ $docket }}">
                         @endforeach
                     </datalist>
-                </div>
-                <div class="flex-1">
-                    <x-input-label value="Division" />
-                    <select
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        id="division" name="division" required>
-                        <option value="">Select Division</option>
-                        @foreach($divisions as $division)
-                            <option value="{{ $division }}">{{ $division }}</option>
-                        @endforeach
-                    </select>
                 </div>
             </div>
 

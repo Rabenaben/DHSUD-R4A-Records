@@ -15,6 +15,7 @@ class Borrower extends Model
         'borrower_name',
         'docket_number',
         'file_location',
+        'division',
         'date_borrowed',
         'date_returned',
     ];

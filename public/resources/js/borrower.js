@@ -9,7 +9,6 @@ function initBorrowerRecords() {
     const fileLocationSelect = document.getElementById('file-location');
     const docketInput = document.getElementById('docket-no');
 
-
     if (!searchInput || !tableBody) return;
 
     const getTableRows = () => Array.from(tableBody.querySelectorAll('tr[data-id]'));
@@ -22,7 +21,7 @@ function initBorrowerRecords() {
         getTableRows().forEach(row => {
             const data = row.dataset;
             const matchesSearch = Object.values(data).some(val => val && val.toLowerCase().includes(query)) ||
-                                  (data.docketNumber && data.docketNumber.toLowerCase().includes(query));
+                (data.docketNumber && data.docketNumber.toLowerCase().includes(query));
 
             row.style.display = matchesSearch ? '' : 'none';
             if (matchesSearch) anyVisible = true;
@@ -472,7 +471,7 @@ function initBorrowerRecords() {
                     const mainTableRow = document.querySelector(`tr[data-borrower-name="${borrowerName}"]`);
                     if (mainTableRow) {
                         mainTableRow.setAttribute('data-status', result.borrower_status);
-                        const mainStatusCell = mainTableRow.querySelector('td:nth-child(3)');
+                        const mainStatusCell = mainTableRow.querySelector('td:nth-child(4)');
                         if (mainStatusCell) {
                             mainStatusCell.textContent = result.borrower_status;
                         }

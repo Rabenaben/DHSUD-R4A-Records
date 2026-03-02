@@ -1,15 +1,16 @@
-# TODO - Create docket number folders for file uploads
+# TODO: Add Division to Borrower Records
 
-## Task
-After uploading a file, create a folder named the docket number in hoa_files/ or rem_files/ to organize files.
+## Plan Status: In Progress
 
-## Plan
-- [x] Review and understand FileControllerTrait.php
-- [x] Modify uploadFile method in FileControllerTrait.php to create docket number folders
-- [ ] Test the implementation
+### Steps to Complete:
+- [ ] 1. Create migration to add division column to borrowers table
+- [ ] 2. Update Borrower.php model - add division to $fillable
+- [ ] 3. Update DisplayController.php - pass divisions array to view
+- [ ] 4. Update BorrowerController.php - handle division in store, update, getBorrowerHistory
+- [ ] 5. Update borrower.blade.php - add Division column to table
+- [ ] 6. Update borrower-modal.blade.php - add division dropdown
+- [ ] 7. Update borrower.js - handle division field
+- [ ] 8. Run migration
 
-## Changes Made
-1. Updated `uploadFile` method in `app/Http/Controllers/FileControllerTrait.php`:
-   - Files are now stored in subfolders named after the docket number
-   - New path format: `hoa_files/{docket_no}/filename.pdf` or `rem_files/{docket_no}/filename.pdf`
-   - Laravel's `storeAs` method automatically creates the directory if it doesn't exist
+## Completed:
+- [x] Plan created and approved

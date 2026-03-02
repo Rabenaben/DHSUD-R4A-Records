@@ -67,6 +67,7 @@ class BorrowerController extends Controller
             'borrower_name' => 'required|string|max:255',
             'docket_number' => 'required|string|max:100',
             'file_location' => 'required|string|max:255',
+            'division' => 'nullable|string|max:100',
             'date_borrowed' => 'nullable|date',
         ]);
 
@@ -131,6 +132,7 @@ class BorrowerController extends Controller
             'borrower_name' => 'required|string|max:255',
             'docket_number' => 'required|string|max:100',
             'file_location' => 'required|string|max:255',
+            'division' => 'nullable|string|max:100',
             'date_borrowed' => 'required|date',
             'date_returned' => 'nullable|date',
         ]);

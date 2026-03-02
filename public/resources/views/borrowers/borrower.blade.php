@@ -32,7 +32,7 @@
                     <table class="w-full divide-y divide-blue-400" id="borrowers-table">
                         <thead class="bg-gray-50">
                             <tr>
-                                @foreach (['ID', 'Borrower Name', 'Division', 'Status'] as $header)
+                                @foreach (['ID', 'Borrower Name', 'Status'] as $header)
                                     <th
                                         class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
                                         {{ $header }}
@@ -45,7 +45,6 @@
                                 <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
                                     data-docket-number="{{ $borrower->docket_number }}"
                                     data-file-location="{{ $borrower->file_location }}"
-                                    data-division="{{ $borrower->division }}"
                                     data-date-borrowed="{{ $borrower->date_borrowed }}"
                                     data-date-returned="{{ $borrower->date_returned }}"
                                     data-status="{{ $borrower->status }}"
@@ -57,13 +56,11 @@
                                         class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-gray-900">
                                         {{ $borrower->borrower_name }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
-                                        {{ $borrower->division ?? 'N/A' }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
                                         {{ $borrower->status }}</td>
                                 </tr>
                             @empty
                                 <tr id="noRecordsRow">
-                                    <td class="p-3 text-center text-sm text-gray-500" colspan="4">No records found.
+                                    <td class="p-3 text-center text-sm text-gray-500" colspan="3">No records found.
                                     </td>
                                 </tr>
                             @endforelse
@@ -77,7 +74,6 @@
             'nextId' => $nextId,
             'hoaDockets' => $hoaDockets,
             'remDockets' => $remDockets,
-            'divisions' => $divisions,
         ])
 
         @include('borrowers.partials.borrower-records-modal', [
