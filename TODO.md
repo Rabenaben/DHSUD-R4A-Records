@@ -1,16 +1,12 @@
-# TODO: Add Division to Borrower Records
+# TODO List
 
-## Plan Status: In Progress
+## Task: Increase Preview Height in HOA and REM Modals
 
-### Steps to Complete:
-- [ ] 1. Create migration to add division column to borrowers table
-- [ ] 2. Update Borrower.php model - add division to $fillable
-- [ ] 3. Update DisplayController.php - pass divisions array to view
-- [ ] 4. Update BorrowerController.php - handle division in store, update, getBorrowerHistory
-- [ ] 5. Update borrower.blade.php - add Division column to table
-- [ ] 6. Update borrower-modal.blade.php - add division dropdown
-- [ ] 7. Update borrower.js - handle division field
-- [ ] 8. Run migration
+### Changes to make:
+- [ ] Update HOA modal (`resources/views/hoa_records/partials/hoa-modal.blade.php`)
+  - [ ] Increase modal height from `90vh` to `95vh`
+  - [ ] Make preview container more responsive
 
-## Completed:
-- [x] Plan created and approved
+- [ ] Update REM modal (`resources/views/rem_records/partials/rem-modal.blade.php`)
+  - [ ] Increase modal height from `90vh` to `95vh`
+  - [ ] Make preview container more responsive
