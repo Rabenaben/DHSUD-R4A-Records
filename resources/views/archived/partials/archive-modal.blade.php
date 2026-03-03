@@ -46,7 +46,7 @@
         <div class="flex basis-3/4 flex-col items-center">
             <!-- File Preview View -->
             <div class="flex h-full w-full flex-col rounded-lg border border-gray-300 bg-gray-100">
-                <div class="flex items-center justify-between bg-gray-50 p-4">
+                <div class="flex items-center justify-between bg-gray-50 p-0.5">
                     <div class="flex-1 flex items-center justify-center">
                         <input class="w-full border-none bg-transparent text-center text-lg font-bold text-gray-800 outline-none"
                             id="archive-file-label-preview" type="text" readonly />
@@ -57,7 +57,7 @@
                         </svg>
                     </button>
                 </div>
-                <div class="w-full flex-1 h-4/5" id="archive-file-preview-container">
+                <div class="w-full flex-1 h-[90%]" id="archive-file-preview-container">
                     <iframe class="h-full w-full" id="archive-file-preview" style="display: none;"></iframe>
                     <div class="flex h-full items-center justify-center text-gray-500" id="archive-file-placeholder">No file selected</div>
                 </div>
