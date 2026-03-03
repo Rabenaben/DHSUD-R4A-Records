@@ -164,15 +164,21 @@ class DisplayController extends Controller
         }
 
         if (!empty($region)) {
-            $patterns = [
-                'riv' => '%riv%',
-                'str' => '%str%',
-                'ncr hoa' => '%ncr%',
-                'ncr hoa n' => '%ncr%',
-                'r4a' => '%r4a%',
-            ];
-            if (isset($patterns[$region])) {
-                $query->whereRaw('LOWER(docket_no) LIKE ?', [$patterns[$region]]);
+            if ($region === 'ncr hoa') {
+                // Match "ncr-hoa" or "ncr hoa" but NOT "ncr-hoa-n", "ncr hoa-n", "ncr-hoa n", or "ncr hoa n"
+                $query->whereRaw("LOWER(docket_no) REGEXP 'ncr[- ]hoa($|[^- ])' AND LOWER(docket_no) NOT REGEXP 'ncr[- ]hoa[- ]n'");
+            } elseif ($region === 'ncr hoa n') {
+                // Match "ncr-hoa-n", "ncr hoa n", "ncr-hoa n", or "ncr hoa-n"
+                $query->whereRaw("LOWER(docket_no) REGEXP 'ncr[- ]hoa[- ]n'");
+            } else {
+                $patterns = [
+                    'riv' => '%riv%',
+                    'str' => '%str%',
+                    'r4a' => '%r4a%',
+                ];
+                if (isset($patterns[$region])) {
+                    $query->whereRaw('LOWER(docket_no) LIKE ?', [$patterns[$region]]);
+                }
             }
         }
 
