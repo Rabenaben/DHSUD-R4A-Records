@@ -14,11 +14,19 @@ class DisplayController extends Controller
     // 🔹 Reusable function to count records for a given model
     private function getCounts($model)
     {
+        // Use single query with conditional aggregation for better performance
+        $counts = $model::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'ON-SHELF' THEN 1 ELSE 0 END) as onShelf,
+            SUM(CASE WHEN status = 'UNAVAILABLE' THEN 1 ELSE 0 END) as unavailable,
+            SUM(CASE WHEN status = 'BORROWED' THEN 1 ELSE 0 END) as borrowed
+        ")->first();
+
         return [
-            'total' => $model::count(),
-            'onShelf' => $model::where('status', 'ON-SHELF')->count(),
-            'unavailable' => $model::where('status', 'UNAVAILABLE')->count(),
-            'borrowed' => $model::where('status', 'BORROWED')->count(),
+            'total' => $counts->total ?? 0,
+            'onShelf' => $counts->onShelf ?? 0,
+            'unavailable' => $counts->unavailable ?? 0,
+            'borrowed' => $counts->borrowed ?? 0,
         ];
     }
 
@@ -68,9 +76,9 @@ class DisplayController extends Controller
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
-            'provinces' => $provinces,   // pass Province objects to Blade (for folder section)
-            'allProvinces' => $allProvinces, // pass all provinces for dropdowns
-            'municipalities' => $municipalities, // pass municipalities for dropdowns
+            'provinces' => $provinces,
+            'allProvinces' => $allProvinces,
+            'municipalities' => $municipalities,
         ]);
     }
 
@@ -114,9 +122,9 @@ class DisplayController extends Controller
             'onShelf' => $data['onShelf'],
             'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
-            'provinces' => $provinces,   // pass objects now
-            'municipalities' => $municipalities, // pass municipalities
-            'hoaRecords' => $hoaRecords, // pass paginated HOA records
+            'provinces' => $provinces,
+            'municipalities' => $municipalities,
+            'hoaRecords' => $hoaRecords,
         ]);
     }
 
@@ -136,14 +144,14 @@ class DisplayController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('docket_no', 'like', '%' . $search . '%')
-                  ->orWhere('hoa_name', 'like', '%' . $search . '%')
-                  ->orWhere('location', 'like', '%' . $search . '%')
-                  ->orWhereHas('province', function ($subQ) use ($search) {
-                      $subQ->where('province_name', 'like', '%' . $search . '%');
-                  })
-                  ->orWhereHas('municipality', function ($subQ) use ($search) {
-                      $subQ->where('municipality_name', 'like', '%' . $search . '%');
-                  });
+                    ->orWhere('hoa_name', 'like', '%' . $search . '%')
+                    ->orWhere('location', 'like', '%' . $search . '%')
+                    ->orWhereHas('province', function ($subQ) use ($search) {
+                        $subQ->where('province_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('municipality', function ($subQ) use ($search) {
+                        $subQ->where('municipality_name', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -165,11 +173,14 @@ class DisplayController extends Controller
 
         if (!empty($region)) {
             if ($region === 'ncr hoa') {
-                // Match "ncr-hoa" or "ncr hoa" but NOT "ncr-hoa-n", "ncr hoa-n", "ncr-hoa n", or "ncr hoa n"
-                $query->whereRaw("LOWER(docket_no) REGEXP 'ncr[- ]hoa($|[^- ])' AND LOWER(docket_no) NOT REGEXP 'ncr[- ]hoa[- ]n'");
+                // Match "ncr-hoa" or "ncr hoa" at the BEGINNING followed by:
+                // - End of string (exact match like "ncr hoa")
+                // - A space/hyphen followed by digits (like "ncr hoa 1", "ncr-hoa-2")
+                // But NOT "ncr-hoa-n" or "ncr hoa n" (the "n" variant)
+                $query->whereRaw("LOWER(docket_no) REGEXP '^ncr[- ]hoa($|[- ][0-9])' AND LOWER(docket_no) NOT REGEXP '^ncr[- ]hoa[- ]n'");
             } elseif ($region === 'ncr hoa n') {
-                // Match "ncr-hoa-n", "ncr hoa n", "ncr-hoa n", or "ncr hoa-n"
-                $query->whereRaw("LOWER(docket_no) REGEXP 'ncr[- ]hoa[- ]n'");
+                // Match "ncr-hoa-n", "ncr hoa n", "ncr-hoa n", or "ncr hoa-n" at the beginning
+                $query->whereRaw("LOWER(docket_no) REGEXP '^ncr[- ]hoa[- ]n'");
             } else {
                 $patterns = [
                     'riv' => '%riv%',
@@ -194,11 +205,19 @@ class DisplayController extends Controller
             'last_page' => $hoaRecords->lastPage(),
         ]);
     }
-    
+
     // 🔹 Borrowers Dashboard
     public function borrowerDashboard()
     {
-        $borrowers = Borrower::orderBy('date_borrowed', 'desc')->get()->unique('borrower_name');
+        // Get all borrowers ordered by date, then group by borrower_name to get the most recent record for each
+        $allBorrowers = Borrower::orderBy('date_borrowed', 'desc')->get();
+        
+        // Group by borrower_name and get the first record (most recent) for each
+        $borrowers = $allBorrowers->groupBy('borrower_name')->map(function ($group) {
+            return $group->first();
+        })->values();
+        
+        // Get next ID from auto-increment
         $nextId = Borrower::max('id') + 1;
 
         // Get unique docket numbers from HOA and REM databases, excluding borrowed ones
@@ -208,13 +227,16 @@ class DisplayController extends Controller
         // Divisions array
         $divisions = ['HREDRD - PRLS', 'HREDRD - EMES', 'RECORDS', 'HOACDD', 'ELUUPDD', 'PHSD'];
 
+        // Pre-fetch all borrower records to avoid N+1 query
+        $allBorrowerNames = $borrowers->pluck('borrower_name')->toArray();
+        $allBorrowerRecords = Borrower::whereIn('borrower_name', $allBorrowerNames)->get()->groupBy('borrower_name');
+
         // Attach status from borrower records to borrowers
         foreach ($borrowers as $borrower) {
-            // Get all borrower records for this name
-            $allBorrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
-
+            $borrowerRecords = $allBorrowerRecords[$borrower->borrower_name] ?? collect();
+            
             // Check if any borrower record for this person has not been returned
-            $hasUnreturnedRecords = $allBorrowerRecords->contains(function ($record) {
+            $hasUnreturnedRecords = $borrowerRecords->contains(function ($record) {
                 return is_null($record->date_returned);
             });
 
@@ -235,43 +257,51 @@ class DisplayController extends Controller
     {
         $archivedFiles = [];
 
-        // Collect archived files from HOA records
-        $hoaRecords = HoaDatabase::all();
-        foreach ($hoaRecords as $record) {
-            $files = json_decode($record->files, true) ?? [];
-            foreach ($files as $index => $file) {
-                if (isset($file['archived']) && $file['archived']) {
-                    $archivedFiles[] = [
-                        'type' => 'hoa',
-                        'docket_no' => $record->docket_no,
-                        'record_name' => $record->hoa_name,
-                        'file_name' => $file['name'] ?? 'Unknown',
-                        'file_index' => $index,
-                        'date_added' => $file['date_added'] ?? null,
-                        'last_updated_by' => $file['last_updated_by'] ?? null,
-                    ];
+        // Collect archived files from HOA records - use chunking for memory efficiency
+        HoaDatabase::select('docket_no', 'hoa_name', 'files')
+            ->whereNotNull('files')
+            ->where('files', '!=', '[]')
+            ->chunk(100, function ($records) use (&$archivedFiles) {
+                foreach ($records as $record) {
+                    $files = json_decode($record->files, true) ?? [];
+                    foreach ($files as $index => $file) {
+                        if (isset($file['archived']) && $file['archived']) {
+                            $archivedFiles[] = [
+                                'type' => 'hoa',
+                                'docket_no' => $record->docket_no,
+                                'record_name' => $record->hoa_name,
+                                'file_name' => $file['name'] ?? 'Unknown',
+                                'file_index' => $index,
+                                'date_added' => $file['date_added'] ?? null,
+                                'last_updated_by' => $file['last_updated_by'] ?? null,
+                            ];
+                        }
+                    }
                 }
-            }
-        }
+            });
 
-        // Collect archived files from REM records
-        $remRecords = RemDatabase::all();
-        foreach ($remRecords as $record) {
-            $files = json_decode($record->files, true) ?? [];
-            foreach ($files as $index => $file) {
-                if (isset($file['archived']) && $file['archived']) {
-                    $archivedFiles[] = [
-                        'type' => 'rem',
-                        'docket_no' => $record->docket_no,
-                        'record_name' => $record->project_name,
-                        'file_name' => $file['name'] ?? 'Unknown',
-                        'file_index' => $index,
-                        'date_added' => $file['date_added'] ?? null,
-                        'last_updated_by' => $file['last_updated_by'] ?? null,
-                    ];
+        // Collect archived files from REM records - use chunking for memory efficiency
+        RemDatabase::select('docket_no', 'project_name', 'files')
+            ->whereNotNull('files')
+            ->where('files', '!=', '[]')
+            ->chunk(100, function ($records) use (&$archivedFiles) {
+                foreach ($records as $record) {
+                    $files = json_decode($record->files, true) ?? [];
+                    foreach ($files as $index => $file) {
+                        if (isset($file['archived']) && $file['archived']) {
+                            $archivedFiles[] = [
+                                'type' => 'rem',
+                                'docket_no' => $record->docket_no,
+                                'record_name' => $record->project_name,
+                                'file_name' => $file['name'] ?? 'Unknown',
+                                'file_index' => $index,
+                                'date_added' => $file['date_added'] ?? null,
+                                'last_updated_by' => $file['last_updated_by'] ?? null,
+                            ];
+                        }
+                    }
                 }
-            }
-        }
+            });
 
         return view('archived.archive', compact('archivedFiles'));
     }

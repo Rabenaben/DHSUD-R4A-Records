@@ -8,7 +8,7 @@
         </svg>
         Close
     </button>
-    <div class="flex flex-col gap-6 p-4 lg:flex-row max-h-[80vh] overflow-hidden">
+    <div class="flex flex-col gap-6 p-4 lg:flex-row min-h-[90vh] max-h-[90vh] overflow-hidden">
 
         <!-- Form Section -->
         <div class="flex-1/4">

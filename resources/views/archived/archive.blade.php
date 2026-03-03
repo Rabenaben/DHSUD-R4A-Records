@@ -33,7 +33,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-red-50">
                         @foreach($archivedFiles ?? [] as $file)
-                            <tr class="archive-row" data-type="{{ strtoupper($file['type']) }}" data-docket="{{ $file['docket_no'] }}" data-name="{{ $file['record_name'] }}" data-file="{{ $file['file_name'] }}">
+                            <tr class="archive-row @unless(auth()->user()->role === 'Staff') cursor-pointer @endunless transition hover:bg-blue-100" data-type="{{ strtoupper($file['type']) }}" data-docket="{{ $file['docket_no'] }}" data-name="{{ $file['record_name'] }}" data-file="{{ $file['file_name'] }}">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ strtoupper($file['type']) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $file['docket_no'] }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $file['record_name'] }}</td>
