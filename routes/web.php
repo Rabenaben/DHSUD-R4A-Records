@@ -9,6 +9,7 @@ use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\HoaController;
 use App\Http\Controllers\RemController;
+use App\Http\Controllers\ClientRequestController;
 
 // 🔹 Public route
 Route::get('/', fn() => view('welcome'));
@@ -96,6 +97,16 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::patch('/{docketNo}/files/{fileIndex}/rename', 'renameFile')->name('rename-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
+    });
+
+    // Client Request routes (ClientRequestController)
+    Route::controller(ClientRequestController::class)->prefix('client-requests')->name('client-requests.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/data', 'getData')->name('data');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::get('/search', 'search')->name('search');
     });
 });
 

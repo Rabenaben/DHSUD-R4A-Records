@@ -8,6 +8,7 @@ use App\Models\HoaDatabase;
 use App\Models\Municipality;
 use App\Models\Province;
 use App\Models\Borrower;
+use App\Models\ClientRequest;
 
 class DisplayController extends Controller
 {
@@ -211,12 +212,12 @@ class DisplayController extends Controller
     {
         // Get all borrowers ordered by date, then group by borrower_name to get the most recent record for each
         $allBorrowers = Borrower::orderBy('date_borrowed', 'desc')->get();
-        
+
         // Group by borrower_name and get the first record (most recent) for each
         $borrowers = $allBorrowers->groupBy('borrower_name')->map(function ($group) {
             return $group->first();
         })->values();
-        
+
         // Get next ID from auto-increment
         $nextId = Borrower::max('id') + 1;
 
@@ -234,7 +235,7 @@ class DisplayController extends Controller
         // Attach status from borrower records to borrowers
         foreach ($borrowers as $borrower) {
             $borrowerRecords = $allBorrowerRecords[$borrower->borrower_name] ?? collect();
-            
+
             // Check if any borrower record for this person has not been returned
             $hasUnreturnedRecords = $borrowerRecords->contains(function ($record) {
                 return is_null($record->date_returned);
@@ -255,7 +256,8 @@ class DisplayController extends Controller
     // 🔹 Request History Dashboard
     public function requestHistoryDashboard()
     {
-        return view('request-history.request-history');
+        $clientRequests = ClientRequest::orderBy('created_at', 'desc')->get();
+        return view('request-history.request-history', compact('clientRequests'));
     }
 
     // 🔹 Archived Files Dashboard

@@ -7,6 +7,7 @@ import './hoa';
 import './borrower';
 import './archive';
 import './accounts';
+import './request-history';
 
 import Alpine from 'alpinejs';
 
