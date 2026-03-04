@@ -21,6 +21,7 @@
         <!-- Borrowing History Table -->
         <div class="mb-6">
             <h4 class="text-md mb-2 font-medium text-gray-700">Borrowing History</h4>
+            <p class="text-xs text-gray-500 mb-2">You can click on the <span class="font-semibold">N/A</span> date in the Date Returned column to record a return date.</p>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">

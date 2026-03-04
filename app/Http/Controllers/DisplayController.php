@@ -252,6 +252,12 @@ class DisplayController extends Controller
         ]);
     }
 
+    // 🔹 Request History Dashboard
+    public function requestHistoryDashboard()
+    {
+        return view('request-history.request-history');
+    }
+
     // 🔹 Archived Files Dashboard
     public function archivedDashboard()
     {
