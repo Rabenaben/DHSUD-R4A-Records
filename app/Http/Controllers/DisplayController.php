@@ -257,7 +257,35 @@ class DisplayController extends Controller
     public function requestHistoryDashboard()
     {
         $clientRequests = ClientRequest::orderBy('created_at', 'desc')->get();
-        return view('request-history.request-history', compact('clientRequests'));
+
+        // Calculate stats for each document type
+        $documentTypes = [
+            'Certificate of Incorporation',
+            'Certificate of Amended By-Laws',
+            'Certificate of Amended Articles of Incorporation',
+            'Articles of Incorporation',
+            'By-Laws',
+            'Annual Report',
+            'Election Report'
+        ];
+
+        // Initialize stats array
+        $docStats = [];
+        foreach ($documentTypes as $doc) {
+            $docStats[$doc] = 0;
+        }
+
+        // Count occurrences of each document type
+        foreach ($clientRequests as $request) {
+            $requestedDocs = $request->requested_docs_array;
+            foreach ($requestedDocs as $doc) {
+                if (isset($docStats[$doc])) {
+                    $docStats[$doc]++;
+                }
+            }
+        }
+
+        return view('request-history.request-history', compact('clientRequests', 'docStats'));
     }
 
     // 🔹 Archived Files Dashboard
