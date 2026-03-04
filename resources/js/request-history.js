@@ -51,23 +51,65 @@ function initRequestHistory() {
     // Submit form
     if (addClientRequestSubmitBtn) {
         addClientRequestSubmitBtn.addEventListener('click', async () => {
-            // Validate required fields
+            // Clear previous error styles
+            clearValidationStyles();
+
+            // Validate required fields and other validations
             const requiredFields = [
-                { id: 'request-date', name: 'Date' },
-                { id: 'request-type', name: 'Type' },
-                { id: 'project-name', name: 'Name of Project / HOA' },
-                { id: 'docket-no', name: 'Docket No.' },
-                { id: 'requested-by', name: 'Requested By' },
-                { id: 'or-no', name: 'OR No.' },
-                { id: 'amount', name: 'Amount' }
+                { id: 'request-date', name: 'Date', type: 'date' },
+                { id: 'request-type', name: 'Type', type: 'select', options: ['HOA', 'REM'] },
+                { id: 'docket-no', name: 'Docket No.', type: 'text', maxLength: 50, pattern: /^[A-Za-z0-9\-_]+$/ },
+                { id: 'project-name', name: 'Name of Project / HOA', type: 'text', maxLength: 255 },
+                { id: 'location', name: 'Location', type: 'text', maxLength: 255, required: false },
+                { id: 'requested-by', name: 'Requested By', type: 'text', maxLength: 100 },
+                { id: 'or-no', name: 'OR No.', type: 'text', maxLength: 50 },
+                { id: 'amount', name: 'Amount', type: 'number', min: 0.01 }
             ];
 
             let isValid = true;
             for (const field of requiredFields) {
                 const element = document.getElementById(field.id);
-                if (!element || !element.value.trim()) {
-                    window.showToast(`${field.name} is required.`, 'error');
-                    element?.focus();
+                if (!element) continue;
+
+                let error = null;
+
+                // Check if empty
+                if (field.type === 'select') {
+                    if (!element.value || element.value === '') {
+                        error = `${field.name} is required.`;
+                    } else if (field.options && !field.options.includes(element.value)) {
+                        error = `Please select a valid ${field.name}.`;
+                    }
+                } else if (field.type === 'number') {
+                    if (!element.value || element.value === '') {
+                        error = `${field.name} is required.`;
+                    } else if (parseFloat(element.value) < field.min) {
+                        error = `${field.name} must be at least ${field.min}.`;
+                    }
+                } else {
+                    // Check if field is required
+                    if (field.required !== false) {
+                        if (!element.value || !element.value.trim()) {
+                            error = `${field.name} is required.`;
+                        }
+                    }
+                    // Check maxlength (only if field has value)
+                    if (element.value && element.value.trim()) {
+                        if (field.maxLength && element.value.length > field.maxLength) {
+                            error = `${field.name} must not exceed ${field.maxLength} characters.`;
+                        } else if (field.pattern && field.pattern instanceof RegExp) {
+                            if (!field.pattern.test(element.value)) {
+                                error = `${field.name} contains invalid characters. Only letters, numbers, dashes, and underscores are allowed.`;
+                            }
+                        }
+                    }
+                }
+
+                if (error) {
+                    // Show error styling
+                    element.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                    window.showToast(error, 'error');
+                    element.focus();
                     isValid = false;
                     break;
                 }
@@ -75,15 +117,25 @@ function initRequestHistory() {
 
             if (!isValid) return;
 
-            // Collect form data
-            const formData = new FormData(addClientRequestForm);
-            const data = Object.fromEntries(formData.entries());
-
-            // Get checked documents
+            // Validate requested_docs (checkboxes) - required, minimum 1, maximum 10
             const checkedDocs = [];
             document.querySelectorAll('input[name="requested_docs[]"]:checked').forEach(checkbox => {
                 checkedDocs.push(checkbox.value);
             });
+
+            if (checkedDocs.length === 0) {
+                window.showToast('Please select at least one document.', 'error');
+                isValid = false;
+            } else if (checkedDocs.length > 10) {
+                window.showToast('You can select up to 10 documents only.', 'error');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Collect form data
+            const formData = new FormData(addClientRequestForm);
+            const data = Object.fromEntries(formData.entries());
             data.requested_docs = checkedDocs;
 
             try {
@@ -154,8 +206,8 @@ function filterRequestHistory() {
         const recordType = row.dataset.type || '';
 
         const matchesSearch = projectName.includes(searchTerm) ||
-                              docketNo.includes(searchTerm) ||
-                              clientName.includes(searchTerm);
+            docketNo.includes(searchTerm) ||
+            clientName.includes(searchTerm);
         const matchesType = !typeValue || recordType === typeValue;
 
         if (matchesSearch && matchesType) {
@@ -274,3 +326,26 @@ function updateRequestHistoryTable(clientRequests) {
 }
 
 // Make refreshRequestHistoryTable available globally for external calls
+
+/**
+ * Clears validation error styles from form fields.
+ */
+function clearValidationStyles() {
+    const fieldIds = [
+        'request-date',
+        'request-type',
+        'project-name',
+        'docket-no',
+        'location',
+        'requested-by',
+        'or-no',
+        'amount'
+    ];
+
+    fieldIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        }
+    });
+}

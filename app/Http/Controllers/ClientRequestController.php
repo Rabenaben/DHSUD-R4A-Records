@@ -28,14 +28,14 @@ class ClientRequestController extends Controller
         $request->validate([
             'date' => 'required|date',
             'type' => 'required|in:HOA,REM',
-            'project_name' => 'required|string',
-            'docket_no' => 'required|string',
-            'location' => 'nullable|string',
-            'requested_by' => 'required|string',
-            'or_no' => 'required|string',
-            'amount' => 'required|numeric|min:0',
-            'requested_docs' => 'nullable|array',
-            'remarks' => 'nullable|string',
+            'project_name' => 'required|string|max:255',
+            'docket_no' => 'required|string|regex:/^[A-Za-z0-9\-\_]+$/|max:50',
+            'location' => 'nullable|string|max:255',
+            'requested_by' => 'required|string|max:100',
+            'or_no' => 'required|string|max:50',
+            'amount' => 'required|numeric|min:0.01',
+            'requested_docs' => 'required|array|min:1|max:10',
+            'remarks' => 'nullable|string|max:1000',
         ]);
 
         $clientRequest = ClientRequest::create([
@@ -71,14 +71,14 @@ class ClientRequestController extends Controller
         $request->validate([
             'date' => 'required|date',
             'type' => 'required|in:HOA,REM',
-            'project_name' => 'required|string',
-            'docket_no' => 'required|string',
-            'location' => 'nullable|string',
-            'requested_by' => 'required|string',
-            'or_no' => 'required|string',
-            'amount' => 'required|numeric|min:0',
-            'requested_docs' => 'nullable|array',
-            'remarks' => 'nullable|string',
+            'project_name' => 'required|string|max:255',
+            'docket_no' => 'required|string|regex:/^[A-Za-z0-9\-\_]+$/|max:50',
+            'location' => 'nullable|string|max:255',
+            'requested_by' => 'required|string|max:100',
+            'or_no' => 'required|string|max:50',
+            'amount' => 'required|numeric|min:0.01',
+            'requested_docs' => 'required|array|min:1|max:10',
+            'remarks' => 'nullable|string|max:1000',
         ]);
 
         $oldDocketNo = $clientRequest->docket_no;
@@ -134,9 +134,9 @@ class ClientRequestController extends Controller
         $type = $request->get('type', '');
 
         $clientRequests = ClientRequest::when($query, function ($q) use ($query) {
-                $q->where('project_name', 'like', "%{$query}%")
-                  ->orWhere('docket_no', 'like', "%{$query}%");
-            })
+            $q->where('project_name', 'like', "%{$query}%")
+                ->orWhere('docket_no', 'like', "%{$query}%");
+        })
             ->when($type, function ($q) use ($type) {
                 $q->where('type', $type);
             })
