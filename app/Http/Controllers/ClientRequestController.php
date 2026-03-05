@@ -106,8 +106,10 @@ class ClientRequestController extends Controller
         $type = $request->get('type', '');
 
         $clientRequests = ClientRequest::when($query, function ($q) use ($query) {
-            $q->where('project_name', 'like', "%{$query}%")
-                ->orWhere('docket_no', 'like', "%{$query}%");
+            $q->where(function ($q2) use ($query) {
+                $q2->where('project_name', 'like', "%{$query}%")
+                    ->orWhere('docket_no', 'like', "%{$query}%");
+            });
         })
             ->when($type, function ($q) use ($type) {
                 $q->where('type', $type);
