@@ -50,8 +50,22 @@ function initRequestHistory() {
     // Close modal on Cancel button click
     if (cancelClientRequestBtn) {
         cancelClientRequestBtn.addEventListener('click', () => {
-            resetClientRequestModal();
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'client-request-modal' } }));
+            const mode = document.getElementById('client-request-mode')?.value;
+            
+            if (mode === 'edit') {
+                // If in edit mode, switch back to view mode instead of closing modal
+                const modeInput = document.getElementById('client-request-mode');
+                if (modeInput) modeInput.value = 'view';
+                
+                const modalTitle = document.getElementById('client-request-modal-title');
+                if (modalTitle) modalTitle.textContent = 'View Client Request';
+                
+                toggleViewMode(true);
+            } else {
+                // If in add mode, close the modal
+                resetClientRequestModal();
+                window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'client-request-modal' } }));
+            }
         });
     }
 
