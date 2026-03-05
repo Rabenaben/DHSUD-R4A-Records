@@ -861,6 +861,7 @@ function updateStatCards(docStats) {
 function updateRequestHistoryTable(clientRequests) {
     const tableBody = document.querySelector('#request-history-table tbody');
     const noResultsMessage = document.getElementById('no-results-message');
+    const noRecordsMessage = document.getElementById('no-records-message');
     const tableContainer = document.querySelector('#request-history-table')?.closest('div.rounded-lg');
 
     if (!tableBody) return;
@@ -869,21 +870,21 @@ function updateRequestHistoryTable(clientRequests) {
     tableBody.innerHTML = '';
 
     if (clientRequests.length === 0) {
-        // Hide table, show no results message
+        // Hide table, show no records message
         if (tableContainer) {
             const table = tableContainer.querySelector('table');
             if (table) table.style.display = 'none';
         }
-        if (noResultsMessage) noResultsMessage.style.display = 'block';
+        if (noRecordsMessage) noRecordsMessage.style.display = 'block';
         return;
     }
 
-    // Show table, hide no results message
+    // Show table, hide no records message
     if (tableContainer) {
         const table = tableContainer.querySelector('table');
         if (table) table.style.display = '';
     }
-    if (noResultsMessage) noResultsMessage.style.display = 'none';
+    if (noRecordsMessage) noRecordsMessage.style.display = 'none';
 
     // Add new rows
     clientRequests.forEach(request => {

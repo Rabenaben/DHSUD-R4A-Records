@@ -1,30 +1,17 @@
-# TODO - Others Specify Field Implementation
+# TODO List
 
-## Plan
-1. [x] Create migration to add `others_specify` field to `client_requests` table
-2. [x] Update ClientRequest model to include `others_specify` in fillable
-3. [x] Update ClientRequestController to handle `others_specify` in store/update/search/getData
-4. [x] Update request-history.js to populate "Please specify" field in edit mode
+## Task: Fix #no-records-message element not hiding after adding new record
 
-## Status: Completed
+### Problem
+After adding a new record, the "No request history records found" message (#no-records-message) still shows instead of displaying the new record in the table.
 
-## Summary of Changes
+### Root Cause
+The `updateRequestHistoryTable()` function in `resources/js/request-history.js` didn't handle the `#no-records-message` element - it only handled `#no-results-message` (which is for search results).
 
-### 1. Migration Created
-- `database/migrations/2026_02_23_000000_add_others_specify_to_client_requests_table.php`
-- Added `others_specify` field to the `client_requests` table
+### Solution
+Updated the `updateRequestHistoryTable()` function to also toggle the `#no-records-message` element when records exist or are empty.
 
-### 2. Model Updated
-- `app/Models/ClientRequest.php`
-- Added `others_specify` to the `$fillable` array
-
-### 3. Controller Updated
-- `app/Http/Controllers/ClientRequestController.php`
-- Added `others_specify` validation in store and update methods
-- Added `others_specify` to the create and update data
-- Added `others_specify` to the search and getData response
-
-### 4. JavaScript Updated
-- `resources/js/request-history.js`
-- Updated `populateFormWithData()` to populate the "Please specify" field with stored value
-- Updated `switchToEditMode()` to use the stored `others_specify` value from the database
+### Steps
+- [x] 1. Analyze the code and identify the bug
+- [x] 2. Fix the updateRequestHistoryTable function to handle #no-records-message
+- [x] 3. Test the fix

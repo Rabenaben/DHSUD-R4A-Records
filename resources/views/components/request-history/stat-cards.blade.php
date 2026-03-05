@@ -3,7 +3,7 @@
 <!-- Key Stats Section -->
 <div>
     <h3 class="mb-3 text-lg font-semibold text-gray-800">Document Requests Summary</h3>
-    <div id="stat-cards-container" class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
+    <div id="stat-cards-container" class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
         @foreach($docStats as $docName => $count)
             @php
                 $colors = [
