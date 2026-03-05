@@ -5,6 +5,9 @@
 // Store client requests data globally for quick access
 let clientRequestsData = [];
 
+// Store current request data for edit mode
+let currentRequestData = null;
+
 // Consolidated form field IDs for validation and toggling
 const FORM_FIELD_IDS = [
     'request-date',
@@ -18,6 +21,94 @@ const FORM_FIELD_IDS = [
     'remarks'
 ];
 
+// Document lists for each type
+const HOA_DOCUMENTS = [
+    'Certificate of Incorporation',
+    'Certificate of Amended By-Laws',
+    'Certificate of Amended Articles of Incorporation',
+    'Articles of Incorporation',
+    'By-Laws',
+    'Annual Report',
+    'Election Report',
+    'Masterlist',
+    'General Information Sheet',
+    'Others'
+];
+
+const REM_DOCUMENTS = [
+    'Certificate of Registration and License to Sell (CRLS)',
+    'Notarized Fact Sheet / Sales Report',
+    'Development Permit',
+    'Verified Survey Returns (VSR)',
+    'Subdivision Development Plan (SDP)',
+    'Others'
+];
+
+/**
+ * Renders document checkboxes based on the selected type
+ * @param {string} type - 'HOA' or 'REM'
+ */
+function renderDocumentsByType(type) {
+    const container = document.getElementById('requested-docs-container');
+    const othersInputContainer = document.getElementById('others-input-container');
+    
+    if (!container) return;
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    // Get the appropriate document list
+    let documents = [];
+    if (type === 'HOA') {
+        documents = HOA_DOCUMENTS;
+    } else if (type === 'REM') {
+        documents = REM_DOCUMENTS;
+    }
+    
+    if (documents.length === 0) {
+        // No type selected, show message
+        container.innerHTML = '<p class="text-sm text-gray-500" id="select-type-message">Please select a Type to see available documents.</p>';
+        if (othersInputContainer) othersInputContainer.classList.add('hidden');
+        return;
+    }
+    
+    // Render document checkboxes
+    documents.forEach(doc => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center space-x-2';
+        
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.className = 'rounded border-gray-300 text-blue-600 focus:ring-blue-500';
+        input.name = 'requested_docs[]';
+        input.value = doc;
+        
+        // Add change event listener for "Others" checkbox
+        if (doc === 'Others') {
+            input.addEventListener('change', (e) => {
+                if (othersInputContainer) {
+                    othersInputContainer.classList.toggle('hidden', !e.target.checked);
+                    if (!e.target.checked) {
+                        const othersInput = document.getElementById('others-document-specify');
+                        if (othersInput) othersInput.value = '';
+                    }
+                }
+            });
+        }
+        
+        const span = document.createElement('span');
+        span.className = 'text-sm text-gray-700';
+        span.textContent = doc;
+        
+        label.appendChild(input);
+        label.appendChild(span);
+        container.appendChild(label);
+    });
+    
+    // Hide the others input initially
+    if (othersInputContainer) othersInputContainer.classList.add('hidden');
+}
+
 /**
  * Initializes the Request History page functionality.
  */
@@ -29,6 +120,7 @@ function initRequestHistory() {
     const clientRequestForm = document.getElementById('client-request-form');
     const searchInput = document.getElementById('requestSearchInput');
     const typeFilter = document.getElementById('typeFilter');
+    const requestTypeSelect = document.getElementById('request-type');
 
     // Open Add Client Request Form Modal and set today's date
     if (addClientRequestBtn) {
@@ -47,6 +139,13 @@ function initRequestHistory() {
         }
     });
 
+    // Handle Type selection change to render appropriate documents
+    if (requestTypeSelect) {
+        requestTypeSelect.addEventListener('change', (e) => {
+            renderDocumentsByType(e.target.value);
+        });
+    }
+
     // Close modal on Cancel button click
     if (cancelClientRequestBtn) {
         cancelClientRequestBtn.addEventListener('click', () => {
@@ -59,6 +158,20 @@ function initRequestHistory() {
                 
                 const modalTitle = document.getElementById('client-request-modal-title');
                 if (modalTitle) modalTitle.textContent = 'View Client Request';
+                
+                // Reset Others checkbox and hide the specify input when switching to view mode
+                const othersCheckbox = document.querySelector('input[name="requested_docs[]"][value="Others"]');
+                if (othersCheckbox) {
+                    othersCheckbox.checked = false;
+                }
+                const othersInputContainer = document.getElementById('others-input-container');
+                if (othersInputContainer) {
+                    othersInputContainer.classList.add('hidden');
+                }
+                const othersSpecify = document.getElementById('others-document-specify');
+                if (othersSpecify) {
+                    othersSpecify.value = '';
+                }
                 
                 toggleViewMode(true);
             } else {
@@ -150,6 +263,15 @@ function initRequestHistory() {
             } else if (checkedDocs.length > 10) {
                 window.showToast('You can select up to 10 documents only.', 'error');
                 isValid = false;
+            }
+
+            // Validate Others specification if selected
+            if (checkedDocs.includes('Others')) {
+                const othersSpecify = document.getElementById('others-document-specify');
+                if (!othersSpecify || !othersSpecify.value.trim()) {
+                    window.showToast('Please specify the document for "Others".', 'error');
+                    isValid = false;
+                }
             }
 
             if (!isValid) return;
@@ -305,6 +427,14 @@ function openClientRequestModal(mode, requestData = null) {
         
         // Set today's date
         setTodayDate();
+        
+        // Clear documents container for add mode
+        const docsContainer = document.getElementById('requested-docs-container');
+        if (docsContainer) {
+            docsContainer.innerHTML = '<p class="text-sm text-gray-500" id="select-type-message">Please select a Type to see available documents.</p>';
+        }
+        const othersInputContainer = document.getElementById('others-input-container');
+        if (othersInputContainer) othersInputContainer.classList.add('hidden');
     } else if (mode === 'view' && requestData) {
         // Populate form with request data
         populateFormWithData(requestData);
@@ -369,10 +499,10 @@ function setTodayDate() {
 
 /**
  * Helper function to get requested_docs array
- * Controller now sends requested_docs_array directly
+ * Laravel cast handles JSON conversion automatically
  */
 function parseRequestedDocs(data) {
-    return data.requested_docs_array || [];
+    return data.requested_docs || [];
 }
 
 /**
@@ -380,6 +510,9 @@ function parseRequestedDocs(data) {
  * @param {object} data - The request data
  */
 function populateFormWithData(data) {
+    // Store current request data for edit mode
+    currentRequestData = data;
+
     // Set hidden fields
     const idField = document.getElementById('client-request-id');
     if (idField) idField.value = data.id || '';
@@ -410,6 +543,19 @@ function populateFormWithData(data) {
         document.querySelectorAll('input[name="requested_docs[]"]').forEach(checkbox => {
             checkbox.checked = requestedDocs.includes(checkbox.value);
         });
+    }
+
+    // Populate the "Others" specify field with stored value
+    const othersSpecify = document.getElementById('others-document-specify');
+    if (othersSpecify && data.others_specify) {
+        othersSpecify.value = data.others_specify;
+    }
+
+    // Always hide the "Others" specify input in view mode
+    // It's controlled separately from toggleViewMode() so we need to ensure it's hidden
+    const othersInputContainer = document.getElementById('others-input-container');
+    if (othersInputContainer) {
+        othersInputContainer.classList.add('hidden');
     }
 }
 
@@ -517,6 +663,36 @@ function switchToEditMode() {
     const submitBtn = document.getElementById('client-request-submit-btn');
     if (submitBtn) submitBtn.textContent = 'Save';
 
+    // Get the selected type and render the document checkboxes
+    const typeSelect = document.getElementById('request-type');
+    if (typeSelect && typeSelect.value) {
+        // Render documents based on the selected type
+        renderDocumentsByType(typeSelect.value);
+        
+        // Check the existing documents from currentRequestData
+        if (currentRequestData && currentRequestData.requested_docs) {
+            const requestedDocs = currentRequestData.requested_docs;
+            
+            // Check each document checkbox that matches the requested docs
+            document.querySelectorAll('input[name="requested_docs[]"]').forEach(checkbox => {
+                checkbox.checked = requestedDocs.includes(checkbox.value);
+            });
+            
+            // Handle "Others" checkbox - show the input if "Others" was selected
+            const othersCheckbox = document.querySelector('input[name="requested_docs[]"][value="Others"]');
+            const othersInputContainer = document.getElementById('others-input-container');
+            if (othersCheckbox && othersCheckbox.checked && othersInputContainer) {
+                othersInputContainer.classList.remove('hidden');
+                
+                // Use the stored others_specify value from the database
+                const othersSpecify = document.getElementById('others-document-specify');
+                if (othersSpecify && currentRequestData && currentRequestData.others_specify) {
+                    othersSpecify.value = currentRequestData.others_specify;
+                }
+            }
+        }
+    }
+
     toggleViewMode(false);
 }
 
@@ -527,6 +703,12 @@ async function createClientRequest(form, checkedDocs) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     data.requested_docs = checkedDocs;
+
+    // Include Others specification if selected
+    const othersSpecify = document.getElementById('others-document-specify');
+    if (othersSpecify && othersSpecify.value.trim()) {
+        data.others_specify = othersSpecify.value.trim();
+    }
 
     try {
         const response = await fetch('/client-requests', {
@@ -566,6 +748,12 @@ async function updateClientRequest(requestId, form, checkedDocs) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     data.requested_docs = checkedDocs;
+
+    // Include Others specification if selected
+    const othersSpecify = document.getElementById('others-document-specify');
+    if (othersSpecify && othersSpecify.value.trim()) {
+        data.others_specify = othersSpecify.value.trim();
+    }
 
     try {
         const response = await fetch(`/client-requests/${requestId}`, {

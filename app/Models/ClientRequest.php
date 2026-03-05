@@ -19,19 +19,13 @@ class ClientRequest extends Model
         'or_no',
         'amount',
         'requested_docs',
+        'others_specify',
         'remarks',
     ];
 
     protected $casts = [
         'date' => 'date',
         'amount' => 'decimal:2',
+        'requested_docs' => 'array',
     ];
-
-    /**
-     * Get the requested docs as an array.
-     */
-    public function getRequestedDocsArrayAttribute(): array
-    {
-        return $this->requested_docs ? json_decode($this->requested_docs, true) : [];
-    }
 }

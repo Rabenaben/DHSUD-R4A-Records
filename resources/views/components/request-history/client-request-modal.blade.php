@@ -77,25 +77,17 @@
                 <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Requested Documents
                 </h3>
                 <div class="grid grid-cols-1 gap-2 md:grid-cols-2" id="requested-docs-container">
-                    @php
-                        $documents = [
-                            'Certificate of Incorporation',
-                            'Certificate of Amended By-Laws',
-                            'Certificate of Amended Articles of Incorporation',
-                            'Articles of Incorporation',
-                            'By-Laws',
-                            'Annual Report',
-                            'Election Report',
-                        ];
-                    @endphp
-                    @foreach ($documents as $doc)
-                        <label class="flex items-center space-x-2">
-                            <input class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" type="checkbox"
-                                name="requested_docs[]" value="{{ $doc }}">
-                            <span class="text-sm text-gray-700">{{ $doc }}</span>
-                        </label>
-                    @endforeach
+                    <!-- Documents will be dynamically rendered based on Type selection -->
+                    <p class="text-sm text-gray-500" id="select-type-message">Please select a Type to see available documents.</p>
                 </div>
+                
+                <!-- Others input field (hidden by default) -->
+                <div id="others-input-container" class="mt-3 hidden">
+                    <x-input-label value="Please specify:" />
+                    <x-text-input class="w-full" id="others-document-specify" name="others_specify" 
+                        maxlength="255" placeholder="Specify the document..." />
+                </div>
+                
                 <!-- View mode documents display -->
                 <div id="requested-docs-view" class="hidden">
                     <div class="flex flex-wrap gap-2" id="requested-docs-list"></div>

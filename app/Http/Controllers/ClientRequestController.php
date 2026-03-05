@@ -26,6 +26,7 @@ class ClientRequestController extends Controller
             'or_no' => 'required|string|max:50',
             'amount' => 'required|numeric|min:0.01',
             'requested_docs' => 'required|array|min:1|max:10',
+            'others_specify' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:1000',
         ]);
 
@@ -38,7 +39,8 @@ class ClientRequestController extends Controller
             'requested_by' => $request->requested_by,
             'or_no' => $request->or_no,
             'amount' => $request->amount,
-            'requested_docs' => json_encode($request->requested_docs),
+            'requested_docs' => $request->requested_docs,
+            'others_specify' => $request->others_specify,
             'remarks' => $request->remarks,
         ]);
 
@@ -69,6 +71,7 @@ class ClientRequestController extends Controller
             'or_no' => 'required|string|max:50',
             'amount' => 'required|numeric|min:0.01',
             'requested_docs' => 'required|array|min:1|max:10',
+            'others_specify' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:1000',
         ]);
 
@@ -83,7 +86,8 @@ class ClientRequestController extends Controller
             'requested_by' => $request->requested_by,
             'or_no' => $request->or_no,
             'amount' => $request->amount,
-            'requested_docs' => json_encode($request->requested_docs),
+            'requested_docs' => $request->requested_docs,
+            'others_specify' => $request->others_specify,
             'remarks' => $request->remarks,
         ]);
 
@@ -121,8 +125,8 @@ class ClientRequestController extends Controller
         $formattedRequests = $clientRequests->map(function ($request) {
             return [
                 'id' => $request->id,
-                'date' => $request->date instanceof \Carbon\Carbon 
-                    ? $request->date->format('Y-m-d') 
+                'date' => $request->date instanceof \Carbon\Carbon
+                    ? $request->date->format('Y-m-d')
                     : $request->date,
                 'type' => $request->type,
                 'project_name' => $request->project_name,
@@ -132,7 +136,7 @@ class ClientRequestController extends Controller
                 'or_no' => $request->or_no,
                 'amount' => $request->amount,
                 'requested_docs' => $request->requested_docs,
-                'requested_docs_array' => $request->requested_docs_array,
+                'others_specify' => $request->others_specify,
                 'remarks' => $request->remarks,
                 'created_at' => $request->created_at,
                 'updated_at' => $request->updated_at,
@@ -153,8 +157,8 @@ class ClientRequestController extends Controller
         $formattedRequests = $clientRequests->map(function ($request) {
             return [
                 'id' => $request->id,
-                'date' => $request->date instanceof \Carbon\Carbon 
-                    ? $request->date->format('Y-m-d') 
+                'date' => $request->date instanceof \Carbon\Carbon
+                    ? $request->date->format('Y-m-d')
                     : $request->date,
                 'type' => $request->type,
                 'project_name' => $request->project_name,
@@ -164,7 +168,7 @@ class ClientRequestController extends Controller
                 'or_no' => $request->or_no,
                 'amount' => $request->amount,
                 'requested_docs' => $request->requested_docs,
-                'requested_docs_array' => $request->requested_docs_array,
+                'others_specify' => $request->others_specify,
                 'remarks' => $request->remarks,
                 'created_at' => $request->created_at,
                 'updated_at' => $request->updated_at,
@@ -190,7 +194,7 @@ class ClientRequestController extends Controller
 
         // Count occurrences of each document type
         foreach ($clientRequests as $request) {
-            $requestedDocs = $request->requested_docs_array;
+            $requestedDocs = $request->requested_docs;
             foreach ($requestedDocs as $doc) {
                 if (isset($docStats[$doc])) {
                     $docStats[$doc]++;

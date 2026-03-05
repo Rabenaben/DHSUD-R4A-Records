@@ -277,7 +277,7 @@ class DisplayController extends Controller
 
         // Count occurrences of each document type
         foreach ($clientRequests as $request) {
-            $requestedDocs = $request->requested_docs_array;
+            $requestedDocs = $request->requested_docs ?? [];
             foreach ($requestedDocs as $doc) {
                 if (isset($docStats[$doc])) {
                     $docStats[$doc]++;
