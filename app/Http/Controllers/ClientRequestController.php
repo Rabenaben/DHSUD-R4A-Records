@@ -12,15 +12,6 @@ class ClientRequestController extends Controller
     use ActivityLoggingTrait;
 
     /**
-     * Display a listing of client requests.
-     */
-    public function index()
-    {
-        $clientRequests = ClientRequest::orderBy('created_at', 'desc')->get();
-        return response()->json($clientRequests);
-    }
-
-    /**
      * Store a newly created client request.
      */
     public function store(Request $request)
@@ -107,25 +98,6 @@ class ClientRequestController extends Controller
     }
 
     /**
-     * Delete a client request.
-     */
-    public function destroy($id)
-    {
-        $clientRequest = ClientRequest::findOrFail($id);
-        $docketNo = $clientRequest->docket_no;
-
-        $clientRequest->delete();
-
-        // Log activity
-        $this->logActivity($docketNo, null, 'Client Request', 'Deleted a client request');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Client request deleted successfully.',
-        ]);
-    }
-
-    /**
      * Search client requests by project name or docket number.
      */
     public function search(Request $request)
@@ -143,7 +115,29 @@ class ClientRequestController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($clientRequests);
+        // Format dates and add requested_docs_array for view/edit mode
+        $formattedRequests = $clientRequests->map(function ($request) {
+            return [
+                'id' => $request->id,
+                'date' => $request->date instanceof \Carbon\Carbon 
+                    ? $request->date->format('Y-m-d') 
+                    : $request->date,
+                'type' => $request->type,
+                'project_name' => $request->project_name,
+                'docket_no' => $request->docket_no,
+                'location' => $request->location,
+                'requested_by' => $request->requested_by,
+                'or_no' => $request->or_no,
+                'amount' => $request->amount,
+                'requested_docs' => $request->requested_docs,
+                'requested_docs_array' => $request->requested_docs_array,
+                'remarks' => $request->remarks,
+                'created_at' => $request->created_at,
+                'updated_at' => $request->updated_at,
+            ];
+        });
+
+        return response()->json($formattedRequests);
     }
 
     /**
@@ -153,8 +147,58 @@ class ClientRequestController extends Controller
     {
         $clientRequests = ClientRequest::orderBy('created_at', 'desc')->get();
 
+        // Format dates for each client request (Y-m-d for HTML date input)
+        $formattedRequests = $clientRequests->map(function ($request) {
+            return [
+                'id' => $request->id,
+                'date' => $request->date instanceof \Carbon\Carbon 
+                    ? $request->date->format('Y-m-d') 
+                    : $request->date,
+                'type' => $request->type,
+                'project_name' => $request->project_name,
+                'docket_no' => $request->docket_no,
+                'location' => $request->location,
+                'requested_by' => $request->requested_by,
+                'or_no' => $request->or_no,
+                'amount' => $request->amount,
+                'requested_docs' => $request->requested_docs,
+                'requested_docs_array' => $request->requested_docs_array,
+                'remarks' => $request->remarks,
+                'created_at' => $request->created_at,
+                'updated_at' => $request->updated_at,
+            ];
+        });
+
+        // Calculate stats for each document type
+        $documentTypes = [
+            'Certificate of Incorporation',
+            'Certificate of Amended By-Laws',
+            'Certificate of Amended Articles of Incorporation',
+            'Articles of Incorporation',
+            'By-Laws',
+            'Annual Report',
+            'Election Report'
+        ];
+
+        // Initialize stats array
+        $docStats = [];
+        foreach ($documentTypes as $doc) {
+            $docStats[$doc] = 0;
+        }
+
+        // Count occurrences of each document type
+        foreach ($clientRequests as $request) {
+            $requestedDocs = $request->requested_docs_array;
+            foreach ($requestedDocs as $doc) {
+                if (isset($docStats[$doc])) {
+                    $docStats[$doc]++;
+                }
+            }
+        }
+
         return response()->json([
-            'clientRequests' => $clientRequests,
+            'clientRequests' => $formattedRequests,
+            'docStats' => $docStats,
         ]);
     }
 }

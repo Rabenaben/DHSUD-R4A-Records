@@ -101,11 +101,9 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
 
     // Client Request routes (ClientRequestController)
     Route::controller(ClientRequestController::class)->prefix('client-requests')->name('client-requests.')->group(function () {
-        Route::get('/', 'index')->name('index');
         Route::get('/data', 'getData')->name('data');
         Route::post('/', 'store')->name('store');
         Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
         Route::get('/search', 'search')->name('search');
     });
 });

@@ -1,8 +1,16 @@
-<!-- Add Client Request Form Modal -->
-<x-modal name="add-client-request" maxWidth="2xl">
+<!-- Add/View Client Request Form Modal -->
+<x-modal name="client-request-modal" maxWidth="2xl">
     <div class="max-h-screen overflow-y-auto p-6">
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">Add Client Request Form</h2>
-        <form class="space-y-6" id="add-client-request-form">
+        <!-- Header -->
+        <h2 class="mb-4 text-lg font-semibold text-gray-900" id="client-request-modal-title">Add Client Request Form</h2>
+        
+        <form class="space-y-6" id="client-request-form">
+            <!-- Hidden input to store request ID for edit mode -->
+            <input type="hidden" id="client-request-id" name="id" value="">
+            
+            <!-- Mode indicator -->
+            <input type="hidden" id="client-request-mode" name="mode" value="add">
+
             <!-- Date and Type -->
             <div>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -68,7 +76,7 @@
             <div>
                 <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Requested Documents
                 </h3>
-                <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+                <div class="grid grid-cols-1 gap-2 md:grid-cols-2" id="requested-docs-container">
                     @php
                         $documents = [
                             'Certificate of Incorporation',
@@ -88,6 +96,10 @@
                         </label>
                     @endforeach
                 </div>
+                <!-- View mode documents display -->
+                <div id="requested-docs-view" class="hidden">
+                    <div class="flex flex-wrap gap-2" id="requested-docs-list"></div>
+                </div>
             </div>
 
             <!-- Remarks -->
@@ -98,14 +110,41 @@
                     id="remarks" name="remarks" rows="3" maxlength="1000" placeholder="Enter any additional remarks..."></textarea>
             </div>
 
-            <div class="flex justify-end gap-3">
+            <!-- View Mode Only: Additional Info -->
+            <div id="view-mode-info" class="hidden rounded-lg bg-gray-50 p-4">
+                <h4 class="mb-3 text-sm font-semibold text-gray-700">Additional Information</h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-500">Created At:</span>
+                        <span id="created-at" class="text-gray-900"></span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-500">Updated At:</span>
+                        <span id="updated-at" class="text-gray-900"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3" id="form-buttons">
                 <button class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600"
-                    id="cancel-add-client-request-btn" type="button">
+                    id="cancel-client-request-btn" type="button">
                     Cancel
                 </button>
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                    id="add-client-request-submit-btn" type="button">
+                    id="client-request-submit-btn" type="button">
                     Submit Request
+                </button>
+            </div>
+
+            <!-- View Mode Buttons -->
+            <div class="hidden flex justify-end gap-3" id="view-mode-buttons">
+                <button class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600"
+                    id="close-view-btn" type="button">
+                    Close
+                </button>
+                <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                    id="edit-request-btn" type="button">
+                    Edit
                 </button>
             </div>
         </form>
