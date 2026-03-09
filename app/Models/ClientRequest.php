@@ -21,11 +21,13 @@ class ClientRequest extends Model
         'requested_docs',
         'others_specify',
         'remarks',
+        'certified_true_copy',
     ];
 
     protected $casts = [
         'date' => 'date',
         'amount' => 'decimal:2',
         'requested_docs' => 'array',
+        'certified_true_copy' => 'boolean',
     ];
 }

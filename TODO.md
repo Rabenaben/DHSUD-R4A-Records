@@ -1,17 +1,9 @@
-# TODO List
+# Task: Add Certified True Copy Checkbox to Client Request Modal
 
-## Task: Fix #no-records-message element not hiding after adding new record
+## Progress
+- [ ] 1. Update Model (ClientRequest.php) - Add certified_true_copy to $fillable
+- [ ] 2. Update Controller (ClientRequestController.php) - Add validation and handling
+- [ ] 3. Update Blade Template - Add checkbox UI
+- [ ] 4. Update JavaScript - Handle form submission and display
 
-### Problem
-After adding a new record, the "No request history records found" message (#no-records-message) still shows instead of displaying the new record in the table.
-
-### Root Cause
-The `updateRequestHistoryTable()` function in `resources/js/request-history.js` didn't handle the `#no-records-message` element - it only handled `#no-results-message` (which is for search results).
-
-### Solution
-Updated the `updateRequestHistoryTable()` function to also toggle the `#no-records-message` element when records exist or are empty.
-
-### Steps
-- [x] 1. Analyze the code and identify the bug
-- [x] 2. Fix the updateRequestHistoryTable function to handle #no-records-message
-- [x] 3. Test the fix
+## Status: In Progress

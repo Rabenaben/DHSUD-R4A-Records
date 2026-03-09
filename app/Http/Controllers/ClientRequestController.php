@@ -28,7 +28,11 @@ class ClientRequestController extends Controller
             'requested_docs' => 'required|array|min:1|max:10',
             'others_specify' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:1000',
+            'certified_true_copy' => 'nullable|string|in:certified,not_certified',
         ]);
+
+        // Convert string value to boolean for storage
+        $certifiedTrueCopy = $request->certified_true_copy === 'certified';
 
         $clientRequest = ClientRequest::create([
             'date' => $request->date,
@@ -42,6 +46,7 @@ class ClientRequestController extends Controller
             'requested_docs' => $request->requested_docs,
             'others_specify' => $request->others_specify,
             'remarks' => $request->remarks,
+            'certified_true_copy' => $certifiedTrueCopy,
         ]);
 
         // Log activity
@@ -73,6 +78,7 @@ class ClientRequestController extends Controller
             'requested_docs' => 'required|array|min:1|max:10',
             'others_specify' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:1000',
+            'certified_true_copy' => 'nullable|boolean',
         ]);
 
         $oldDocketNo = $clientRequest->docket_no;
@@ -89,6 +95,7 @@ class ClientRequestController extends Controller
             'requested_docs' => $request->requested_docs,
             'others_specify' => $request->others_specify,
             'remarks' => $request->remarks,
+            'certified_true_copy' => $request->certified_true_copy ?? false,
         ]);
 
         // Log activity
@@ -138,6 +145,7 @@ class ClientRequestController extends Controller
                 'requested_docs' => $request->requested_docs,
                 'others_specify' => $request->others_specify,
                 'remarks' => $request->remarks,
+                'certified_true_copy' => $request->certified_true_copy,
                 'created_at' => $request->created_at,
                 'updated_at' => $request->updated_at,
             ];
@@ -170,6 +178,7 @@ class ClientRequestController extends Controller
                 'requested_docs' => $request->requested_docs,
                 'others_specify' => $request->others_specify,
                 'remarks' => $request->remarks,
+                'certified_true_copy' => $request->certified_true_copy,
                 'created_at' => $request->created_at,
                 'updated_at' => $request->updated_at,
             ];
@@ -177,13 +186,25 @@ class ClientRequestController extends Controller
 
         // Calculate stats for each document type
         $documentTypes = [
+            // HOA Documents
             'Certificate of Incorporation',
             'Certificate of Amended By-Laws',
             'Certificate of Amended Articles of Incorporation',
             'Articles of Incorporation',
             'By-Laws',
             'Annual Report',
-            'Election Report'
+            'Election Report',
+            'Masterlist',
+            'General Information Sheet',
+            // REM Documents
+            'Certificate of Registration and License to Sell (CRLS)',
+            'Notarized Fact Sheet / Sales Report',
+            'Development Permit',
+            'Verified Survey Returns (VSR)',
+            'Subdivision Development Plan (SDP)',
+            'Others',
+            // Special stats
+            'Certified True Copy'
         ];
 
         // Initialize stats array
@@ -195,10 +216,17 @@ class ClientRequestController extends Controller
         // Count occurrences of each document type
         foreach ($clientRequests as $request) {
             $requestedDocs = $request->requested_docs;
-            foreach ($requestedDocs as $doc) {
-                if (isset($docStats[$doc])) {
-                    $docStats[$doc]++;
+            if (is_array($requestedDocs)) {
+                foreach ($requestedDocs as $doc) {
+                    if (isset($docStats[$doc])) {
+                        $docStats[$doc]++;
+                    }
                 }
+            }
+
+            // Count Certified True Copy
+            if ($request->certified_true_copy) {
+                $docStats['Certified True Copy']++;
             }
         }
 

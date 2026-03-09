@@ -51,12 +51,13 @@ const REM_DOCUMENTS = [
 function renderDocumentsByType(type) {
     const container = document.getElementById('requested-docs-container');
     const othersInputContainer = document.getElementById('others-input-container');
-    
+    const certifiedTrueCopySection = document.getElementById('certified-true-copy-section');
+
     if (!container) return;
-    
+
     // Clear existing content
     container.innerHTML = '';
-    
+
     // Get the appropriate document list
     let documents = [];
     if (type === 'HOA') {
@@ -64,25 +65,32 @@ function renderDocumentsByType(type) {
     } else if (type === 'REM') {
         documents = REM_DOCUMENTS;
     }
-    
+
     if (documents.length === 0) {
         // No type selected, show message
         container.innerHTML = '<p class="text-sm text-gray-500" id="select-type-message">Please select a Type to see available documents.</p>';
         if (othersInputContainer) othersInputContainer.classList.add('hidden');
+        // Hide Certified True Copy section when no type is selected
+        if (certifiedTrueCopySection) certifiedTrueCopySection.classList.add('hidden');
         return;
     }
-    
+
+    // Show Certified True Copy section when a valid type is selected
+    if (certifiedTrueCopySection) {
+        certifiedTrueCopySection.classList.remove('hidden');
+    }
+
     // Render document checkboxes
     documents.forEach(doc => {
         const label = document.createElement('label');
         label.className = 'flex items-center space-x-2';
-        
+
         const input = document.createElement('input');
         input.type = 'checkbox';
         input.className = 'rounded border-gray-300 text-blue-600 focus:ring-blue-500';
         input.name = 'requested_docs[]';
         input.value = doc;
-        
+
         // Add change event listener for "Others" checkbox
         if (doc === 'Others') {
             input.addEventListener('change', (e) => {
@@ -95,16 +103,16 @@ function renderDocumentsByType(type) {
                 }
             });
         }
-        
+
         const span = document.createElement('span');
         span.className = 'text-sm text-gray-700';
         span.textContent = doc;
-        
+
         label.appendChild(input);
         label.appendChild(span);
         container.appendChild(label);
     });
-    
+
     // Hide the others input initially
     if (othersInputContainer) othersInputContainer.classList.add('hidden');
 }
@@ -150,15 +158,15 @@ function initRequestHistory() {
     if (cancelClientRequestBtn) {
         cancelClientRequestBtn.addEventListener('click', () => {
             const mode = document.getElementById('client-request-mode')?.value;
-            
+
             if (mode === 'edit') {
                 // If in edit mode, switch back to view mode instead of closing modal
                 const modeInput = document.getElementById('client-request-mode');
                 if (modeInput) modeInput.value = 'view';
-                
+
                 const modalTitle = document.getElementById('client-request-modal-title');
                 if (modalTitle) modalTitle.textContent = 'View Client Request';
-                
+
                 // Reset Others checkbox and hide the specify input when switching to view mode
                 const othersCheckbox = document.querySelector('input[name="requested_docs[]"][value="Others"]');
                 if (othersCheckbox) {
@@ -172,7 +180,7 @@ function initRequestHistory() {
                 if (othersSpecify) {
                     othersSpecify.value = '';
                 }
-                
+
                 toggleViewMode(true);
             } else {
                 // If in add mode, close the modal
@@ -322,7 +330,7 @@ function initRequestHistory() {
             searchClientRequests();
         });
     }
-    
+
     // Initialize table row click handlers
     initTableRowClickHandlers();
 }
@@ -365,7 +373,7 @@ async function searchClientRequests() {
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     initRequestHistory();
-    
+
     // Fetch initial data for table row click functionality
     refreshRequestHistoryTable();
 });
@@ -387,8 +395,8 @@ function initTableRowClickHandlers() {
         const clientName = row.dataset.clientName;
 
         // Find the request in our data
-        const request = clientRequestsData.find(r => 
-            r.docket_no.toLowerCase() === docketNo && 
+        const request = clientRequestsData.find(r =>
+            r.docket_no.toLowerCase() === docketNo &&
             r.requested_by.toLowerCase() === clientName
         );
 
@@ -410,24 +418,24 @@ function openClientRequestModal(mode, requestData = null) {
 
     // Always reset form fields before populating with new data
     resetFormFields();
-    
+
     if (mode === 'add') {
         // Reset form for add mode
         if (form) form.reset();
-        
+
         if (modalTitle) modalTitle.textContent = 'Add Client Request Form';
         if (modeInput) modeInput.value = 'add';
-        
+
         // Show form fields
         toggleViewMode(false);
-        
+
         // Set button text to "Submit Request" for add mode
         const submitBtn = document.getElementById('client-request-submit-btn');
         if (submitBtn) submitBtn.textContent = 'Submit Request';
-        
+
         // Set today's date
         setTodayDate();
-        
+
         // Clear documents container for add mode
         const docsContainer = document.getElementById('requested-docs-container');
         if (docsContainer) {
@@ -438,13 +446,13 @@ function openClientRequestModal(mode, requestData = null) {
     } else if (mode === 'view' && requestData) {
         // Populate form with request data
         populateFormWithData(requestData);
-        
+
         if (modalTitle) modalTitle.textContent = 'View Client Request';
         if (modeInput) modeInput.value = 'view';
-        
+
         // Show view mode
         toggleViewMode(true);
-        
+
         // Populate view-specific info
         populateViewModeInfo(requestData);
     }
@@ -460,17 +468,21 @@ function resetClientRequestModal() {
     const form = document.getElementById('client-request-form');
     if (form) form.reset();
     resetFormFields();
-    
+
     const modeInput = document.getElementById('client-request-mode');
     if (modeInput) modeInput.value = 'add';
-    
+
     const modalTitle = document.getElementById('client-request-modal-title');
     if (modalTitle) modalTitle.textContent = 'Add Client Request Form';
-    
+
     // Reset button text to "Submit Request" for add mode
     const submitBtn = document.getElementById('client-request-submit-btn');
     if (submitBtn) submitBtn.textContent = 'Submit Request';
-    
+
+    // Hide Certified True Copy section in add mode
+    const certifiedTrueCopySection = document.getElementById('certified-true-copy-section');
+    if (certifiedTrueCopySection) certifiedTrueCopySection.classList.add('hidden');
+
     toggleViewMode(false);
 }
 
@@ -481,7 +493,7 @@ function resetFormFields() {
     // Clear hidden ID field
     const idField = document.getElementById('client-request-id');
     if (idField) idField.value = '';
-    
+
     // Clear any error styles
     clearValidationStyles();
 }
@@ -551,6 +563,22 @@ function populateFormWithData(data) {
         othersSpecify.value = data.others_specify;
     }
 
+    // Populate Certified True Copy radio buttons
+    const certifiedTrueCopy = document.getElementById('certified-true-copy');
+    const notCertified = document.getElementById('not-certified');
+
+    if (data.certified_true_copy === true || data.certified_true_copy === 1 || data.certified_true_copy === '1' || data.certified_true_copy === 'certified') {
+        if (certifiedTrueCopy) certifiedTrueCopy.checked = true;
+        if (notCertified) notCertified.checked = false;
+    } else if (data.certified_true_copy === false || data.certified_true_copy === 0 || data.certified_true_copy === '0' || data.certified_true_copy === 'not_certified') {
+        if (certifiedTrueCopy) certifiedTrueCopy.checked = false;
+        if (notCertified) notCertified.checked = true;
+    } else {
+        // Default to not certified if no value
+        if (certifiedTrueCopy) certifiedTrueCopy.checked = false;
+        if (notCertified) notCertified.checked = true;
+    }
+
     // Always hide the "Others" specify input in view mode
     // It's controlled separately from toggleViewMode() so we need to ensure it's hidden
     const othersInputContainer = document.getElementById('others-input-container');
@@ -578,9 +606,33 @@ function populateViewModeInfo(data) {
     const requestedDocs = parseRequestedDocs(data);
     const docsList = document.getElementById('requested-docs-list');
     if (docsList && requestedDocs.length > 0) {
-        docsList.innerHTML = requestedDocs.map(doc => 
+        docsList.innerHTML = requestedDocs.map(doc =>
             `<span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">${doc}</span>`
         ).join('');
+    }
+
+    // Show Certified/Not Certified badge in view mode
+    const certifiedTrueCopyView = document.getElementById('certified-true-copy-view');
+    const certificationBadge = document.getElementById('certification-badge');
+
+    if (certifiedTrueCopyView && certificationBadge) {
+        const isCertified = data.certified_true_copy === true || data.certified_true_copy === 1 || data.certified_true_copy === '1' || data.certified_true_copy === 'certified';
+        const isNotCertified = data.certified_true_copy === false || data.certified_true_copy === 0 || data.certified_true_copy === '0' || data.certified_true_copy === 'not_certified';
+
+        if (isCertified) {
+            certificationBadge.textContent = 'Certified';
+            certificationBadge.className = 'rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800';
+            certifiedTrueCopyView.classList.remove('hidden');
+        } else if (isNotCertified) {
+            certificationBadge.textContent = 'Not Certified';
+            certificationBadge.className = 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800';
+            certifiedTrueCopyView.classList.remove('hidden');
+        } else {
+            // Default to not certified
+            certificationBadge.textContent = 'Not Certified';
+            certificationBadge.className = 'rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800';
+            certifiedTrueCopyView.classList.remove('hidden');
+        }
     }
 }
 
@@ -629,6 +681,28 @@ function toggleViewMode(isViewMode) {
         }
     });
 
+    // Toggle Certified True Copy radio buttons read-only state
+    const ctcRadioCertified = document.getElementById('certified-true-copy');
+    const ctcRadioNotCertified = document.getElementById('not-certified');
+
+    if (ctcRadioCertified) {
+        ctcRadioCertified.disabled = isViewMode;
+        if (isViewMode) {
+            ctcRadioCertified.parentElement.classList.add('cursor-not-allowed', 'opacity-50');
+        } else {
+            ctcRadioCertified.parentElement.classList.remove('cursor-not-allowed', 'opacity-50');
+        }
+    }
+
+    if (ctcRadioNotCertified) {
+        ctcRadioNotCertified.disabled = isViewMode;
+        if (isViewMode) {
+            ctcRadioNotCertified.parentElement.classList.add('cursor-not-allowed', 'opacity-50');
+        } else {
+            ctcRadioNotCertified.parentElement.classList.remove('cursor-not-allowed', 'opacity-50');
+        }
+    }
+
     // Toggle button visibility
     if (formButtons) {
         formButtons.classList.toggle('hidden', isViewMode);
@@ -646,6 +720,28 @@ function toggleViewMode(isViewMode) {
     }
     if (requestedDocsView) {
         requestedDocsView.classList.toggle('hidden', !isViewMode);
+    }
+
+    // Toggle Certified True Copy section - show only when type is selected
+    const certifiedTrueCopySection = document.getElementById('certified-true-copy-section');
+    const certifiedTrueCopyView = document.getElementById('certified-true-copy-view');
+    const requestTypeSelect = document.getElementById('request-type');
+    const selectedType = requestTypeSelect?.value;
+
+    // Show section only when a type (HOA or REM) is selected
+    if (certifiedTrueCopySection) {
+        if (selectedType === 'HOA' || selectedType === 'REM') {
+            certifiedTrueCopySection.classList.remove('hidden');
+        } else {
+            certifiedTrueCopySection.classList.add('hidden');
+        }
+    }
+
+    // In view mode: hide radio buttons, show badge. In form mode: show radio buttons, hide badge
+    const certificationSection = document.querySelector('#certified-true-copy-section .mt-2');
+    if (certificationSection && certifiedTrueCopyView) {
+        certificationSection.classList.toggle('hidden', isViewMode);
+        certifiedTrueCopyView.classList.toggle('hidden', !isViewMode);
     }
 }
 
@@ -668,22 +764,22 @@ function switchToEditMode() {
     if (typeSelect && typeSelect.value) {
         // Render documents based on the selected type
         renderDocumentsByType(typeSelect.value);
-        
+
         // Check the existing documents from currentRequestData
         if (currentRequestData && currentRequestData.requested_docs) {
             const requestedDocs = currentRequestData.requested_docs;
-            
+
             // Check each document checkbox that matches the requested docs
             document.querySelectorAll('input[name="requested_docs[]"]').forEach(checkbox => {
                 checkbox.checked = requestedDocs.includes(checkbox.value);
             });
-            
+
             // Handle "Others" checkbox - show the input if "Others" was selected
             const othersCheckbox = document.querySelector('input[name="requested_docs[]"][value="Others"]');
             const othersInputContainer = document.getElementById('others-input-container');
             if (othersCheckbox && othersCheckbox.checked && othersInputContainer) {
                 othersInputContainer.classList.remove('hidden');
-                
+
                 // Use the stored others_specify value from the database
                 const othersSpecify = document.getElementById('others-document-specify');
                 if (othersSpecify && currentRequestData && currentRequestData.others_specify) {
@@ -709,6 +805,11 @@ async function createClientRequest(form, checkedDocs) {
     if (othersSpecify && othersSpecify.value.trim()) {
         data.others_specify = othersSpecify.value.trim();
     }
+
+    // Include Certified True Copy radio button value
+    const certifiedTrueCopy = document.querySelector('input[name="certification_status"]:checked');
+    // Default to "not_certified" if no selection
+    data.certified_true_copy = certifiedTrueCopy ? certifiedTrueCopy.value : 'not_certified';
 
     try {
         const response = await fetch('/client-requests', {
@@ -754,6 +855,11 @@ async function updateClientRequest(requestId, form, checkedDocs) {
     if (othersSpecify && othersSpecify.value.trim()) {
         data.others_specify = othersSpecify.value.trim();
     }
+
+    // Include Certified True Copy radio button value
+    const certifiedTrueCopy = document.querySelector('input[name="certification_status"]:checked');
+    // Default to "not_certified" if no selection
+    data.certified_true_copy = certifiedTrueCopy ? certifiedTrueCopy.value : 'not_certified';
 
     try {
         const response = await fetch(`/client-requests/${requestId}`, {
@@ -803,10 +909,10 @@ async function refreshRequestHistoryTable() {
             const data = await response.json();
             const clientRequests = data.clientRequests || [];
             const docStats = data.docStats || {};
-            
+
             // Store data globally for quick access
             clientRequestsData = clientRequests;
-            
+
             updateRequestHistoryTable(clientRequests);
             updateStatCards(docStats);
         } else {
@@ -893,7 +999,7 @@ function updateRequestHistoryTable(clientRequests) {
         row.setAttribute('data-docket-no', request.docket_no.toLowerCase());
         row.setAttribute('data-client-name', request.requested_by.toLowerCase());
         row.setAttribute('data-type', request.type);
-        
+
         // Add hover effect classes for consistency with Blade template
         row.classList.add('cursor-pointer', 'transition', 'hover:bg-gray-100');
 
