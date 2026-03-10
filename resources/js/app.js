@@ -30,6 +30,7 @@ class Toast {
                 iconClass: 'bi bi-info-circle mr-3 text-gray-600 text-xl'
             }
         };
+        this.hideTimeout = null;
     }
 
     show(message, type = 'default') {
@@ -37,6 +38,12 @@ class Toast {
         const toastContent = document.getElementById('toast-content');
         const toastIcon = document.getElementById('toast-icon');
         const toastMessage = document.getElementById('toast-message');
+
+        // Clear any existing timeout to prevent premature hiding of new toast
+        if (this.hideTimeout) {
+            clearTimeout(this.hideTimeout);
+            this.hideTimeout = null;
+        }
 
         // Hide any currently displayed toast to prevent stacking
         if (!toast.classList.contains('hidden')) {
@@ -78,14 +85,18 @@ class Toast {
         toast.classList.add('translate-x-0');
 
         // Auto-hide after 3 seconds with slide-out animation
-        setTimeout(() => {
+        this.hideTimeout = setTimeout(() => {
             toast.classList.remove('translate-x-0');
             toast.classList.add('translate-x-full');
             setTimeout(() => toast.classList.add('hidden'), 300);
+            this.hideTimeout = null;
         }, 3000);
     }
 }
 
-window.showToast = (message, type) => new Toast().show(message, type);
+// Create a single Toast instance to persist the timeout across multiple toast calls
+const toastInstance = new Toast();
+
+window.showToast = (message, type) => toastInstance.show(message, type);
 
 Alpine.start();

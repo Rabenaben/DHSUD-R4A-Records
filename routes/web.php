@@ -99,9 +99,10 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
     });
 
-    // Client Request routes (ClientRequestController)
+// Client Request routes (ClientRequestController)
     Route::controller(ClientRequestController::class)->prefix('client-requests')->name('client-requests.')->group(function () {
         Route::get('/data', 'getData')->name('data');
+        Route::get('/dockets', 'getDocketNumbers')->name('dockets');
         Route::post('/', 'store')->name('store');
         Route::put('/{id}', 'update')->name('update');
         Route::get('/search', 'search')->name('search');

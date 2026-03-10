@@ -154,7 +154,7 @@ class ClientRequestController extends Controller
         return response()->json($formattedRequests);
     }
 
-    /**
+/**
      * Get client requests data for display.
      */
     public function getData()
@@ -184,9 +184,8 @@ class ClientRequestController extends Controller
             ];
         });
 
-        // Calculate stats for each document type
-        $documentTypes = [
-            // HOA Documents
+        // HOA Document Types
+        $hoaDocumentTypes = [
             'Certificate of Incorporation',
             'Certificate of Amended By-Laws',
             'Certificate of Amended Articles of Incorporation',
@@ -196,43 +195,100 @@ class ClientRequestController extends Controller
             'Election Report',
             'Masterlist',
             'General Information Sheet',
-            // REM Documents
+            'Others'
+        ];
+
+        // REM Document Types
+        $remDocumentTypes = [
             'Certificate of Registration and License to Sell (CRLS)',
             'Notarized Fact Sheet / Sales Report',
             'Development Permit',
             'Verified Survey Returns (VSR)',
             'Subdivision Development Plan (SDP)',
-            'Others',
-            // Special stats
-            'Certified True Copy'
+            'Others'
         ];
 
-        // Initialize stats array
-        $docStats = [];
-        foreach ($documentTypes as $doc) {
-            $docStats[$doc] = 0;
+        // Initialize stats arrays
+        $hoaStats = [];
+        $remStats = [];
+        foreach ($hoaDocumentTypes as $doc) {
+            $hoaStats[$doc] = 0;
+        }
+        foreach ($remDocumentTypes as $doc) {
+            $remStats[$doc] = 0;
         }
 
-        // Count occurrences of each document type
+        // Count occurrences of each document type, separated by HOA/REM
         foreach ($clientRequests as $request) {
-            $requestedDocs = $request->requested_docs;
-            if (is_array($requestedDocs)) {
-                foreach ($requestedDocs as $doc) {
-                    if (isset($docStats[$doc])) {
-                        $docStats[$doc]++;
-                    }
+            $requestedDocs = $request->requested_docs ?? [];
+            $requestType = $request->type; // 'HOA' or 'REM'
+            
+            foreach ($requestedDocs as $doc) {
+                if ($requestType === 'HOA' && isset($hoaStats[$doc])) {
+                    $hoaStats[$doc]++;
+                } elseif ($requestType === 'REM' && isset($remStats[$doc])) {
+                    $remStats[$doc]++;
                 }
-            }
-
-            // Count Certified True Copy
-            if ($request->certified_true_copy) {
-                $docStats['Certified True Copy']++;
             }
         }
 
         return response()->json([
             'clientRequests' => $formattedRequests,
-            'docStats' => $docStats,
+            'hoaStats' => $hoaStats,
+            'remStats' => $remStats,
         ]);
+    }
+
+    /**
+     * Get docket numbers for dropdown based on type (HOA or REM).
+     */
+    public function getDocketNumbers(Request $request)
+    {
+        $type = $request->get('type', 'all');
+        
+        $dockets = [];
+        
+        if ($type === 'all' || $type === 'HOA') {
+            // Get HOA docket numbers with their project names
+            $hoaDockets = HoaDatabase::select('docket_no', 'hoa_name', 'location')
+                ->whereNotNull('docket_no')
+                ->where('docket_no', '!=', '')
+                ->orderBy('docket_no')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'docket_no' => $item->docket_no,
+                        'project_name' => $item->hoa_name,
+                        'location' => $item->location,
+                        'type' => 'HOA'
+                    ];
+                });
+            $dockets = array_merge($dockets, $hoaDockets->toArray());
+        }
+        
+        if ($type === 'all' || $type === 'REM') {
+            // Get REM docket numbers with their project names
+            $remDockets = RemDatabase::select('docket_no', 'project_name', 'location')
+                ->whereNotNull('docket_no')
+                ->where('docket_no', '!=', '')
+                ->orderBy('docket_no')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'docket_no' => $item->docket_no,
+                        'project_name' => $item->project_name,
+                        'location' => $item->location,
+                        'type' => 'REM'
+                    ];
+                });
+            $dockets = array_merge($dockets, $remDockets->toArray());
+        }
+        
+        // Sort by docket number
+        usort($dockets, function ($a, $b) {
+            return strcasecmp($a['docket_no'], $b['docket_no']);
+        });
+        
+        return response()->json($dockets);
     }
 }

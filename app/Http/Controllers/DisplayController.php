@@ -258,34 +258,55 @@ class DisplayController extends Controller
     {
         $clientRequests = ClientRequest::orderBy('created_at', 'desc')->get();
 
-        // Calculate stats for each document type
-        $documentTypes = [
+        // HOA Document Types
+        $hoaDocumentTypes = [
             'Certificate of Incorporation',
             'Certificate of Amended By-Laws',
             'Certificate of Amended Articles of Incorporation',
             'Articles of Incorporation',
             'By-Laws',
             'Annual Report',
-            'Election Report'
+            'Election Report',
+            'Masterlist',
+            'General Information Sheet',
+            'Others'
         ];
 
-        // Initialize stats array
-        $docStats = [];
-        foreach ($documentTypes as $doc) {
-            $docStats[$doc] = 0;
+        // REM Document Types
+        $remDocumentTypes = [
+            'Certificate of Registration and License to Sell (CRLS)',
+            'Notarized Fact Sheet / Sales Report',
+            'Development Permit',
+            'Verified Survey Returns (VSR)',
+            'Subdivision Development Plan (SDP)',
+            'Others'
+        ];
+
+        // Initialize stats arrays
+        $hoaStats = [];
+        $remStats = [];
+        foreach ($hoaDocumentTypes as $doc) {
+            $hoaStats[$doc] = 0;
+        }
+        foreach ($remDocumentTypes as $doc) {
+            $remStats[$doc] = 0;
         }
 
-        // Count occurrences of each document type
+        // Count occurrences of each document type, separated by HOA/REM
         foreach ($clientRequests as $request) {
             $requestedDocs = $request->requested_docs ?? [];
+            $requestType = $request->type; // 'HOA' or 'REM'
+            
             foreach ($requestedDocs as $doc) {
-                if (isset($docStats[$doc])) {
-                    $docStats[$doc]++;
+                if ($requestType === 'HOA' && isset($hoaStats[$doc])) {
+                    $hoaStats[$doc]++;
+                } elseif ($requestType === 'REM' && isset($remStats[$doc])) {
+                    $remStats[$doc]++;
                 }
             }
         }
 
-        return view('request-history.request-history', compact('clientRequests', 'docStats'));
+        return view('request-history.request-history', compact('clientRequests', 'hoaStats', 'remStats'));
     }
 
     // 🔹 Archived Files Dashboard

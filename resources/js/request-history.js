@@ -8,6 +8,9 @@ let clientRequestsData = [];
 // Store current request data for edit mode
 let currentRequestData = null;
 
+// Store docket numbers data for quick access
+let docketNumbersData = [];
+
 // Consolidated form field IDs for validation and toggling
 const FORM_FIELD_IDS = [
     'request-date',
@@ -113,8 +116,91 @@ function renderDocumentsByType(type) {
         container.appendChild(label);
     });
 
-    // Hide the others input initially
+// Hide the others input initially
     if (othersInputContainer) othersInputContainer.classList.add('hidden');
+}
+
+/**
+ * Fetches docket numbers from the server based on type
+ * @param {string} type - 'HOA', 'REM', or 'all'
+ */
+async function fetchDocketNumbers(type = 'all') {
+    try {
+        const response = await fetch(`/client-requests/dockets?type=${type}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const dockets = await response.json();
+            docketNumbersData = dockets;
+            return dockets;
+        } else {
+            console.error('Failed to fetch docket numbers');
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching docket numbers:', error);
+        return [];
+    }
+}
+
+/**
+ * Populates the docket number dropdown based on the selected type
+ * @param {string} type - 'HOA' or 'REM'
+ */
+async function populateDocketDropdown(type) {
+    const docketSelect = document.getElementById('docket-no');
+    if (!docketSelect) return;
+
+    // Clear existing options except the first one
+    docketSelect.innerHTML = '<option value="">Select Docket No.</option>';
+
+    // Fetch docket numbers based on type
+    const dockets = await fetchDocketNumbers(type);
+
+    // Filter dockets by type if needed
+    const filteredDockets = type === 'all' 
+        ? dockets 
+        : dockets.filter(d => d.type === type);
+
+    // Add options to the dropdown
+    filteredDockets.forEach(docket => {
+        const option = document.createElement('option');
+        option.value = docket.docket_no;
+        option.textContent = docket.docket_no;
+        option.dataset.projectName = docket.project_name || '';
+        option.dataset.location = docket.location || '';
+        option.dataset.type = docket.type || '';
+        docketSelect.appendChild(option);
+    });
+}
+
+/**
+ * Handles the docket number dropdown change event
+ * Auto-populates the project name and location fields
+ */
+function handleDocketChange() {
+    const docketSelect = document.getElementById('docket-no');
+    const projectNameInput = document.getElementById('project-name');
+    const locationInput = document.getElementById('location');
+
+    if (!docketSelect) return;
+
+    docketSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (projectNameInput && selectedOption.dataset.projectName) {
+            projectNameInput.value = selectedOption.dataset.projectName;
+        }
+        
+        if (locationInput && selectedOption.dataset.location) {
+            locationInput.value = selectedOption.dataset.location;
+        }
+    });
 }
 
 /**
@@ -147,12 +233,33 @@ function initRequestHistory() {
         }
     });
 
-    // Handle Type selection change to render appropriate documents
+// Handle Type selection change to render appropriate documents and populate docket dropdown
     if (requestTypeSelect) {
-        requestTypeSelect.addEventListener('change', (e) => {
-            renderDocumentsByType(e.target.value);
+        requestTypeSelect.addEventListener('change', async (e) => {
+            const selectedType = e.target.value;
+            renderDocumentsByType(selectedType);
+            
+            // Clear project name and location when type changes
+            const projectNameInput = document.getElementById('project-name');
+            const locationInput = document.getElementById('location');
+            if (projectNameInput) projectNameInput.value = '';
+            if (locationInput) locationInput.value = '';
+            
+            // Populate docket dropdown based on selected type
+            if (selectedType === 'HOA' || selectedType === 'REM') {
+                await populateDocketDropdown(selectedType);
+            } else {
+                // If no type selected, clear the dropdown
+                const docketSelect = document.getElementById('docket-no');
+                if (docketSelect) {
+                    docketSelect.innerHTML = '<option value="">Select Docket No.</option>';
+                }
+            }
         });
     }
+
+    // Set up docket change handler
+    handleDocketChange();
 
     // Close modal on Cancel button click
     if (cancelClientRequestBtn) {
@@ -196,11 +303,11 @@ function initRequestHistory() {
             // Clear previous error styles
             clearValidationStyles();
 
-            // Validate required fields and other validations
+// Validate required fields and other validations
             const requiredFields = [
                 { id: 'request-date', name: 'Date', type: 'date' },
                 { id: 'request-type', name: 'Type', type: 'select', options: ['HOA', 'REM'] },
-                { id: 'docket-no', name: 'Docket No.', type: 'text', maxLength: 50, pattern: /^[A-Za-z0-9\-_]+$/ },
+                { id: 'docket-no', name: 'Docket No.', type: 'select' },
                 { id: 'project-name', name: 'Name of Project / HOA', type: 'text', maxLength: 255 },
                 { id: 'location', name: 'Location', type: 'text', maxLength: 255, required: false },
                 { id: 'requested-by', name: 'Requested By', type: 'text', maxLength: 100 },
@@ -278,6 +385,16 @@ function initRequestHistory() {
                 const othersSpecify = document.getElementById('others-document-specify');
                 if (!othersSpecify || !othersSpecify.value.trim()) {
                     window.showToast('Please specify the document for "Others".', 'error');
+                    isValid = false;
+                }
+            }
+
+            // Validate Certified True Copy option if the section is visible
+            const certifiedSection = document.getElementById('certified-true-copy-section');
+            if (certifiedSection && !certifiedSection.classList.contains('hidden')) {
+                const certifiedTrueCopy = document.querySelector('input[name="certification_status"]:checked');
+                if (!certifiedTrueCopy) {
+                    window.showToast('Please select a certification option (Certified or Not Certified).', 'error');
                     isValid = false;
                 }
             }
@@ -419,7 +536,7 @@ function openClientRequestModal(mode, requestData = null) {
     // Always reset form fields before populating with new data
     resetFormFields();
 
-    if (mode === 'add') {
+if (mode === 'add') {
         // Reset form for add mode
         if (form) form.reset();
 
@@ -443,6 +560,12 @@ function openClientRequestModal(mode, requestData = null) {
         }
         const othersInputContainer = document.getElementById('others-input-container');
         if (othersInputContainer) othersInputContainer.classList.add('hidden');
+
+        // Clear docket dropdown for add mode
+        const docketSelect = document.getElementById('docket-no');
+        if (docketSelect) {
+            docketSelect.innerHTML = '<option value="">Select Docket No.</option>';
+        }
     } else if (mode === 'view' && requestData) {
         // Populate form with request data
         populateFormWithData(requestData);
@@ -521,7 +644,7 @@ function parseRequestedDocs(data) {
  * Populates the form with request data
  * @param {object} data - The request data
  */
-function populateFormWithData(data) {
+async function populateFormWithData(data) {
     // Store current request data for edit mode
     currentRequestData = data;
 
@@ -529,11 +652,10 @@ function populateFormWithData(data) {
     const idField = document.getElementById('client-request-id');
     if (idField) idField.value = data.id || '';
 
-    // Set form fields
+// Set form fields
     const fields = {
         'request-date': data.date,
         'request-type': data.type,
-        'docket-no': data.docket_no,
         'project-name': data.project_name,
         'location': data.location || '',
         'requested-by': data.requested_by,
@@ -547,6 +669,38 @@ function populateFormWithData(data) {
         if (element) {
             element.value = value || '';
         }
+    }
+
+    // Handle docket-no dropdown - need to populate and select
+    const docketSelect = document.getElementById('docket-no');
+    if (docketSelect && data.docket_no) {
+        // Use data.type directly since the select element may not have the value set yet
+        // in view mode (the select is disabled and populated after this function is called)
+        const selectedType = data.type || 'all';
+        
+        // Populate dropdown and then select the value
+        await populateDocketDropdown(selectedType);
+        
+        // Try to set the value - if it doesn't exist in the dropdown (e.g., deleted from database),
+        // add it as a custom option
+        if (docketSelect.value !== data.docket_no) {
+            const customOption = document.createElement('option');
+            customOption.value = data.docket_no;
+            customOption.textContent = data.docket_no;
+            customOption.dataset.projectName = data.project_name || '';
+            customOption.dataset.location = data.location || '';
+            customOption.dataset.type = data.type || '';
+            docketSelect.appendChild(customOption);
+        }
+        
+        docketSelect.value = data.docket_no;
+    }
+
+    // IMPORTANT: Hide the others input container BEFORE setting checkboxes
+    // to prevent the change event listener from showing it briefly
+    const othersInputContainer = document.getElementById('others-input-container');
+    if (othersInputContainer) {
+        othersInputContainer.classList.add('hidden');
     }
 
     // Set checkboxes for requested docs
@@ -581,7 +735,6 @@ function populateFormWithData(data) {
 
     // Always hide the "Others" specify input in view mode
     // It's controlled separately from toggleViewMode() so we need to ensure it's hidden
-    const othersInputContainer = document.getElementById('others-input-container');
     if (othersInputContainer) {
         othersInputContainer.classList.add('hidden');
     }
@@ -660,7 +813,7 @@ function toggleViewMode(isViewMode) {
         }
     });
 
-    // Toggle select read-only state
+// Toggle select read-only state for request-type
     const selectField = document.getElementById('request-type');
     if (selectField) {
         selectField.disabled = isViewMode;
@@ -668,6 +821,17 @@ function toggleViewMode(isViewMode) {
             selectField.classList.add('bg-gray-100', 'cursor-not-allowed');
         } else {
             selectField.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        }
+    }
+
+    // Toggle docket-no select read-only state
+    const docketSelect = document.getElementById('docket-no');
+    if (docketSelect) {
+        docketSelect.disabled = isViewMode;
+        if (isViewMode) {
+            docketSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
+        } else {
+            docketSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
         }
     }
 
@@ -908,18 +1072,66 @@ async function refreshRequestHistoryTable() {
         if (response.ok) {
             const data = await response.json();
             const clientRequests = data.clientRequests || [];
-            const docStats = data.docStats || {};
+            const hoaStats = data.hoaStats || {};
+            const remStats = data.remStats || {};
 
             // Store data globally for quick access
             clientRequestsData = clientRequests;
 
             updateRequestHistoryTable(clientRequests);
-            updateStatCards(docStats);
+            updateChart(hoaStats, remStats);
         } else {
             console.error('Failed to fetch request history data');
         }
     } catch (error) {
         console.error('Error fetching request history:', error);
+    }
+}
+
+/**
+ * Updates the bar chart with new data.
+ * @param {object} hoaStats - HOA document stats
+ * @param {object} remStats - REM document stats
+ */
+function updateChart(hoaStats, remStats) {
+    // Check if chart exists and update it
+    if (typeof chartInstance !== 'undefined' && chartInstance) {
+        // Get the current type from the button state
+        const btnHoa = document.getElementById('btn-hoa');
+        const btnRem = document.getElementById('btn-rem');
+        const currentType = btnHoa && btnHoa.classList.contains('bg-blue-600') ? 'HOA' : 'REM';
+        
+        const docStats = currentType === 'HOA' ? hoaStats : remStats;
+        const colors = currentType === 'HOA' 
+            ? { background: 'rgba(59, 130, 246, 0.6)', border: 'rgba(59, 130, 246, 1)' }
+            : { background: 'rgba(34, 197, 94, 0.6)', border: 'rgba(34, 197, 94, 1)' };
+
+        // Short label mappings for graph display
+        const shortLabels = {
+            'Certificate of Incorporation': 'COI',
+            'Certificate of Amended By-Laws': 'Cof Amended By-Laws',
+            'Certificate of Amended Articles of Incorporation': 'Cof Amended AoI',
+            'Articles of Incorporation': 'AoI',
+            'By-Laws': 'By-Laws',
+            'Annual Report': 'Annual Report',
+            'Election Report': 'Election Report',
+            'Masterlist': 'Masterlist',
+            'General Information Sheet': 'GIS',
+            'Certificate of Registration and License to Sell (CRLS)': 'CRLS',
+            'Notarized Fact Sheet / Sales Report': 'Fact Sheet',
+            'Development Permit': 'Dev Permit',
+            'Verified Survey Returns (VSR)': 'VSR',
+            'Subdivision Development Plan (SDP)': 'SDP'
+        };
+
+        const labels = Object.keys(docStats).map(key => shortLabels[key] || key);
+        const chartData = Object.values(docStats);
+
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = chartData;
+        chartInstance.data.datasets[0].backgroundColor = colors.background;
+        chartInstance.data.datasets[0].borderColor = colors.border;
+        chartInstance.update();
     }
 }
 
@@ -1017,19 +1229,19 @@ function updateRequestHistoryTable(clientRequests) {
         }
 
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-6 py-4 text-center text-sm text-gray-900">
                 ${formattedDate}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-6 py-4 text-center text-sm text-gray-900">
                 ${request.docket_no}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-6 py-4 text-center text-sm text-gray-900">
                 ${request.project_name}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-6 py-4 text-center text-sm text-gray-900">
                 ${request.requested_by}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-6 py-4 text-center">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeClass}">
                     ${request.type}
                 </span>

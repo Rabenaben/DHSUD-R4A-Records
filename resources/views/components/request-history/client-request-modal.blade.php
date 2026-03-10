@@ -31,14 +31,18 @@
                 </div>
             </div>
 
-            <!-- Project Information -->
+<!-- Project Information -->
             <div>
                 <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Project Information
                 </h3>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <x-input-label value="Docket No." :required="true" />
-                        <x-text-input class="w-full" id="docket-no" name="docket_no" maxlength="50" required />
+                        <select
+                            class="w-full rounded-lg border border-gray-300 p-2 transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                            id="docket-no" name="docket_no" required>
+                            <option value="">Select Docket No.</option>
+                        </select>
                     </div>
                     <div>
                         <x-input-label value="Name of Project / HOA" :required="true" />

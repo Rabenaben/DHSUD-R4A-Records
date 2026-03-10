@@ -1,9 +1,9 @@
-# Task: Add Certified True Copy Checkbox to Client Request Modal
+# Task: Convert Docket No and Project Name to Dropdown with Auto-populate
 
-## Progress
-- [ ] 1. Update Model (ClientRequest.php) - Add certified_true_copy to $fillable
-- [ ] 2. Update Controller (ClientRequestController.php) - Add validation and handling
-- [ ] 3. Update Blade Template - Add checkbox UI
-- [ ] 4. Update JavaScript - Handle form submission and display
+## Plan:
+- [x] 1. Add new API endpoint in ClientRequestController to fetch docket numbers
+- [x] 2. Update routes to include the new endpoint
+- [x] 3. Update client-request-modal.blade.php to use dropdown for Docket No.
+- [x] 4. Update request-history.js to handle dropdown and auto-populate
 
-## Status: In Progress
+## Status: Completed
