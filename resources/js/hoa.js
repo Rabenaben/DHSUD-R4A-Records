@@ -798,6 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAddRecordModal();
     attachHoaRowClickListeners();
     attachHoaPaginationListeners();
+    initHoaExport();
 
     // Fix: Reset edit mode when HOA modal is closed (without clicking cancel)
     window.addEventListener('close-modal', (e) => {
@@ -814,3 +815,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// =========================================
+// Export Functions
+// =========================================
+
+function initHoaExport() {
+    const exportBtn = document.getElementById('exportHoaBtn');
+    const cancelBtn = document.getElementById('cancel-export-hoa-btn');
+    const submitBtn = document.getElementById('export-hoa-submit-btn');
+    const provinceSelect = document.getElementById('export-hoa-province');
+    const municipalitySelect = document.getElementById('export-hoa-municipality');
+
+    if (!exportBtn) return;
+
+    // Open export modal
+    exportBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'export-hoa' } }));
+    });
+
+    // Close modal
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-hoa' } }));
+        });
+    }
+
+    // Province change handler
+    if (provinceSelect) {
+        provinceSelect.addEventListener('change', async () => {
+            const provinceId = provinceSelect.value;
+            municipalitySelect.innerHTML = '<option value="">All Municipalities</option>';
+            municipalitySelect.disabled = !provinceId;
+
+            if (provinceId) {
+                try {
+                    const response = await fetch(`/hoa/municipalities?province_id=${provinceId}`);
+                    const municipalities = await response.json();
+
+                    municipalities.forEach(municipality => {
+                        const option = document.createElement('option');
+                        option.value = municipality.municipality_id;
+                        option.textContent = municipality.municipality_name;
+                        municipalitySelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching municipalities:', error);
+                }
+            }
+        });
+    }
+
+    // Export submit
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            const provinceId = provinceSelect?.value || '';
+            const municipalityId = municipalitySelect?.value || '';
+            
+            // Build URL with query parameters
+            let url = '/hoa/export?';
+            const params = new URLSearchParams();
+            if (provinceId) params.append('province_id', provinceId);
+            if (municipalityId) params.append('municipality_id', municipalityId);
+            url += params.toString();
+
+            // Download file
+            window.location.href = url;
+            
+            // Close modal
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-hoa' } }));
+            window.showToast('Exporting HOA records...', 'success');
+        });
+    }
+}

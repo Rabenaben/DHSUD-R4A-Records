@@ -122,4 +122,95 @@ class RemController extends Controller
             'records' => $records,
         ]);
     }
+
+    /**
+     * Export REM records to Excel
+     */
+    public function export(Request $request)
+    {
+        $provinceId = $request->query('province_id');
+        $municipalityId = $request->query('municipality_id');
+
+        $query = RemDatabase::with(['province', 'municipality']);
+
+        if ($provinceId) {
+            $query->where('province_id', $provinceId);
+        }
+
+        if ($municipalityId) {
+            $query->where('municipality_id', $municipalityId);
+        }
+
+        $records = $query->get();
+
+        // Get filter details for logging
+        $provinceName = '';
+        if ($provinceId) {
+            $province = Province::find($provinceId);
+            $provinceName = $province ? $province->province_name : '';
+        }
+        $municipalityName = '';
+        if ($municipalityId) {
+            $municipality = Municipality::find($municipalityId);
+            $municipalityName = $municipality ? $municipality->municipality_name : '';
+        }
+
+        // Build filter description for logging
+        $filterDescription = 'All Provinces';
+        if ($provinceName) {
+            $filterDescription = 'Province: ' . $provinceName;
+            if ($municipalityName) {
+                $filterDescription .= ', Municipality: ' . $municipalityName;
+            }
+        }
+
+        // Log the export activity
+        $this->logActivity(
+            'EXPORT-' . date('YmdHis'),
+            'REM Export - ' . $records->count() . ' records',
+            $filterDescription,
+            'Exported REM records'
+        );
+
+        // Create Excel file
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['Docket No', 'Project Name', 'Location', 'Province', 'Municipality', 'Status', 'Quantity', 'Remarks'];
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Set data
+        $row = 2;
+        foreach ($records as $record) {
+            $sheet->setCellValue('A' . $row, $record->docket_no);
+            $sheet->setCellValue('B' . $row, $record->project_name);
+            $sheet->setCellValue('C' . $row, $record->location);
+            $sheet->setCellValue('D' . $row, $record->province->province_name ?? '');
+            $sheet->setCellValue('E' . $row, $record->municipality->municipality_name ?? '');
+            $sheet->setCellValue('F' . $row, $record->status);
+            $sheet->setCellValue('G' . $row, $record->quantity);
+            $sheet->setCellValue('H' . $row, $record->remarks);
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'H') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        // Download file
+        $filename = 'rem_records_' . date('Y-m-d_His') . '.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
+    }
 }

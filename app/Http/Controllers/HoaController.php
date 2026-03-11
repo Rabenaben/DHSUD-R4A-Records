@@ -107,4 +107,97 @@ class HoaController extends Controller
             'records' => $records,
         ]);
     }
+
+    /**
+     * Export HOA records to Excel
+     */
+    public function export(Request $request)
+    {
+        $provinceId = $request->query('province_id');
+        $municipalityId = $request->query('municipality_id');
+
+        $query = HoaDatabase::with(['province', 'municipality']);
+
+        if ($provinceId) {
+            $query->where('province_id', $provinceId);
+        }
+
+        if ($municipalityId) {
+            $query->where('municipality_id', $municipalityId);
+        }
+
+        $records = $query->get();
+
+        // Get filter details for logging
+        $provinceName = '';
+        if ($provinceId) {
+            $province = Province::find($provinceId);
+            $provinceName = $province ? $province->province_name : '';
+        }
+        $municipalityName = '';
+        if ($municipalityId) {
+            $municipality = Municipality::find($municipalityId);
+            $municipalityName = $municipality ? $municipality->municipality_name : '';
+        }
+
+        // Build filter description for logging
+        $filterDescription = 'All Provinces';
+        if ($provinceName) {
+            $filterDescription = 'Province: ' . $provinceName;
+            if ($municipalityName) {
+                $filterDescription .= ', Municipality: ' . $municipalityName;
+            }
+        }
+
+        // Log the export activity
+        $this->logActivity(
+            'EXPORT-' . date('YmdHis'),
+            'HOA Export - ' . $records->count() . ' records',
+            $filterDescription,
+            'Exported HOA records'
+        );
+
+        // Create Excel file
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $headers = ['Docket No', 'HOA Name', 'Classification', 'HOA Status', 'Location', 'Province', 'Municipality', 'Status', 'Quantity', 'Remarks'];
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Set data
+        $row = 2;
+        foreach ($records as $record) {
+            $sheet->setCellValue('A' . $row, $record->docket_no);
+            $sheet->setCellValue('B' . $row, $record->hoa_name);
+            $sheet->setCellValue('C' . $row, $record->classification);
+            $sheet->setCellValue('D' . $row, $record->hoa_status);
+            $sheet->setCellValue('E' . $row, $record->location);
+            $sheet->setCellValue('F' . $row, $record->province->province_name ?? '');
+            $sheet->setCellValue('G' . $row, $record->municipality->municipality_name ?? '');
+            $sheet->setCellValue('H' . $row, $record->status);
+            $sheet->setCellValue('I' . $row, $record->quantity);
+            $sheet->setCellValue('J' . $row, $record->remarks);
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'J') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        // Download file
+        $filename = 'hoa_records_' . date('Y-m-d_His') . '.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
+    }
 }

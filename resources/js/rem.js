@@ -304,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFolderClicks();
     initAddRemRecordModal();
     setupRemCascadingDropdowns();
+    initRemExport();
 
     const editFileNameBtn = document.getElementById('rem-edit-file-name-btn');
     if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('rem'));
@@ -447,6 +448,79 @@ function initAddRemRecordModal() {
                 console.error('Error:', error);
                 window.showToast('Error adding record. Please try again.', 'error');
             }
+        });
+    }
+}
+
+// =========================================
+// Export Functions
+// =========================================
+
+function initRemExport() {
+    const exportBtn = document.getElementById('exportRemBtn');
+    const cancelBtn = document.getElementById('cancel-export-rem-btn');
+    const submitBtn = document.getElementById('export-rem-submit-btn');
+    const provinceSelect = document.getElementById('export-rem-province');
+    const municipalitySelect = document.getElementById('export-rem-municipality');
+
+    if (!exportBtn) return;
+
+    // Open export modal
+    exportBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'export-rem' } }));
+    });
+
+    // Close modal
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-rem' } }));
+        });
+    }
+
+    // Province change handler
+    if (provinceSelect) {
+        provinceSelect.addEventListener('change', async () => {
+            const provinceId = provinceSelect.value;
+            municipalitySelect.innerHTML = '<option value="">All Municipalities</option>';
+            municipalitySelect.disabled = !provinceId;
+
+            if (provinceId) {
+                try {
+                    const response = await fetch(`/rem/municipalities?province_id=${provinceId}`);
+                    const municipalities = await response.json();
+
+                    municipalities.forEach(municipality => {
+                        const option = document.createElement('option');
+                        option.value = municipality.municipality_id;
+                        option.textContent = municipality.municipality_name;
+                        municipalitySelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching municipalities:', error);
+                }
+            }
+        });
+    }
+
+    // Export submit
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            const provinceId = provinceSelect?.value || '';
+            const municipalityId = municipalitySelect?.value || '';
+            
+            // Build URL with query parameters
+            let url = '/rem/export?';
+            const params = new URLSearchParams();
+            if (provinceId) params.append('province_id', provinceId);
+            if (municipalityId) params.append('municipality_id', municipalityId);
+            url += params.toString();
+
+            // Download file
+            window.location.href = url;
+            
+            // Close modal
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-rem' } }));
+            window.showToast('Exporting REM records...', 'success');
         });
     }
 }

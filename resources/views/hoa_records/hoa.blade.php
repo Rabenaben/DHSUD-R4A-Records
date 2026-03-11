@@ -46,5 +46,6 @@
         <x-save-file-modal />
         <x-confirm-archive-file-modal />
         <x-confirm-save-record-modal type="HOA" />
+        <x-export-modal type="hoa" :provinces="$provinces" />
 
 </x-app-layout>
