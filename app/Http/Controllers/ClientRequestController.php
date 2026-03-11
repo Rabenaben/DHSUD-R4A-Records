@@ -20,7 +20,7 @@ class ClientRequestController extends Controller
             'date' => 'required|date',
             'type' => 'required|in:HOA,REM',
             'project_name' => 'required|string|max:255',
-            'docket_no' => 'required|string|regex:/^[A-Za-z0-9\-\_]+$/|max:50',
+            'docket_no' => 'required|string|max:50',
             'location' => 'nullable|string|max:255',
             'requested_by' => 'required|string|max:100',
             'or_no' => 'required|string|max:50',
@@ -28,11 +28,11 @@ class ClientRequestController extends Controller
             'requested_docs' => 'required|array|min:1|max:10',
             'others_specify' => 'nullable|string|max:255',
             'remarks' => 'nullable|string|max:1000',
-            'certified_true_copy' => 'nullable|string|in:certified,not_certified',
+            'certified_true_copy' => 'nullable|boolean',
         ]);
 
-        // Convert string value to boolean for storage
-        $certifiedTrueCopy = $request->certified_true_copy === 'certified';
+        // Use boolean value directly from request
+        $certifiedTrueCopy = $request->boolean('certified_true_copy', false);
 
         $clientRequest = ClientRequest::create([
             'date' => $request->date,
@@ -70,7 +70,7 @@ class ClientRequestController extends Controller
             'date' => 'required|date',
             'type' => 'required|in:HOA,REM',
             'project_name' => 'required|string|max:255',
-            'docket_no' => 'required|string|regex:/^[A-Za-z0-9\-\_]+$/|max:50',
+            'docket_no' => 'required|string|max:50',
             'location' => 'nullable|string|max:255',
             'requested_by' => 'required|string|max:100',
             'or_no' => 'required|string|max:50',
@@ -82,6 +82,9 @@ class ClientRequestController extends Controller
         ]);
 
         $oldDocketNo = $clientRequest->docket_no;
+
+        // Use boolean value directly from request
+        $certifiedTrueCopy = $request->boolean('certified_true_copy', false);
 
         $clientRequest->update([
             'date' => $request->date,
@@ -95,7 +98,7 @@ class ClientRequestController extends Controller
             'requested_docs' => $request->requested_docs,
             'others_specify' => $request->others_specify,
             'remarks' => $request->remarks,
-            'certified_true_copy' => $request->certified_true_copy ?? false,
+            'certified_true_copy' => $certifiedTrueCopy,
         ]);
 
         // Log activity
@@ -154,7 +157,7 @@ class ClientRequestController extends Controller
         return response()->json($formattedRequests);
     }
 
-/**
+    /**
      * Get client requests data for display.
      */
     public function getData()
@@ -222,7 +225,7 @@ class ClientRequestController extends Controller
         foreach ($clientRequests as $request) {
             $requestedDocs = $request->requested_docs ?? [];
             $requestType = $request->type; // 'HOA' or 'REM'
-            
+
             foreach ($requestedDocs as $doc) {
                 if ($requestType === 'HOA' && isset($hoaStats[$doc])) {
                     $hoaStats[$doc]++;
@@ -232,10 +235,20 @@ class ClientRequestController extends Controller
             }
         }
 
+        // Count certified and not certified requests for each type (HOA and REM)
+        $hoaCertified = $clientRequests->where('type', 'HOA')->where('certified_true_copy', true)->count();
+        $hoaNotCertified = $clientRequests->where('type', 'HOA')->where('certified_true_copy', false)->count();
+        $remCertified = $clientRequests->where('type', 'REM')->where('certified_true_copy', true)->count();
+        $remNotCertified = $clientRequests->where('type', 'REM')->where('certified_true_copy', false)->count();
+
         return response()->json([
             'clientRequests' => $formattedRequests,
             'hoaStats' => $hoaStats,
             'remStats' => $remStats,
+            'hoaCertified' => $hoaCertified,
+            'hoaNotCertified' => $hoaNotCertified,
+            'remCertified' => $remCertified,
+            'remNotCertified' => $remNotCertified,
         ]);
     }
 
@@ -245,9 +258,9 @@ class ClientRequestController extends Controller
     public function getDocketNumbers(Request $request)
     {
         $type = $request->get('type', 'all');
-        
+
         $dockets = [];
-        
+
         if ($type === 'all' || $type === 'HOA') {
             // Get HOA docket numbers with their project names
             $hoaDockets = HoaDatabase::select('docket_no', 'hoa_name', 'location')
@@ -265,7 +278,7 @@ class ClientRequestController extends Controller
                 });
             $dockets = array_merge($dockets, $hoaDockets->toArray());
         }
-        
+
         if ($type === 'all' || $type === 'REM') {
             // Get REM docket numbers with their project names
             $remDockets = RemDatabase::select('docket_no', 'project_name', 'location')
@@ -283,12 +296,12 @@ class ClientRequestController extends Controller
                 });
             $dockets = array_merge($dockets, $remDockets->toArray());
         }
-        
+
         // Sort by docket number
         usort($dockets, function ($a, $b) {
             return strcasecmp($a['docket_no'], $b['docket_no']);
         });
-        
+
         return response()->json($dockets);
     }
 }

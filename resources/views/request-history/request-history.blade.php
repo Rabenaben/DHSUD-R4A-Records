@@ -29,7 +29,7 @@
             <div class="w-full">
                 <h3 class="mb-3 text-center text-lg font-semibold text-gray-800" id="chart-title">HOA Document Requests
                 </h3>
-                <x-request-history.doc-chart :hoaStats="$hoaStats" :remStats="$remStats" />
+                <x-request-history.doc-chart :hoaStats="$hoaStats" :remStats="$remStats" :hoaCertified="$hoaCertified" :hoaNotCertified="$hoaNotCertified" :remCertified="$remCertified" :remNotCertified="$remNotCertified" />
             </div>
         </div>
 

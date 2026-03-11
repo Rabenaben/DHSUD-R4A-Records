@@ -306,7 +306,13 @@ class DisplayController extends Controller
             }
         }
 
-        return view('request-history.request-history', compact('clientRequests', 'hoaStats', 'remStats'));
+        // Count certified and not certified requests for each type (HOA and REM)
+        $hoaCertified = $clientRequests->where('type', 'HOA')->where('certified_true_copy', true)->count();
+        $hoaNotCertified = $clientRequests->where('type', 'HOA')->where('certified_true_copy', false)->count();
+        $remCertified = $clientRequests->where('type', 'REM')->where('certified_true_copy', true)->count();
+        $remNotCertified = $clientRequests->where('type', 'REM')->where('certified_true_copy', false)->count();
+
+        return view('request-history.request-history', compact('clientRequests', 'hoaStats', 'remStats', 'hoaCertified', 'hoaNotCertified', 'remCertified', 'remNotCertified'));
     }
 
     // 🔹 Archived Files Dashboard

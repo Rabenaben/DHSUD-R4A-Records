@@ -1,51 +1,12 @@
-// =========================================
 // Request History Page JavaScript
-// =========================================
 
-// Store client requests data globally for quick access
-let clientRequestsData = [];
+let clientRequestsData = [], currentRequestData = null, docketNumbersData = [], isPopulatingForm = false;
 
-// Store current request data for edit mode
-let currentRequestData = null;
+const FORM_FIELD_IDS = ['request-date', 'request-type', 'docket-no', 'project-name', 'location', 'requested-by', 'or-no', 'amount', 'remarks'];
 
-// Store docket numbers data for quick access
-let docketNumbersData = [];
-
-// Consolidated form field IDs for validation and toggling
-const FORM_FIELD_IDS = [
-    'request-date',
-    'request-type',
-    'docket-no',
-    'project-name',
-    'location',
-    'requested-by',
-    'or-no',
-    'amount',
-    'remarks'
-];
-
-// Document lists for each type
-const HOA_DOCUMENTS = [
-    'Certificate of Incorporation',
-    'Certificate of Amended By-Laws',
-    'Certificate of Amended Articles of Incorporation',
-    'Articles of Incorporation',
-    'By-Laws',
-    'Annual Report',
-    'Election Report',
-    'Masterlist',
-    'General Information Sheet',
-    'Others'
-];
-
-const REM_DOCUMENTS = [
-    'Certificate of Registration and License to Sell (CRLS)',
-    'Notarized Fact Sheet / Sales Report',
-    'Development Permit',
-    'Verified Survey Returns (VSR)',
-    'Subdivision Development Plan (SDP)',
-    'Others'
-];
+// Use chartLabels from doc-chart.blade.php, with fallback for initial render before chart loads
+const HOA_DOCUMENTS = ['Certificate of Incorporation', 'Certificate of Amended By-Laws', 'Certificate of Amended Articles of Incorporation', 'Articles of Incorporation', 'By-Laws', 'Annual Report', 'Election Report', 'Masterlist', 'General Information Sheet', 'Others'];
+const REM_DOCUMENTS = ['Certificate of Registration and License to Sell (CRLS)', 'Notarized Fact Sheet / Sales Report', 'Development Permit', 'Verified Survey Returns (VSR)', 'Subdivision Development Plan (SDP)', 'Others'];
 
 /**
  * Renders document checkboxes based on the selected type
@@ -97,6 +58,8 @@ function renderDocumentsByType(type) {
         // Add change event listener for "Others" checkbox
         if (doc === 'Others') {
             input.addEventListener('change', (e) => {
+                if (isPopulatingForm) return;
+
                 if (othersInputContainer) {
                     othersInputContainer.classList.toggle('hidden', !e.target.checked);
                     if (!e.target.checked) {
@@ -116,7 +79,7 @@ function renderDocumentsByType(type) {
         container.appendChild(label);
     });
 
-// Hide the others input initially
+    // Hide the others input initially
     if (othersInputContainer) othersInputContainer.classList.add('hidden');
 }
 
@@ -163,8 +126,8 @@ async function populateDocketDropdown(type) {
     const dockets = await fetchDocketNumbers(type);
 
     // Filter dockets by type if needed
-    const filteredDockets = type === 'all' 
-        ? dockets 
+    const filteredDockets = type === 'all'
+        ? dockets
         : dockets.filter(d => d.type === type);
 
     // Add options to the dropdown
@@ -190,13 +153,13 @@ function handleDocketChange() {
 
     if (!docketSelect) return;
 
-    docketSelect.addEventListener('change', function() {
+    docketSelect.addEventListener('change', function () {
         const selectedOption = this.options[this.selectedIndex];
-        
+
         if (projectNameInput && selectedOption.dataset.projectName) {
             projectNameInput.value = selectedOption.dataset.projectName;
         }
-        
+
         if (locationInput && selectedOption.dataset.location) {
             locationInput.value = selectedOption.dataset.location;
         }
@@ -233,18 +196,18 @@ function initRequestHistory() {
         }
     });
 
-// Handle Type selection change to render appropriate documents and populate docket dropdown
+    // Handle Type selection change to render appropriate documents and populate docket dropdown
     if (requestTypeSelect) {
         requestTypeSelect.addEventListener('change', async (e) => {
             const selectedType = e.target.value;
             renderDocumentsByType(selectedType);
-            
+
             // Clear project name and location when type changes
             const projectNameInput = document.getElementById('project-name');
             const locationInput = document.getElementById('location');
             if (projectNameInput) projectNameInput.value = '';
             if (locationInput) locationInput.value = '';
-            
+
             // Populate docket dropdown based on selected type
             if (selectedType === 'HOA' || selectedType === 'REM') {
                 await populateDocketDropdown(selectedType);
@@ -303,7 +266,7 @@ function initRequestHistory() {
             // Clear previous error styles
             clearValidationStyles();
 
-// Validate required fields and other validations
+            // Validate required fields and other validations
             const requiredFields = [
                 { id: 'request-date', name: 'Date', type: 'date' },
                 { id: 'request-type', name: 'Type', type: 'select', options: ['HOA', 'REM'] },
@@ -450,6 +413,22 @@ function initRequestHistory() {
 
     // Initialize table row click handlers
     initTableRowClickHandlers();
+
+    // Set up chart type button handlers to track current chart type
+    const btnHoa = document.getElementById('btn-hoa');
+    const btnRem = document.getElementById('btn-rem');
+
+    if (btnHoa) {
+        btnHoa.addEventListener('click', () => {
+            currentChartType = 'HOA';
+        });
+    }
+
+    if (btnRem) {
+        btnRem.addEventListener('click', () => {
+            currentChartType = 'REM';
+        });
+    }
 }
 
 /**
@@ -536,7 +515,7 @@ function openClientRequestModal(mode, requestData = null) {
     // Always reset form fields before populating with new data
     resetFormFields();
 
-if (mode === 'add') {
+    if (mode === 'add') {
         // Reset form for add mode
         if (form) form.reset();
 
@@ -645,6 +624,7 @@ function parseRequestedDocs(data) {
  * @param {object} data - The request data
  */
 async function populateFormWithData(data) {
+    isPopulatingForm = true;
     // Store current request data for edit mode
     currentRequestData = data;
 
@@ -652,7 +632,7 @@ async function populateFormWithData(data) {
     const idField = document.getElementById('client-request-id');
     if (idField) idField.value = data.id || '';
 
-// Set form fields
+    // Set form fields
     const fields = {
         'request-date': data.date,
         'request-type': data.type,
@@ -677,10 +657,10 @@ async function populateFormWithData(data) {
         // Use data.type directly since the select element may not have the value set yet
         // in view mode (the select is disabled and populated after this function is called)
         const selectedType = data.type || 'all';
-        
+
         // Populate dropdown and then select the value
         await populateDocketDropdown(selectedType);
-        
+
         // Try to set the value - if it doesn't exist in the dropdown (e.g., deleted from database),
         // add it as a custom option
         if (docketSelect.value !== data.docket_no) {
@@ -692,7 +672,7 @@ async function populateFormWithData(data) {
             customOption.dataset.type = data.type || '';
             docketSelect.appendChild(customOption);
         }
-        
+
         docketSelect.value = data.docket_no;
     }
 
@@ -738,6 +718,8 @@ async function populateFormWithData(data) {
     if (othersInputContainer) {
         othersInputContainer.classList.add('hidden');
     }
+
+    isPopulatingForm = false;
 }
 
 /**
@@ -813,7 +795,7 @@ function toggleViewMode(isViewMode) {
         }
     });
 
-// Toggle select read-only state for request-type
+    // Toggle select read-only state for request-type
     const selectField = document.getElementById('request-type');
     if (selectField) {
         selectField.disabled = isViewMode;
@@ -970,10 +952,10 @@ async function createClientRequest(form, checkedDocs) {
         data.others_specify = othersSpecify.value.trim();
     }
 
-    // Include Certified True Copy radio button value
+    // Include Certified True Copy radio button value (send as boolean)
     const certifiedTrueCopy = document.querySelector('input[name="certification_status"]:checked');
-    // Default to "not_certified" if no selection
-    data.certified_true_copy = certifiedTrueCopy ? certifiedTrueCopy.value : 'not_certified';
+    // Default to false (not certified) if no selection
+    data.certified_true_copy = certifiedTrueCopy ? (certifiedTrueCopy.value === 'certified') : false;
 
     try {
         const response = await fetch('/client-requests', {
@@ -1020,10 +1002,10 @@ async function updateClientRequest(requestId, form, checkedDocs) {
         data.others_specify = othersSpecify.value.trim();
     }
 
-    // Include Certified True Copy radio button value
+    // Include Certified True Copy radio button value (send as boolean)
     const certifiedTrueCopy = document.querySelector('input[name="certification_status"]:checked');
-    // Default to "not_certified" if no selection
-    data.certified_true_copy = certifiedTrueCopy ? certifiedTrueCopy.value : 'not_certified';
+    // Default to false (not certified) if no selection
+    data.certified_true_copy = certifiedTrueCopy ? (certifiedTrueCopy.value === 'certified') : false;
 
     try {
         const response = await fetch(`/client-requests/${requestId}`, {
@@ -1056,83 +1038,48 @@ async function updateClientRequest(requestId, form, checkedDocs) {
     }
 }
 
+// Store certified/not certified counts globally - exposed for doc-chart.blade.php
+window.hoaCertifiedData = 0; window.hoaNotCertifiedData = 0; window.remCertifiedData = 0; window.remNotCertifiedData = 0;
+let currentChartType = 'HOA';
+
 /**
  * Refreshes the request history table by fetching data from the server.
  */
 async function refreshRequestHistoryTable() {
     try {
-        const response = await fetch('/client-requests/data', {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await fetch('/client-requests/data', { method: 'GET', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), 'Content-Type': 'application/json' } });
+        if (!response.ok) return console.error('Failed to fetch request history data');
+        
+        const data = await response.json();
+        const { clientRequests = [], hoaStats = {}, remStats = {} } = data;
+        
+        // Update global counts
+        [window.hoaCertifiedData, window.hoaNotCertifiedData, window.remCertifiedData, window.remNotCertifiedData] = [data.hoaCertified || 0, data.hoaNotCertified || 0, data.remCertified || 0, data.remNotCertified || 0];
+        
+        // Update chart globals
+        if (window.chartHoaStats) window.chartHoaStats = hoaStats;
+        if (window.chartRemStats) window.chartRemStats = remStats;
+        
+        clientRequestsData = clientRequests;
+        updateRequestHistoryTable(clientRequests);
+        if (window.createChart) { window.createChart(currentChartType); window.updateChartBadges(currentChartType); }
+    } catch (error) { console.error('Error fetching request history:', error); }
+}
 
-        if (response.ok) {
-            const data = await response.json();
-            const clientRequests = data.clientRequests || [];
-            const hoaStats = data.hoaStats || {};
-            const remStats = data.remStats || {};
-
-            // Store data globally for quick access
-            clientRequestsData = clientRequests;
-
-            updateRequestHistoryTable(clientRequests);
-            updateChart(hoaStats, remStats);
-        } else {
-            console.error('Failed to fetch request history data');
-        }
-    } catch (error) {
-        console.error('Error fetching request history:', error);
-    }
+/**
+ * Updates the certified/not certified badges based on current chart type.
+ */
+function updateCertBadges(type = null) {
+    const badgeType = type || currentChartType;
+    if (window.updateChartBadges) window.updateChartBadges(badgeType);
 }
 
 /**
  * Updates the bar chart with new data.
- * @param {object} hoaStats - HOA document stats
- * @param {object} remStats - REM document stats
  */
-function updateChart(hoaStats, remStats) {
-    // Check if chart exists and update it
-    if (typeof chartInstance !== 'undefined' && chartInstance) {
-        // Get the current type from the button state
-        const btnHoa = document.getElementById('btn-hoa');
-        const btnRem = document.getElementById('btn-rem');
-        const currentType = btnHoa && btnHoa.classList.contains('bg-blue-600') ? 'HOA' : 'REM';
-        
-        const docStats = currentType === 'HOA' ? hoaStats : remStats;
-        const colors = currentType === 'HOA' 
-            ? { background: 'rgba(59, 130, 246, 0.6)', border: 'rgba(59, 130, 246, 1)' }
-            : { background: 'rgba(34, 197, 94, 0.6)', border: 'rgba(34, 197, 94, 1)' };
-
-        // Short label mappings for graph display
-        const shortLabels = {
-            'Certificate of Incorporation': 'COI',
-            'Certificate of Amended By-Laws': 'Cof Amended By-Laws',
-            'Certificate of Amended Articles of Incorporation': 'Cof Amended AoI',
-            'Articles of Incorporation': 'AoI',
-            'By-Laws': 'By-Laws',
-            'Annual Report': 'Annual Report',
-            'Election Report': 'Election Report',
-            'Masterlist': 'Masterlist',
-            'General Information Sheet': 'GIS',
-            'Certificate of Registration and License to Sell (CRLS)': 'CRLS',
-            'Notarized Fact Sheet / Sales Report': 'Fact Sheet',
-            'Development Permit': 'Dev Permit',
-            'Verified Survey Returns (VSR)': 'VSR',
-            'Subdivision Development Plan (SDP)': 'SDP'
-        };
-
-        const labels = Object.keys(docStats).map(key => shortLabels[key] || key);
-        const chartData = Object.values(docStats);
-
-        chartInstance.data.labels = labels;
-        chartInstance.data.datasets[0].data = chartData;
-        chartInstance.data.datasets[0].backgroundColor = colors.background;
-        chartInstance.data.datasets[0].borderColor = colors.border;
-        chartInstance.update();
-    }
+function updateChart(hoaStats, remStats, type = null) {
+    const chartType = type || currentChartType;
+    if (window.createChart) { window.createChart(chartType); window.updateChartBadges(chartType); }
 }
 
 /**
