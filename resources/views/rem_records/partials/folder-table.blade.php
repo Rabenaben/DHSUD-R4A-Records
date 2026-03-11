@@ -34,19 +34,19 @@
         <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
             <thead class="sticky top-0 bg-gray-100">
                 <tr>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Docket No</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Project Name</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Quantity</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Remarks</th>
+                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Docket No</th>
+                    <th class="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700">Project Name</th>
+                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
+                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantity</th>
+                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Remarks</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200" id="remTableBody">
                 @forelse($records as $record)
                     <tr class="data-row @unless(auth()->user()->role === 'Staff') cursor-pointer @endunless transition hover:bg-gray-50" data-record='@json($record)'>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->docket_no }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->project_name ?? '-' }}</td>
-                        <td class="px-6 py-4 text-sm">
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->docket_no }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->project_name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center text-sm">
                             <span @class([
                                 'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
                                 'bg-green-100 text-green-800' => $record->status === 'ON-SHELF',
@@ -59,8 +59,8 @@
                                 {{ $record->status }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->quantity ?? '-' }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->quantity ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
                     </tr>
                 @empty
                 @endforelse

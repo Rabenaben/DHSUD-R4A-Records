@@ -57,12 +57,12 @@
                     <table class="min-w-full table-auto divide-y divide-gray-200 bg-white">
                         <thead class="sticky top-0 bg-gray-800">
                             <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Docket No.</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">File Name</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">File Location</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Date &amp; Time</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">Action</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-white">User</th>
+                                <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Docket No.</th>
+                                <th class="w-auto px-6 py-3 text-center text-sm font-semibold text-white">File Name</th>
+                                <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">File Location</th>
+                                <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Date &amp; Time</th>
+                                <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Action</th>
+                                <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">User</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-gray-50 text-gray-700" id="activity-logs-tbody">
@@ -92,12 +92,12 @@
                     data.forEach(log => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.docket_no}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.file_name || '-'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.file_location}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(log.created_at).toLocaleString()}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.action}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.user ? `${log.user.name} - ${log.user.remarks || 'N/A'}` : 'Unknown'}</td>
+                            <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${log.docket_no}</td>
+                            <td class="w-auto px-6 py-4 text-center text-sm text-gray-900">${log.file_name || '-'}</td>
+                            <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${log.file_location}</td>
+                            <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${new Date(log.created_at).toLocaleString()}</td>
+                            <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${log.action}</td>
+                            <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${log.user ? `${log.user.name} - ${log.user.remarks || 'N/A'}` : 'Unknown'}</td>
                         `;
                         tbody.appendChild(row);
                     });

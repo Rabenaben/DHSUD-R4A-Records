@@ -1176,19 +1176,19 @@ function updateRequestHistoryTable(clientRequests) {
         }
 
         row.innerHTML = `
-            <td class="px-6 py-4 text-center text-sm text-gray-900">
+            <td class="px-4 py-3 text-center text-sm text-gray-900">
                 ${formattedDate}
             </td>
-            <td class="px-6 py-4 text-center text-sm text-gray-900">
+            <td class="px-4 py-3 text-center text-sm text-gray-900">
                 ${request.docket_no}
             </td>
-            <td class="px-6 py-4 text-center text-sm text-gray-900">
+            <td class="px-4 py-3 text-center text-sm text-gray-900">
                 ${request.project_name}
             </td>
-            <td class="px-6 py-4 text-center text-sm text-gray-900">
+            <td class="px-4 py-3 text-center text-sm text-gray-900">
                 ${request.requested_by}
             </td>
-            <td class="px-6 py-4 text-center">
+            <td class="px-4 py-3 text-center">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeClass}">
                     ${request.type}
                 </span>

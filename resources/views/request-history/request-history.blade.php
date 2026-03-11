@@ -45,15 +45,15 @@
                         <tr>
                             @php
                                 $headers = [
-                                    ['width' => 'w-[15%]', 'label' => 'Date'],
-                                    ['width' => 'w-[15%]', 'label' => 'Docket No.'],
+                                    ['width' => 'w-[12%]', 'label' => 'Date'],
+                                    ['width' => 'w-[12%]', 'label' => 'Docket No.'],
                                     ['width' => 'w-[40%]', 'label' => 'Project/HOA Name'],
-                                    ['width' => 'w-[15%]', 'label' => 'Requested By'],
-                                    ['width' => 'w-[15%]', 'label' => 'Type'],
+                                    ['width' => 'w-[18%]', 'label' => 'Requested By'],
+                                    ['width' => 'w-[18%]', 'label' => 'Type'],
                                 ];
                             @endphp
                             @foreach ($headers as $header)
-                                <th class="{{ $header['width'] }} px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                                <th class="{{ $header['width'] }} px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     {{ $header['label'] }}</th>
                             @endforeach
                         </tr>
@@ -65,19 +65,19 @@
                                 data-docket-no="{{ strtolower($request->docket_no) }}"
                                 data-client-name="{{ strtolower($request->requested_by) }}"
                                 data-type="{{ $request->type }}">
-                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                <td class="px-4 py-3 text-center text-sm text-gray-900">
                                     {{ \Carbon\Carbon::parse($request->date)->format('M d, Y') }}
                                 </td>
-                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                <td class="px-4 py-3 text-center text-sm text-gray-900">
                                     {{ $request->docket_no }}
                                 </td>
-                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                <td class="px-4 py-3 text-center text-sm text-gray-900">
                                     {{ $request->project_name }}
                                 </td>
-                                <td class="px-6 py-4 text-center text-sm text-gray-900">
+                                <td class="px-4 py-3 text-center text-sm text-gray-900">
                                     {{ $request->requested_by }}
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-4 py-3 text-center">
                                     <span
                                         class="{{ $request->type === 'HOA' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }} inline-flex rounded-full px-2 text-xs font-semibold leading-5">
                                         {{ $request->type }}

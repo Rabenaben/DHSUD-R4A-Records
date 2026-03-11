@@ -53,13 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = user.status.charAt(0).toUpperCase() + user.status.slice(1);
         const statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${user.status === 'active' ? 'bg-green-500' : 'bg-red-500'}">${status}</span>`;
         return `
-            <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${accountNo}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.name}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.username}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.role}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${user.remarks || ''}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">${statusBadge}</td>
-            <td class="px-6 py-4 text-center text-sm text-gray-500">
+            <td class="px-6 py-4 w-auto text-center text-sm font-medium text-gray-900">${accountNo}</td>
+            <td class="px-6 py-4 w-1/4 text-center text-sm text-gray-500">${user.name}</td>
+            <td class="px-6 py-4 w-auto text-center text-sm text-gray-500">${user.username}</td>
+            <td class="px-6 py-4 w-auto text-center text-sm text-gray-500">${user.role}</td>
+            <td class="px-6 py-4 w-auto text-center text-sm text-gray-500">${user.remarks || ''}</td>
+            <td class="px-6 py-4 w-auto text-center text-sm text-gray-500">${statusBadge}</td>
+            <td class="px-6 py-4 w-auto text-center text-sm text-gray-500">
                 <button class="edit-btn text-blue-600 hover:text-blue-900" data-id="${user.id}">Edit</button>
             </td>
         `;

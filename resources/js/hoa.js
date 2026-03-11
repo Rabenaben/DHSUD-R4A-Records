@@ -605,12 +605,12 @@ function createHoaTableRow(record) {
     });
 
     row.innerHTML = `
-        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.docket_no}</td>
-        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.hoa_name}</td>
-        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.location}</td>
-        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.province?.province_name || 'N/A'}</td>
-        <td class="px-6 py-4 text-center text-sm text-gray-900">${record.municipality?.municipality_name || 'N/A'}</td>
-        <td class="px-6 py-4 text-center text-sm">
+        <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${record.docket_no}</td>
+        <td class="w-1/3 px-6 py-4 text-center text-sm text-gray-900">${record.hoa_name}</td>
+        <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${record.location}</td>
+        <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${record.province?.province_name || 'N/A'}</td>
+        <td class="w-1/6 px-6 py-4 text-center text-sm text-gray-900">${record.municipality?.municipality_name || 'N/A'}</td>
+        <td class="w-1/6 px-6 py-4 text-center text-sm">
             <span class="${statusClass} inline-flex rounded-full px-2 py-1 text-xs font-semibold">
                 ${record.status}
             </span>

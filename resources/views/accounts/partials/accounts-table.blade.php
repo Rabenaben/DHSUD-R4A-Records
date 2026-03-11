@@ -11,8 +11,8 @@
             </select>
         </div>
         <div class="flex items-center space-x-4">
-            @if(auth()->user()->role === 'Admin')
-            <button class="ml-4 rounded bg-blue-500 px-4 py-2 text-white" id="add-user-btn">Add User</button>
+            @if (auth()->user()->role === 'Admin')
+                <button class="ml-4 rounded bg-blue-500 px-4 py-2 text-white" id="add-user-btn">Add User</button>
             @endif
         </div>
     </div>
@@ -23,11 +23,34 @@
             <table class="min-w-full divide-y divide-blue-400" id="accounts-table">
                 <thead class="bg-gray-50">
                     <tr>
-                        @foreach (['Account No.', 'Name', 'Username', 'Role', 'Division', 'Status', 'Edit User'] as $header)
-                            <th class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
-                                {{ $header }}
-                            </th>
-                        @endforeach
+                        <th
+                            class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Account No.
+                        </th>
+                        <th
+                            class="text-black-500 w-1/4 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Name
+                        </th>
+                        <th
+                            class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Username
+                        </th>
+                        <th
+                            class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Role
+                        </th>
+                        <th
+                            class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Division
+                        </th>
+                        <th
+                            class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th
+                            class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                            Edit User
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">

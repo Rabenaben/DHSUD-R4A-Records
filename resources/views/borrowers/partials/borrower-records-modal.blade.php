@@ -26,19 +26,19 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Docket No.</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 File Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Date Borrowed</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Date Returned</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white" id="borrower-history-table">
+                    <tbody class="divide-y divide-gray-200 bg-white" id="borrower-history-table-body">
                         <!-- History rows will be populated here -->
                     </tbody>
                 </table>
@@ -76,12 +76,10 @@
         <!-- Add New Borrowing Record Button -->
         <div class="border-t pt-6">
             <div class="flex justify-end">
-                @unless(auth()->user()->role === 'Staff')
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                     id="add-new-record-btn" type="button">
                     Add New Borrowing Record
                 </button>
-                @endunless
             </div>
         </div>
 

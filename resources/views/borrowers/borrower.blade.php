@@ -18,12 +18,10 @@
                         class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
                         id="searchInput" type="text" placeholder="Search by ID, Borrower Name, Docket No...">
                 </div>
-                @unless(auth()->user()->role === 'Staff')
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                     id="add-record-btn">
                     Add Record
                 </button>
-                @endunless
             </div>
 
             <!-- Borrower Table -->
@@ -32,12 +30,18 @@
                     <table class="w-full divide-y divide-blue-400" id="borrowers-table">
                         <thead class="bg-gray-50">
                             <tr>
-                                @foreach (['ID', 'Borrower Name', 'Division', 'Status'] as $header)
-                                    <th
-                                        class="text-black-500 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
-                                        {{ $header }}
-                                    </th>
-                                @endforeach
+                                <th class="w-1/6 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
+                                    ID
+                                </th>
+                                <th class="w-1/3 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
+                                    Borrower Name
+                                </th>
+                                <th class="w-1/6 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
+                                    Division
+                                </th>
+                                <th class="w-1/6 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
+                                    Status
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
@@ -51,14 +55,13 @@
                                     data-status="{{ $borrower->status }}"
                                     class="cursor-pointer hover:bg-gray-50"
                                     onclick="editBorrower({{ $borrower->id }})">
-                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                    <td class="px-6 py-4 text-center text-sm text-gray-500">
                                         {{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
-                                    <td
-                                        class="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                    <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">
                                         {{ $borrower->borrower_name }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                    <td class="px-6 py-4 text-center text-sm text-gray-500">
                                         {{ $borrower->division ?? 'N/A' }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500">
+                                    <td class="px-6 py-4 text-center text-sm text-gray-500">
                                         {{ $borrower->status }}</td>
                                 </tr>
                             @empty
@@ -87,6 +90,5 @@
 
         <script>
             window.nextId = {{ $nextId }};
-            window.userRole = '{{ auth()->user()->role }}';
         </script>
 </x-app-layout>
