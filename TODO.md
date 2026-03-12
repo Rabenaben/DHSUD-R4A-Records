@@ -1,18 +1,45 @@
-# TODO - Archive Table Styling Updates
+`# TODO: Add "Export All Files" Button to HOA and REM Modals
 
-## Task: Center data in table header and table data in archived files, allow text breaking, and set column widths
+## Task Summary
+Add an "Export All Files" button beside the "Add File" button in both HOA and REM modals that will save all files associated with a specific record as a ZIP download.
 
-### Steps:
-- [x] 1. Analyze the archive.blade.php file
-- [x] 2. Center-align table headers (th elements)
-- [x] 3. Center-align table data cells (td elements)
-- [x] 4. Remove whitespace-nowrap and add break-words for text wrapping
-- [x] 5. Set equal width to columns 1,2,3,5,6,7
-- [x] 6. Make File Name column wider than others
-- [x] 7. Verify JavaScript doesn't need changes (confirmed - it only handles search/modal)
+## Plan
 
-## Completed Changes:
-- Changed `text-left` to `text-center` in all `<th>` and `<td>` elements
-- Replaced `whitespace-nowrap` with `break-words` in all `<td>` elements
-- Added column widths: Type (w-20), Docket No (w-32), Record Name (w-40), File Name (w-auto), Date Added (w-36), Last Updated By (w-36), Action (w-24)
-- File Name column is now wider (w-auto) than the other columns
+### 1. Information Gathered:
+- **HOA Modal** (`resources/views/hoa_records/partials/hoa-modal.blade.php`): Has file list section with "Add File" button
+- **REM Modal** (`resources/views/rem_records/partials/rem-modal.blade.php`): Similar structure with "Add File" button
+- **File Handling** (`resources/js/file-utils.js`): Has `exportFile()` for single file export
+- **Controllers**: Use `FileControllerTrait` for file operations (downloadFile, getFiles, etc.)
+
+### 2. Implementation Plan:
+
+#### Step 1: Add "Export All Files" button to HOA Modal
+- Edit: `resources/views/hoa_records/partials/hoa-modal.blade.php`
+- Add button beside "Add File" button in the file list header
+
+#### Step 2: Add "Export All Files" button to REM Modal
+- Edit: `resources/views/rem_records/partials/rem-modal.blade.php`
+- Add button beside "Add File" button in the file list header
+
+#### Step 3: Add exportAllFiles method to FileControllerTrait
+- Edit: `app/Http/Controllers/FileControllerTrait.php`
+- Add new method to download all files as ZIP
+
+#### Step 4: Add JavaScript handler for Export All Files
+- Edit: `resources/js/file-utils.js`
+- Add `exportAllFiles()` function
+
+#### Step 5: Add routes for export all endpoint
+- Edit: `routes/web.php`
+- Add routes for HOA and REM export all files
+
+### 3. Dependent Files:
+- `resources/views/hoa_records/partials/hoa-modal.blade.php`
+- `resources/views/rem_records/partials/rem-modal.blade.php`
+- `app/Http/Controllers/FileControllerTrait.php`
+- `resources/js/file-utils.js`
+- `routes/web.php`
+
+### 4. Followup Steps:
+- Test the export all functionality for both HOA and REM records
+- Verify ZIP file is created and downloaded correctly

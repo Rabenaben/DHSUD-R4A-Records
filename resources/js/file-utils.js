@@ -14,6 +14,7 @@ window.setValue = setValue;
 window.openRecordModal = openRecordModal;
 window.goBackToFileList = goBackToFileList;
 window.exportFile = exportFile;
+window.exportAllFiles = exportAllFiles;
 window.archiveFile = archiveFile;
 window.openGenericModal = openGenericModal;
 window.loadGenericFileList = loadGenericFileList;
@@ -432,6 +433,35 @@ function exportFile(type) {
     }
 }
 
+/**
+ * Exports all files for a given record as a ZIP file.
+ * @param {string} type - The type of record ('hoa' or 'rem').
+ */
+function exportAllFiles(type) {
+    if (!window.currentRecord) {
+        if (window.showToast) {
+            window.showToast('No record selected', 'error');
+        }
+        return;
+    }
+
+    const docketNo = window.currentRecord.docket_no;
+    const url = `/${type}/${docketNo}/export-all-files`;
+
+    // Show loading toast (use 'default' instead of 'info' since Toast only supports success, error, default)
+    if (window.showToast) {
+        window.showToast('Preparing files for download...', 'default');
+    }
+
+    // Create a link and trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // =========================================
 // Initialization
 // =========================================
@@ -550,6 +580,14 @@ function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-file' } }));
         });
     }
+
+    // Attach export all files button event
+    const exportAllFilesBtn = document.getElementById(`${type}-export-all-files-btn`);
+    if (exportAllFilesBtn) {
+        exportAllFilesBtn.addEventListener('click', () => {
+            exportAllFiles(type);
+        });
+    }
 }
 
 /**
@@ -582,6 +620,9 @@ function loadGenericFileList(type, record) {
         })
         .catch(error => {
             console.error('Error fetching files:', error);
+            if (window.showToast) {
+                window.showToast('Error loading files. Please try again.', 'error');
+            }
             renderGenericFileList([], record, type);
         });
 }
@@ -621,6 +662,18 @@ function renderGenericFileList(files, record, type) {
             const fileIndex = parseInt(row.dataset.fileIndex);
             showGenericFilePreview(record, fileIndex, type);
         });
+    }
+
+    // Enable or disable the Export All Files button based on file count
+    const exportAllFilesBtn = document.getElementById(`${type}-export-all-files-btn`);
+    if (exportAllFilesBtn) {
+        if (files.length > 0) {
+            exportAllFilesBtn.disabled = false;
+            exportAllFilesBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            exportAllFilesBtn.disabled = true;
+            exportAllFilesBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
     }
 }
 

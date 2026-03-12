@@ -131,6 +131,9 @@
                     <div class="flex items-center space-x-2">
                         @unless(auth()->user()->role === 'Staff')
                         <x-secondary-button id="hoa-add-file-btn">Add File</x-secondary-button>
+                        <x-secondary-button id="hoa-export-all-files-btn" class="bg-green-600! text-white! hover:bg-green-700! opacity-50 cursor-not-allowed" disabled>
+                            Export All Files
+                        </x-secondary-button>
                         @endunless
                     </div>
                 </div>

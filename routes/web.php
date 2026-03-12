@@ -83,6 +83,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::post('/{docketNo}/upload-file', 'uploadFile')->name('upload-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
+        Route::get('/{docketNo}/export-all-files', 'exportAllFiles')->name('export-all-files')->where('docketNo', '.*');
         Route::get('/export', 'export')->name('export');
     });
 
@@ -98,6 +99,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::patch('/{docketNo}/files/{fileIndex}/rename', 'renameFile')->name('rename-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/download/{fileIndex}', 'downloadFile')->name('download-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
+        Route::get('/{docketNo}/export-all-files', 'exportAllFiles')->name('export-all-files')->where('docketNo', '.*');
         Route::get('/export', 'export')->name('export');
     });
 

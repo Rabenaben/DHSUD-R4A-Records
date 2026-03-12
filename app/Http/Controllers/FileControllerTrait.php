@@ -177,4 +177,55 @@ trait FileControllerTrait
             'Content-Disposition' => 'inline; filename="' . $file['original_name'] . '"'
         ]);
     }
+
+    public function exportAllFiles($docketNo)
+    {
+        $record = $this->model::where('docket_no', $docketNo)->first();
+
+        if (!$record) {
+            abort(404, $this->recordType . ' record not found.');
+        }
+
+        $files = json_decode($record->files, true) ?? [];
+
+        // Filter out archived files
+        $activeFiles = array_filter($files, function ($file) {
+            return !isset($file['archived']) || !$file['archived'];
+        });
+
+        if (empty($activeFiles)) {
+            return response()->json(['success' => false, 'message' => 'No files to export.']);
+        }
+
+        // Create a temporary ZIP file
+        $zipFileName = $docketNo . '_files_' . date('Y-m-d_His') . '.zip';
+        $tempPath = storage_path('app/temp/' . $zipFileName);
+        
+        // Ensure temp directory exists
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+
+        $zip = new \ZipArchive();
+        if ($zip->open($tempPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($activeFiles as $index => $file) {
+                $path = $file['path'];
+                if (Storage::disk('local')->exists($path)) {
+                    $fileContent = Storage::disk('local')->get($path);
+                    $fileName = isset($file['name']) ? $file['name'] . '.pdf' : 'file_' . $index . '.pdf';
+                    $zip->addFromString($fileName, $fileContent);
+                }
+            }
+            $zip->close();
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to create ZIP file.']);
+        }
+
+        // Log activity
+        $fileLocation = $this->recordType == 'HOA' ? 'HOA Records' : 'REM - ' . ($record->province->province_name ?? 'Unknown');
+        $this->logActivity($docketNo, count($activeFiles) . ' files', $fileLocation, 'Exported all files');
+
+        // Download the ZIP file
+        return response()->download($tempPath, $zipFileName)->deleteFileAfterSend(true);
+    }
 }
