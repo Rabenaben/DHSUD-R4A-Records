@@ -33,7 +33,7 @@ class RemController extends Controller
     public function getMunicipalities(Request $request)
     {
         $provinceId = $request->query('province_id');
-        
+
         if ($provinceId) {
             $municipalities = Municipality::where('province_id', $provinceId)
                 ->orderBy('municipality_name')
@@ -41,7 +41,7 @@ class RemController extends Controller
         } else {
             $municipalities = Municipality::orderBy('municipality_name')->get();
         }
-        
+
         return response()->json($municipalities);
     }
 
@@ -175,7 +175,7 @@ class RemController extends Controller
         // Create Excel file
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        
+
         // Set headers
         $headers = ['Docket No', 'Project Name', 'Location', 'Province', 'Municipality', 'Status', 'Quantity', 'Remarks'];
         $column = 'A';
@@ -212,5 +212,17 @@ class RemController extends Controller
         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
         exit;
+    }
+
+    /**
+     * Display REM records for a specific province folder
+     */
+    public function folder($provinceId)
+    {
+        $records = RemDatabase::with(['province', 'municipality'])
+            ->where('province_id', $provinceId)
+            ->get();
+
+        return view('rem_records.partials.folder-table', ['records' => $records]);
     }
 }

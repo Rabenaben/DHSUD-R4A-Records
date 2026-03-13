@@ -1,11 +1,12 @@
 @props(['records' => []])
 
 <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
-    <div class="mb-4">
+    <div class="mb-4 flex items-center space-x-3">
         <button class="rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-300"
             id="backToFolders">
             &larr; Back to Folders
         </button>
+        <span id="currentProvinceDisplay" class="text-sm font-medium text-gray-700 hidden"></span>
     </div>
     <!-- Filters -->
     <div class="mb-4 flex flex-col space-y-2 md:flex-row md:items-center md:space-x-4 md:space-y-0">
@@ -34,11 +35,13 @@
         <table class="min-w-full table-fixed divide-y divide-gray-200 bg-white">
             <thead class="sticky top-0 bg-gray-100">
                 <tr>
-                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Docket No</th>
-                    <th class="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700">Project Name</th>
-                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
-                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantity</th>
-                    <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-gray-700">Remarks</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Docket No</th>
+                    <th class="w-3/16 px-6 py-3 text-center text-sm font-semibold text-gray-700">Project Name</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Province</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Municipality</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantity</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Remarks</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200" id="remTableBody">
@@ -46,6 +49,8 @@
                     <tr class="data-row @unless(auth()->user()->role === 'Staff') cursor-pointer @endunless transition hover:bg-gray-50" data-record='@json($record)'>
                         <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->docket_no }}</td>
                         <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->project_name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->province->province_name ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->municipality->municipality_name ?? '-' }}</td>
                         <td class="px-6 py-4 text-center text-sm">
                             <span @class([
                                 'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
@@ -67,7 +72,7 @@
 
                 <!-- This row is always present -->
                 <tr id="noRemRecordsRow">
-                    <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="5">
+                    <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="7">
                         No REM records found
                     </td>
                 </tr>

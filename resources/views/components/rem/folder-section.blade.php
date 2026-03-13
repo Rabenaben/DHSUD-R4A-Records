@@ -1,6 +1,6 @@
 <div class="rounded-xl border border-gray-300 bg-amber-50 p-2 shadow">
     <div class="grid grid-cols-2 justify-items-center gap-4 sm:grid-cols-3 md:grid-cols-6">
-        @foreach ($provinces as $province)
+        @forelse ($provinces as $province)
             <div class="folder flex cursor-pointer flex-col items-center space-y-2 transition-transform duration-300 hover:scale-110"
                 data-province="{{ is_object($province) ? $province->province_id : $province }}"
                 data-province-name="{{ is_object($province) ? $province->province_name : $province }}">
@@ -13,13 +13,23 @@
                     {{ is_object($province) ? $province->province_name : $province }}
                 </span>
             </div>
-        @endforeach
+        @empty
+            <div class="col-span-full flex h-32 items-center justify-center">
+                <span class="text-lg font-semibold text-gray-500">No records found</span>
+            </div>
+        @endforelse
     </div>
-    
-    <!-- Export Button -->
+
+    <!-- Export / Add Docket Button -->
     <div class="mt-4 flex justify-end">
-        <button class="rounded-xl border border-gray-300 bg-green-600 px-4 py-2 text-white hover:bg-green-700" id="exportRemBtn">
-            Export
-        </button>
+        @if($provinces->isNotEmpty())
+            <button class="rounded-xl border border-gray-300 bg-green-600 px-4 py-2 text-white hover:bg-green-700" id="exportRemBtn">
+                Export
+            </button>
+        @else
+            <button class="rounded-xl border border-gray-300 bg-green-600 px-4 py-2 text-white hover:bg-green-700" id="exportRemBtn" data-add-docket="true">
+                Add Docket
+            </button>
+        @endif
     </div>
 </div>

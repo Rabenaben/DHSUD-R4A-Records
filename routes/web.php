@@ -101,6 +101,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/export-all-files', 'exportAllFiles')->name('export-all-files')->where('docketNo', '.*');
         Route::get('/export', 'export')->name('export');
+        Route::get('folder/{province}', 'folder')->name('folder');
     });
 
 // Client Request routes (ClientRequestController)

@@ -216,13 +216,20 @@ function initFolderClicks() {
 
 async function loadFolderContent(folder, container, originalFolderHTML) {
     const province = folder.dataset.province;
+    const provinceName = folder.dataset.provinceName;
     window.currentProvince = province;
+    window.currentProvinceName = provinceName;
     showLoading(container);
 
     try {
         const response = await fetch(`/rem/folder/${province}`);
         if (!response.ok) throw new Error('Failed to load folder content');
         container.innerHTML = await response.text();
+        const display = container.querySelector('#currentProvinceDisplay');
+        if (display) {
+            display.textContent = `Current Province: ${provinceName}`;
+            display.classList.remove('hidden');
+        }
         attachFilters(container);
         attachBackButton(container, originalFolderHTML);
     } catch (error) {
@@ -270,14 +277,9 @@ function attachFilters(container) {
     const addRemDocketBtn = container.querySelector('#addRemDocketBtn');
     if (addRemDocketBtn) {
         addRemDocketBtn.addEventListener('click', () => {
-            const provinceSection = document.querySelector('#add-rem-record-form .province-section');
-            const provinceInput = document.getElementById('add-rem-province');
-            if (provinceSection && provinceInput && window.currentProvince) {
-                provinceSection.style.display = 'none';
-                provinceInput.value = window.currentProvince;
-                provinceInput.disabled = true;
-            }
+            loadRemProvinces();
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-rem-record' } }));
+            setTimeout(setupRemCascadingDropdowns, 100);
         });
     }
     filterRows();
@@ -287,6 +289,11 @@ function attachBackButton(container, originalHTML) {
     const backBtn = container.querySelector('#backToFolders');
     if (!backBtn) return;
     backBtn.addEventListener('click', () => {
+        const display = container.querySelector('#currentProvinceDisplay');
+        if (display) {
+            display.textContent = '';
+            display.classList.add('hidden');
+        }
         container.innerHTML = originalHTML;
         initFolderClicks();
     });
@@ -465,9 +472,17 @@ function initRemExport() {
 
     if (!exportBtn) return;
 
-    // Open export modal
+    // Open export modal or add docket modal
     exportBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'export-rem' } }));
+        if (exportBtn.dataset.addDocket === 'true') {
+            // Load provinces for add modal
+            loadRemProvinces();
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-rem-record' } }));
+            // Setup cascading after modal opens
+            setTimeout(setupRemCascadingDropdowns, 100);
+        } else {
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'export-rem' } }));
+        }
     });
 
     // Close modal
@@ -507,7 +522,7 @@ function initRemExport() {
         submitBtn.addEventListener('click', () => {
             const provinceId = provinceSelect?.value || '';
             const municipalityId = municipalitySelect?.value || '';
-            
+
             // Build URL with query parameters
             let url = '/rem/export?';
             const params = new URLSearchParams();
@@ -517,7 +532,7 @@ function initRemExport() {
 
             // Download file
             window.location.href = url;
-            
+
             // Close modal
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-rem' } }));
             window.showToast('Exporting REM records...', 'success');
