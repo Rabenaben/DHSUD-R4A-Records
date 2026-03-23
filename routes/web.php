@@ -85,6 +85,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/export-all-files', 'exportAllFiles')->name('export-all-files')->where('docketNo', '.*');
         Route::get('/export', 'export')->name('export');
+        Route::get('/export-sql', 'exportSql')->name('hoa.export-sql');
+        Route::get('/export-files', 'exportFiles')->name('hoa.export-files');
     });
 
     // REM routes (RemController)
@@ -101,6 +103,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/{docketNo}/preview/{fileIndex}', 'previewFile')->name('preview-file')->where('docketNo', '.*');
         Route::get('/{docketNo}/export-all-files', 'exportAllFiles')->name('export-all-files')->where('docketNo', '.*');
         Route::get('/export', 'export')->name('export');
+        Route::get('/export-sql', 'exportSql')->name('export-sql');
+        Route::get('/export-files', 'exportFiles')->name('rem.export-files');
         Route::get('folder/{province}', 'folder')->name('folder');
     });
 

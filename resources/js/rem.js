@@ -24,6 +24,15 @@ const REM_VALIDATION_FIELDS = REM_FIELDS.map(id => ({
     name: id.replace(/rem-/g, '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }));
 
+const REM_REQUIRED_FIELDS = [
+    { id: 'docket-no', name: 'Docket No.' },
+    { id: 'project-name', name: 'Project Name' },
+    { id: 'location', name: 'Location' },
+    { id: 'province', name: 'Province' },
+    { id: 'municipality', name: 'Municipality' },
+    { id: 'status', name: 'Status' }
+];
+
 // =========================================
 // Global Function Exports
 // =========================================
@@ -34,100 +43,18 @@ window.exportRemFile = () => exportFile('rem');
 window.remShowFileList = () => window.showGenericFileList('rem');
 window.loadRemFileList = (record) => window.loadGenericFileList('rem', record);
 window.updateRemData = () => window.updateData('rem');
-window.loadRemMunicipalities = loadRemMunicipalities;
-window.loadRemProvinces = loadRemProvinces;
-window.loadRemDropdowns = loadRemDropdowns;
 
-// =========================================
-// Utility Functions
-// =========================================
+window.showExportLoading = function(type) {
+    const overlay = document.getElementById(`export-loading-${type}`);
+    if (overlay) overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+};
 
-/**
- * Creates and appends options to a select element
- * @param {HTMLSelectElement} select - The select element
- * @param {Array} items - Array of items with id and name properties
- * @param {string} defaultText - Default option text
- */
-function populateSelectOptions(select, items, defaultText = 'Select Option') {
-    if (!select) return;
-    select.innerHTML = `<option value="">${defaultText}</option>`;
-    items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item[`${select.id.includes('province') ? 'province' : 'municipality'}_id`];
-        option.textContent = item[`${select.id.includes('province') ? 'province' : 'municipality'}_name`];
-        select.appendChild(option);
-    });
-}
-
-// =========================================
-// Province/Municipality Dropdown Functions
-// =========================================
-
-async function loadRemProvinces() {
-    try {
-        const response = await fetch('/rem/provinces');
-        const provinces = await response.json();
-        const addRemProvince = document.getElementById('add-rem-province');
-        if (addRemProvince) populateSelectOptions(addRemProvince, provinces, 'Select Province');
-        return provinces;
-    } catch (error) {
-        console.error('Error loading provinces:', error);
-        return [];
-    }
-}
-
-async function loadRemMunicipalities(provinceId, targetSelect = 'add-rem-municipality') {
-    const municipalitySelect = document.getElementById(targetSelect);
-    if (!municipalitySelect) return;
-
-    if (!provinceId) {
-        populateSelectOptions(municipalitySelect, [], 'Select Municipality');
-        municipalitySelect.disabled = true;
-        return;
-    }
-
-    try {
-        const response = await fetch(`/rem/municipalities?province_id=${provinceId}`);
-        const municipalities = await response.json();
-        populateSelectOptions(municipalitySelect, municipalities, 'Select Municipality');
-        municipalitySelect.disabled = false;
-    } catch (error) {
-        console.error('Error loading municipalities:', error);
-        municipalitySelect.innerHTML = '<option value="">Error loading</option>';
-    }
-}
-
-async function loadRemDropdowns(record) {
-    const provinceSelect = document.getElementById('rem-province');
-    const municipalitySelect = document.getElementById('rem-municipality');
-    if (!provinceSelect || !municipalitySelect) return;
-
-    try {
-        const provincesResponse = await fetch('/rem/provinces');
-        const provinces = await provincesResponse.json();
-        populateSelectOptions(provinceSelect, provinces, 'Select Province');
-
-        const provinceId = record.province_id;
-        if (provinceId) {
-            provinceSelect.value = provinceId;
-            const municipalitiesResponse = await fetch(`/rem/municipalities?province_id=${provinceId}`);
-            const municipalities = await municipalitiesResponse.json();
-            populateSelectOptions(municipalitySelect, municipalities, 'Select Municipality');
-
-            if (record.municipality_id) municipalitySelect.value = record.municipality_id;
-            municipalitySelect.disabled = true;
-        }
-    } catch (error) {
-        console.error('Error loading dropdowns:', error);
-    }
-}
-
-function setupRemCascadingDropdowns() {
-    const addRemProvince = document.getElementById('add-rem-province');
-    if (addRemProvince) {
-        addRemProvince.addEventListener('change', () => loadRemMunicipalities(addRemProvince.value, 'add-rem-municipality'));
-    }
-}
+window.hideExportLoading = function(type) {
+    const overlay = document.getElementById(`export-loading-${type}`);
+    if (overlay) overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+};
 
 // =========================================
 // Modal Functions
@@ -136,7 +63,7 @@ function setupRemCascadingDropdowns() {
 function openRemModal(record) {
     openGenericModal(record, 'rem', REM_FIELD_CONFIG);
     window.currentRemRecord = record;
-    loadRemDropdowns(record);
+    window.loadProvinceMunicipalities('rem', record, 'rem-province', 'rem-municipality');
 
     setTimeout(() => {
         const editBtn = document.getElementById('rem-edit-btn');
@@ -180,24 +107,11 @@ function openRemModal(record) {
                 window.cancelEdit('rem', REM_FIELDS);
                 provinceSelect?.setAttribute('disabled', true);
                 municipalitySelect?.setAttribute('disabled', true);
-                loadRemDropdowns(window.currentRemRecord);
+                window.loadProvinceMunicipalities('rem', window.currentRemRecord, 'rem-province', 'rem-municipality');
             };
         }
 
-        provinceSelect?.addEventListener('change', async () => {
-            const provinceId = provinceSelect.value;
-            populateSelectOptions(municipalitySelect, [], 'Select Municipality');
-            municipalitySelect.disabled = !provinceId;
-            if (provinceId) {
-                try {
-                    const response = await fetch(`/rem/municipalities?province_id=${provinceId}`);
-                    const municipalities = await response.json();
-                    populateSelectOptions(municipalitySelect, municipalities, 'Select Municipality');
-                } catch (error) {
-                    console.error('Error fetching municipalities:', error);
-                }
-            }
-        });
+        window.setupCascadingDropdown('rem-province', 'rem-municipality', 'rem');
     }, 100);
 }
 
@@ -245,6 +159,7 @@ function showLoading(container) {
 function attachFilters(container) {
     const searchInput = container.querySelector('#remSearchInput');
     const statusFilter = container.querySelector('#remStatusFilter');
+    const municipalityFilter = container.querySelector('#remMunicipalityFilter');
     const tableBody = container.querySelector('#remTableBody');
     const noRecordsRow = container.querySelector('#noRemRecordsRow');
 
@@ -253,20 +168,28 @@ function attachFilters(container) {
     const filterRows = () => {
         const searchValue = (searchInput?.value || '').trim().toLowerCase();
         const statusValue = (statusFilter?.value || '').trim().toUpperCase();
+        const municipalityValue = (municipalityFilter?.value || '').trim().toUpperCase();
         let visibleRows = 0;
 
         tableBody.querySelectorAll('.data-row').forEach(row => {
-            const [docket, project, statusCell] = Array.from(row.cells).map(cell => cell.textContent.trim());
+            const cells = Array.from(row.cells).map(cell => cell.textContent.trim());
+            const docket = cells[0];
+            const project = cells[1];
+            const municipalityCell = cells[3];
+            const statusCell = cells[4];
             const matchesSearch = [docket, project].some(text => text.toLowerCase().includes(searchValue));
-            const matchesStatus = !statusValue || statusCell.toUpperCase().includes(statusValue);
-            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
-            if (matchesSearch && matchesStatus) visibleRows++;
+            const matchesStatus = !statusValue || statusCell.toUpperCase() === statusValue;
+            const matchesMunicipality = !municipalityValue || municipalityCell.toUpperCase() === municipalityValue;
+            row.style.display = matchesSearch && matchesStatus && matchesMunicipality ? '' : 'none';
+            if (matchesSearch && matchesStatus && matchesMunicipality) visibleRows++;
         });
         noRecordsRow.style.display = visibleRows > 0 ? 'none' : '';
     };
 
     [searchInput, statusFilter].forEach(input => input?.addEventListener('input', filterRows));
     statusFilter?.addEventListener('change', filterRows);
+    municipalityFilter?.addEventListener('input', filterRows);
+    municipalityFilter?.addEventListener('change', filterRows);
 
     tableBody.addEventListener('click', (e) => {
         const row = e.target.closest('tr.data-row');
@@ -277,9 +200,9 @@ function attachFilters(container) {
     const addRemDocketBtn = container.querySelector('#addRemDocketBtn');
     if (addRemDocketBtn) {
         addRemDocketBtn.addEventListener('click', () => {
-            loadRemProvinces();
+            window.loadProvinceMunicipalities('rem', {}, 'add-rem-province', 'add-rem-municipality');
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-rem-record' } }));
-            setTimeout(setupRemCascadingDropdowns, 100);
+            setTimeout(() => window.setupCascadingDropdown('add-rem-province', 'add-rem-municipality', 'rem'), 100);
         });
     }
     filterRows();
@@ -296,6 +219,7 @@ function attachBackButton(container, originalHTML) {
         }
         container.innerHTML = originalHTML;
         initFolderClicks();
+        initRemExport();
     });
 }
 
@@ -310,7 +234,6 @@ async function updateRemData() {
 document.addEventListener('DOMContentLoaded', () => {
     initFolderClicks();
     initAddRemRecordModal();
-    setupRemCascadingDropdowns();
     initRemExport();
 
     const editFileNameBtn = document.getElementById('rem-edit-file-name-btn');
@@ -331,36 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // =========================================
 
 function validateRemFields(prefix = '') {
-    // Validate quantity first (before remarks since quantity is positioned before remarks in the form)
-    const quantityId = `${prefix}quantity`;
-    const quantityElement = document.getElementById(quantityId);
-    if (!quantityElement || !quantityElement.value.trim()) {
-        window.showToast('Quantity is required.', 'error');
-        quantityElement?.focus();
-        return false;
-    }
-    const quantityValue = quantityElement.value.trim();
-    if (isNaN(quantityValue) || parseFloat(quantityValue) < 0) {
-        window.showToast('Quantity must be a valid non-negative number.', 'error');
-        quantityElement.focus();
-        return false;
-    }
-
-    // Validate other required fields (excluding remarks)
-    const fields = REM_VALIDATION_FIELDS
-        .filter(f => !f.id.includes('remarks'))
-        .map(f => ({ id: `${prefix}${f.id.replace('rem-', '')}`, name: f.name }));
-
-    for (const field of fields) {
-        const element = document.getElementById(field.id);
-        if (!element || !element.value.trim()) {
-            window.showToast(`${field.name} is required.`, 'error');
-            element?.focus();
-            return false;
-        }
-    }
-
-    return true;
+    return window.validateRecord(prefix, REM_REQUIRED_FIELDS);
 }
 
 // =========================================
@@ -375,6 +269,7 @@ function initAddRemRecordModal() {
 
     window.addEventListener('open-modal', (e) => {
         if (e.detail.name === 'add-rem-record') {
+            window.loadProvinceMunicipalities('rem', {}, 'add-rem-province', 'add-rem-municipality');
             const addRemQuantityField = document.getElementById('add-rem-quantity');
             if (addRemQuantityField) addRemQuantityField.value = '0';
             window.resetAllAsterisks();
@@ -460,82 +355,26 @@ function initAddRemRecordModal() {
 }
 
 // =========================================
-// Export Functions
+// Export Functions (SIMPLIFIED)
 // =========================================
 
 function initRemExport() {
     const exportBtn = document.getElementById('exportRemBtn');
-    const cancelBtn = document.getElementById('cancel-export-rem-btn');
-    const submitBtn = document.getElementById('export-rem-submit-btn');
-    const provinceSelect = document.getElementById('export-rem-province');
-    const municipalitySelect = document.getElementById('export-rem-municipality');
 
     if (!exportBtn) return;
 
-    // Open export modal or add docket modal
     exportBtn.addEventListener('click', () => {
         if (exportBtn.dataset.addDocket === 'true') {
-            // Load provinces for add modal
-            loadRemProvinces();
+            // ✅ KEEP your custom "Add Record" behavior
+            window.loadProvinceMunicipalities('rem', {}, 'add-rem-province', 'add-rem-municipality');
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'add-rem-record' } }));
-            // Setup cascading after modal opens
-            setTimeout(setupRemCascadingDropdowns, 100);
+            setTimeout(() => window.setupCascadingDropdown('add-rem-province', 'add-rem-municipality', 'rem'), 100);
         } else {
+            // ✅ Open export modal (handled by export-utils.js)
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'export-rem' } }));
         }
     });
 
-    // Close modal
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-rem' } }));
-        });
-    }
-
-    // Province change handler
-    if (provinceSelect) {
-        provinceSelect.addEventListener('change', async () => {
-            const provinceId = provinceSelect.value;
-            municipalitySelect.innerHTML = '<option value="">All Municipalities</option>';
-            municipalitySelect.disabled = !provinceId;
-
-            if (provinceId) {
-                try {
-                    const response = await fetch(`/rem/municipalities?province_id=${provinceId}`);
-                    const municipalities = await response.json();
-
-                    municipalities.forEach(municipality => {
-                        const option = document.createElement('option');
-                        option.value = municipality.municipality_id;
-                        option.textContent = municipality.municipality_name;
-                        municipalitySelect.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('Error fetching municipalities:', error);
-                }
-            }
-        });
-    }
-
-    // Export submit
-    if (submitBtn) {
-        submitBtn.addEventListener('click', () => {
-            const provinceId = provinceSelect?.value || '';
-            const municipalityId = municipalitySelect?.value || '';
-
-            // Build URL with query parameters
-            let url = '/rem/export?';
-            const params = new URLSearchParams();
-            if (provinceId) params.append('province_id', provinceId);
-            if (municipalityId) params.append('municipality_id', municipalityId);
-            url += params.toString();
-
-            // Download file
-            window.location.href = url;
-
-            // Close modal
-            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'export-rem' } }));
-            window.showToast('Exporting REM records...', 'success');
-        });
-    }
+    // ✅ THIS LINE replaces ALL export logic
+    window.initExport('rem');
 }

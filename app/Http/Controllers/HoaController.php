@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\HoaDatabase;
-use App\Models\Municipality;
-use App\Models\Province;
 
 class HoaController extends Controller
 {
-    use FileControllerTrait, ActivityLoggingTrait;
+    use FileControllerTrait, ActivityLoggingTrait, ExportTrait;
 
     public function __construct()
     {
@@ -18,24 +16,67 @@ class HoaController extends Controller
         $this->recordType = 'HOA';
     }
 
-    public function getProvinces()
+    /**
+     * Export configuration for HOA records
+     */
+    protected function getExportConfig(string $type = 'excel'): array
     {
-        $provinces = Province::orderBy('province_name')->get();
-        return response()->json($provinces);
+        if ($type === 'sql') {
+            return [
+                'columns' => [
+                    'hoa_id',
+                    'docket_no',
+                    'hoa_name',
+                    'classification',
+                    'hoa_status',
+                    'location',
+                    'province_id',
+                    'municipality_id',
+                    'status',
+                    'quantity',
+                    'remarks',
+                    'files',
+                ],
+            ];
+        }
+
+        return [
+            'headers' => [
+                'HOA ID',
+                'Docket No',
+                'HOA Name',
+                'Classification',
+                'HOA Status',
+                'Location',
+                'Province',
+                'Municipality',
+                'Status',
+                'Quantity',
+                'Remarks',
+            ],
+            'columns' => [
+                'hoa_id',
+                'docket_no',
+                'hoa_name',
+                'classification',
+                'hoa_status',
+                'location',
+                'province.province_name',
+                'municipality.municipality_name',
+                'status',
+                'quantity',
+                'remarks',
+            ],
+        ];
     }
 
-    public function getMunicipalities(Request $request)
-    {
-        $provinceId = $request->query('province_id');
-        $municipalities = Municipality::where('province_id', $provinceId)->orderBy('municipality_name')->get();
-
-        return response()->json($municipalities);
-    }
-
+    /**
+     * Store a new HOA record
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'hoa_id' => 'required|integer',
+        $rules = [
+            'hoa_id' => 'required|integer|unique:hoa_database,hoa_id',
             'docket_no' => 'required|string',
             'hoa_name' => 'required|string',
             'classification' => 'required|string',
@@ -46,26 +87,52 @@ class HoaController extends Controller
             'status' => 'required|in:ON-SHELF,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
-        ]);
+        ];
 
-        $hoa = HoaDatabase::create($request->all());
+        $customMessages = [
+            'hoa_id.unique' => 'HOA ID already exists. Please use a unique HOA ID.',
+        ];
 
-        // Log activity
-        $this->logActivity($request->docket_no, null, 'HOA Records', 'Added a docket');
+        try {
+            $request->validate($rules, $customMessages);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->errors()['hoa_id'][0] ?? 'Validation failed. Please check your input.',
+            ], 422);
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'HOA record added successfully.',
-            'hoa' => $hoa,
-        ]);
+        try {
+            $hoa = HoaDatabase::create($request->all());
+
+            // Log activity
+            $this->logActivity($request->docket_no, null, 'HOA Records', 'Added a docket');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'HOA record added successfully.',
+                'hoa' => $hoa,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'Duplicate entry') || str_contains($e->getMessage(), 'Integrity constraint violation')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'HOA ID already exists. Please use a unique HOA ID.',
+                ], 422);
+            }
+            throw $e;
+        }
     }
 
+    /**
+     * Update an existing HOA record
+     */
     public function update(Request $request, $docketNo)
     {
         $hoa = HoaDatabase::where('docket_no', $docketNo)->firstOrFail();
 
-        $request->validate([
-            'hoa_id' => 'required|integer',
+        $rules = [
+            'hoa_id' => 'required|integer|unique:hoa_database,hoa_id,' . $hoa->id,
             'docket_no' => 'required|string',
             'hoa_name' => 'required|string',
             'classification' => 'required|string',
@@ -76,128 +143,41 @@ class HoaController extends Controller
             'status' => 'required|in:ON-SHELF,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
-        ]);
-
-        $oldDocketNo = $hoa->docket_no;
-        $hoa->update($request->all());
-
-        // Log activity
-        $this->logActivity($request->docket_no, $oldDocketNo, 'HOA Records', 'Updated a docket');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'HOA record updated successfully.',
-            'hoa' => $hoa->load(['province', 'municipality']),
-        ]);
-    }
-
-    public function getUpdatedData()
-    {
-        $data = [
-            'total' => HoaDatabase::count(),
-            'onShelf' => HoaDatabase::where('status', 'ON-SHELF')->count(),
-            'unavailable' => HoaDatabase::where('status', 'UNAVAILABLE')->count(),
-            'borrowed' => HoaDatabase::where('status', 'BORROWED')->count(),
         ];
 
-        $records = HoaDatabase::with(['province', 'municipality'])->get();
+        $customMessages = [
+            'hoa_id.unique' => 'HOA ID already exists. Please use a unique HOA ID.',
+        ];
 
-        return response()->json([
-            'counts' => $data,
-            'records' => $records,
-        ]);
-    }
-
-    /**
-     * Export HOA records to Excel
-     */
-    public function export(Request $request)
-    {
-        $provinceId = $request->query('province_id');
-        $municipalityId = $request->query('municipality_id');
-
-        $query = HoaDatabase::with(['province', 'municipality']);
-
-        if ($provinceId) {
-            $query->where('province_id', $provinceId);
+        try {
+            $request->validate($rules, $customMessages);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->errors()['hoa_id'][0] ?? 'Validation failed. Please check your input.',
+            ], 422);
         }
 
-        if ($municipalityId) {
-            $query->where('municipality_id', $municipalityId);
-        }
+        try {
+            $oldDocketNo = $hoa->docket_no;
+            $hoa->update($request->all());
 
-        $records = $query->get();
+            // Log activity
+            $this->logActivity($request->docket_no, $oldDocketNo, 'HOA Records', 'Updated a docket');
 
-        // Get filter details for logging
-        $provinceName = '';
-        if ($provinceId) {
-            $province = Province::find($provinceId);
-            $provinceName = $province ? $province->province_name : '';
-        }
-        $municipalityName = '';
-        if ($municipalityId) {
-            $municipality = Municipality::find($municipalityId);
-            $municipalityName = $municipality ? $municipality->municipality_name : '';
-        }
-
-        // Build filter description for logging
-        $filterDescription = 'All Provinces';
-        if ($provinceName) {
-            $filterDescription = 'Province: ' . $provinceName;
-            if ($municipalityName) {
-                $filterDescription .= ', Municipality: ' . $municipalityName;
+            return response()->json([
+                'success' => true,
+                'message' => 'HOA record updated successfully.',
+                'hoa' => $hoa->load(['province', 'municipality']),
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'Duplicate entry') || str_contains($e->getMessage(), 'Integrity constraint violation')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'HOA ID already exists. Please use a unique HOA ID.',
+                ], 422);
             }
+            throw $e;
         }
-
-        // Log the export activity
-        $this->logActivity(
-            'EXPORT-' . date('YmdHis'),
-            'HOA Export - ' . $records->count() . ' records',
-            $filterDescription,
-            'Exported HOA records'
-        );
-
-        // Create Excel file
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        
-        // Set headers
-        $headers = ['Docket No', 'HOA Name', 'Classification', 'HOA Status', 'Location', 'Province', 'Municipality', 'Status', 'Quantity', 'Remarks'];
-        $column = 'A';
-        foreach ($headers as $header) {
-            $sheet->setCellValue($column . '1', $header);
-            $column++;
-        }
-
-        // Set data
-        $row = 2;
-        foreach ($records as $record) {
-            $sheet->setCellValue('A' . $row, $record->docket_no);
-            $sheet->setCellValue('B' . $row, $record->hoa_name);
-            $sheet->setCellValue('C' . $row, $record->classification);
-            $sheet->setCellValue('D' . $row, $record->hoa_status);
-            $sheet->setCellValue('E' . $row, $record->location);
-            $sheet->setCellValue('F' . $row, $record->province->province_name ?? '');
-            $sheet->setCellValue('G' . $row, $record->municipality->municipality_name ?? '');
-            $sheet->setCellValue('H' . $row, $record->status);
-            $sheet->setCellValue('I' . $row, $record->quantity);
-            $sheet->setCellValue('J' . $row, $record->remarks);
-            $row++;
-        }
-
-        // Auto-size columns
-        foreach (range('A', 'J') as $column) {
-            $sheet->getColumnDimension($column)->setAutoSize(true);
-        }
-
-        // Download file
-        $filename = 'hoa_records_' . date('Y-m-d_His') . '.xlsx';
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
-
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $writer->save('php://output');
-        exit;
     }
 }

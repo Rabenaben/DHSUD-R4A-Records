@@ -9,7 +9,7 @@
     </div>
 
     <!-- Status Filter -->
-    <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700 min-w-0" id="statusFilter">
+    <select class="rounded-xl border border-gray-300 bg-gray-100 px-2 py-2 text-gray-700 min-w-[60px] w-fit max-w-[120px]" id="statusFilter">
         <option value="">All Status</option>
         <option value="ON-SHELF">ON-SHELF</option>
         <option value="BORROWED">BORROWED</option>
@@ -17,7 +17,7 @@
     </select>
 
     <!-- Province Filter -->
-    <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700 min-w-[140px]" id="provinceFilter">
+    <select class="rounded-xl border border-gray-300 bg-gray-100 px-2 py-2 text-gray-700 min-w-[80px] w-fit max-w-[150px]" id="provinceFilter">
         <option value="">All Province</option>
         @foreach($provinces as $province)
             <option value="{{ $province->province_name }}">{{ $province->province_name }}</option>
@@ -25,7 +25,7 @@
     </select>
 
     <!-- Municipality Filter -->
-    <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700 min-w-40" id="municipalityFilter">
+    <select class="rounded-xl border border-gray-300 bg-gray-100 px-2 py-2 text-gray-700 min-w-[80px] w-fit max-w-[150px]" id="municipalityFilter">
         <option value="">All Municipality</option>
         @foreach($municipalities as $municipality)
             <option value="{{ $municipality->municipality_name }}" data-province="{{ $municipality->province->province_name }}">{{ $municipality->municipality_name }}</option>

@@ -8,6 +8,7 @@ import './borrower';
 import './archive';
 import './accounts';
 import './request-history';
+import './export-utils';
 
 import Alpine from 'alpinejs';
 
