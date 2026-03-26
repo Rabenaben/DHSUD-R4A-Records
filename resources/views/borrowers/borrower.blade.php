@@ -18,6 +18,14 @@
                         class="w-full border-none bg-transparent text-gray-700 placeholder-gray-400 outline-none focus:ring-0"
                         id="searchInput" type="text" placeholder="Search by ID, Borrower Name, Docket No...">
                 </div>
+                <div class="flex items-center rounded-xl border border-gray-300 bg-gray-100 px-4 py-2">
+                    <select id="divisionFilter" class="w-full border-none bg-transparent text-gray-700 outline-none focus:ring-0">
+                        <option value="all">All Divisions</option>
+                        @foreach($divisions as $division)
+                            <option value="{{ $division }}">{{ $division }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                     id="add-record-btn">
                     Add Record

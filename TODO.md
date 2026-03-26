@@ -1,11 +1,20 @@
-# Task: Add current province display beside "Back to Folders" button
+# Borrower "No Records Found" Fix Progress
 
-## Plan Steps
-- [x] 1. Edit resources/views/rem_records/partials/folder-table.blade.php: Add span#currentProvinceDisplay after button.
-- [x] 2. Edit resources/js/rem.js: 
-  - Store window.currentProvinceName = folder.dataset.provinceName in loadFolderContent.
-  - After container.innerHTML = ..., update display: `Current Province: ${window.currentProvinceName}`.
-  - In attachBackButton click: clear display.textContent = ''.
-- [ ] 3. Test: Navigate to REM, click province folder, verify display shows "Current Province: [NAME]", back clears it.
+## Current Task: Fix no records message not showing after filter/search in borrowers table
 
-Status: Code changes complete. Ready for testing.
+**Status:** ✅ Plan approved by user
+
+### Steps:
+- [x] Analyze borrower.blade.php and borrower.js
+- [x] Create comprehensive edit plan  
+- [x] Get user confirmation
+
+### TODO:
+- [x] 1. Edit resources/js/borrower.js - Dynamic noRecordsRow creation + fixes ✅
+- [x] 2. Test: Load with data → filter empty → verify message shows ✅
+- [x] 3. Test: Clear filter → data reappears ✅
+- [x] 4. Test: Add record → message hides ✅  
+- [x] 5. Complete task ✅
+
+
+**Root cause:** #noRecordsRow missing from DOM when initial PHP data exists → JS filterTable() fails silently

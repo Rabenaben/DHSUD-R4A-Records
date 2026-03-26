@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', initBorrowerRecords);
 
 function initBorrowerRecords() {
     const searchInput = document.getElementById('searchInput');
-    const tableBody = document.querySelector('tbody.bg-white.divide-y.divide-gray-200');
+    const divisionFilter = document.getElementById('divisionFilter');
+    const tableBody = document.querySelector('#borrowers-table tbody');
     const addRecordBtn = document.getElementById('add-record-btn');
     const borrowerForm = document.getElementById('borrower-form');
     const cancelBtn = document.getElementById('cancel-btn');
@@ -14,21 +15,34 @@ function initBorrowerRecords() {
 
     const getTableRows = () => Array.from(tableBody.querySelectorAll('tr[data-id]'));
 
+    let noRecordsRow = document.getElementById('noRecordsRow');
+
     // Filter Table
     const filterTable = () => {
         const query = searchInput.value.toLowerCase();
+        const divisionVal = divisionFilter?.value || 'all';
         let anyVisible = false;
 
         getTableRows().forEach(row => {
             const data = row.dataset;
             const matchesSearch = Object.values(data).some(val => val && val.toLowerCase().includes(query)) ||
                 (data.docketNumber && data.docketNumber.toLowerCase().includes(query));
+            const matchesDivision = divisionVal === 'all' || (data.division && data.division.toLowerCase() === divisionVal.toLowerCase());
 
-            row.style.display = matchesSearch ? '' : 'none';
-            if (matchesSearch) anyVisible = true;
+            row.style.display = (matchesSearch && matchesDivision) ? '' : 'none';
+            if (matchesSearch && matchesDivision) anyVisible = true;
         });
 
+        // Dynamic noRecordsRow handling
+        if (!noRecordsRow) {
+            noRecordsRow = document.createElement('tr');
+            noRecordsRow.id = 'noRecordsRow';
+            noRecordsRow.innerHTML = '<td class="p-3 text-center text-sm text-gray-500" colspan="4">No records found.</td>';
+            tableBody.appendChild(noRecordsRow);
+        }
 
+        // Show/hide no records message consistently
+        noRecordsRow.style.display = anyVisible ? 'none' : 'table-row';
     };
 
     // Generalized Filter Docket List
@@ -135,6 +149,12 @@ function initBorrowerRecords() {
     };
 
     searchInput.addEventListener('input', filterTable);
+    if (divisionFilter) {
+        divisionFilter.addEventListener('change', filterTable);
+    }
+
+    // Initial filter state
+    filterTable();
 
     if (fileLocationSelect) {
         fileLocationSelect.addEventListener('change', () => filterDocketList(fileLocationSelect, docketInput, 'hoa-docket-list', 'rem-docket-list'));
@@ -160,9 +180,6 @@ function initBorrowerRecords() {
 
     // Function to add new record to table
     const addRecordToTable = (borrower) => {
-        const tableBody = document.querySelector('tbody.bg-white.divide-y.divide-gray-200');
-        const noRecordsRow = document.getElementById('noRecordsRow');
-
         if (!tableBody) return;
 
         // Check if a row for this borrower already exists
@@ -176,9 +193,9 @@ function initBorrowerRecords() {
             }
             existingRow.setAttribute('data-status', borrower.status || 'Borrowed');
         } else {
-            // Hide no records row if it exists
+            // Hide no records row consistently
             if (noRecordsRow) {
-                noRecordsRow.classList.add('hidden');
+                noRecordsRow.style.display = 'none';
             }
 
             // Create new row
@@ -187,6 +204,8 @@ function initBorrowerRecords() {
             newRow.setAttribute('data-borrower-name', borrower.borrower_name);
             newRow.setAttribute('data-division', borrower.division || '');
             newRow.setAttribute('data-status', borrower.status || 'N/A');
+            newRow.className = 'cursor-pointer hover:bg-gray-50';
+            newRow.onclick = () => editBorrower(borrower.id);
 
             newRow.innerHTML = `
                 <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.id}</td>
@@ -195,9 +214,16 @@ function initBorrowerRecords() {
                 <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
             `;
 
-            // Insert at the top of the table
-            tableBody.insertBefore(newRow, tableBody.firstChild);
+            // Insert before noRecordsRow or at end
+            if (noRecordsRow && noRecordsRow.parentNode) {
+                tableBody.insertBefore(newRow, noRecordsRow);
+            } else {
+                tableBody.appendChild(newRow);
+            }
         }
+
+        // Re-apply current filter to ensure new row visibility
+        filterTable();
     };
 
     // Function to reset modal for adding new record

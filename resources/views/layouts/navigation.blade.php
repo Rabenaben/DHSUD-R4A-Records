@@ -14,14 +14,12 @@
             </button>
 
             <!-- App Logo -->
-            <a class="ms-2 flex" href="{{ route('dashboard') }}">
+            <a class="ms-2 flex items-center gap-3" href="{{ route('dashboard') }}">
                 <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white"
                     variant="bp" />
-                <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white"
-                    variant="dhsud" />
-                <span class="ms-2 self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white">
-                    {{ config('app.name', 'DHSUDRECORDS') }}
-                </span>
+                <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent whitespace-nowrap">
+                    DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT REGION IV-A
+                </h1>
             </a>
         </div>
 

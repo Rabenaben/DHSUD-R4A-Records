@@ -24,7 +24,7 @@
             <div class="text-black flex flex-1 items-center justify-between p-4 font-medium">
                 <div class="text-left">
                     <p class="text-sm font-semibold">{{ $card['label'] }}</p>
-                    <h2 class="mt-1 text-2xl font-bold tracking-wider">{{ $card['value'] }}</h2>
+                    <h2 class="mt-1 text-2xl font-bold tracking-wider">{{ number_format($card['value']) }}</h2>
                 </div>
                 <div class="shrink-0 text-4xl">
                     <i class="bi {{ $card['icon'] }}" aria-hidden="true"></i>

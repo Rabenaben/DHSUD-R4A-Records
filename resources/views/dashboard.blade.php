@@ -37,7 +37,7 @@
                         <!-- Text Content -->
                         <div class="{{ $textClass }} flex flex-col pl-2">
                             <h2 class="text-lg font-bold leading-tight md:text-xl">
-                                {{ $card['count'] }}
+                                {{ number_format($card['count']) }}
                             </h2>
                             <p class="mt-1 text-xs font-semibold md:text-sm">
                                 {{ $card['title'] }}
