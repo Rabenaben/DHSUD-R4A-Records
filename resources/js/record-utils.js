@@ -403,6 +403,184 @@ function initGenericModal(prefix, editableFields, allFields, buildFormData, afte
 // Export Functions to Window
 // =========================================
 
+/**
+ * Generic province/municipality dropdown loader.
+ * @param {string} type - 'hoa' or 'rem'
+ * @param {Object} record - Record data
+ * @param {string} provinceSelectId - Province select ID
+ * @param {string} municipalitySelectId - Municipality select ID
+ */
+async function loadProvinceMunicipalities(type, record, provinceSelectId, municipalitySelectId) {
+    const provinceSelect = document.getElementById(provinceSelectId);
+    const municipalitySelect = document.getElementById(municipalitySelectId);
+    
+    try {
+        const provincesRes = await fetch(`/${type}/provinces`);
+        const provinces = await provincesRes.json();
+        
+        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        provinces.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.province_id;
+            opt.text = p.province_name;
+            provinceSelect.appendChild(opt);
+        });
+        
+        if (record.province_id) {
+            provinceSelect.value = record.province_id;
+            await loadMunicipalities(type, record.province_id, municipalitySelectId);
+            if (record.municipality_id) municipalitySelect.value = record.municipality_id;
+        }
+    } catch (e) {
+        console.error('Error loading dropdowns:', e);
+    }
+}
+
+/**
+ * Load municipalities for province.
+ */
+async function loadMunicipalities(type, provinceId, municipalitySelectId) {
+    const muniSelect = document.getElementById(municipalitySelectId);
+    muniSelect.innerHTML = '<option value="">Select Municipality</option>';
+    muniSelect.disabled = !provinceId;
+    
+    if (!provinceId) return;
+    
+    try {
+        const res = await fetch(`/${type}/municipalities?province_id=${provinceId}`);
+        const munis = await res.json();
+        munis.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.municipality_id;
+            opt.text = m.municipality_name;
+            muniSelect.appendChild(opt);
+        });
+    } catch (e) {
+        console.error('Error loading municipalities:', e);
+    }
+}
+
+/**
+ * Setup cascading dropdown change handler.
+ */
+function setupCascadingDropdown(provinceSelectId, muniSelectId, type) {
+    const provinceSelect = document.getElementById(provinceSelectId);
+    if (!provinceSelect) return;
+    
+    provinceSelect.addEventListener('change', async () => {
+        const provinceId = provinceSelect.value;
+        await loadMunicipalities(type, provinceId, muniSelectId);
+    });
+}
+
+/**
+ * Generic validation for record fields.
+ * @param {string} prefix - Field prefix ('', 'add-')
+ * @param {Array} requiredFields - [{id, name}]
+ * @returns {boolean}
+ */
+function validateRecord(prefix, requiredFields) {
+    // Quantity validation (common)
+    const qtyId = prefix + (prefix ? 'quantity' : 'quantity');
+    const qtyEl = document.getElementById(qtyId);
+    if (qtyEl && (!qtyEl.value.trim() || isNaN(qtyEl.value) || parseFloat(qtyEl.value) < 0)) {
+        window.showToast('Quantity must be a valid non-negative number.', 'error');
+        qtyEl.focus();
+        return false;
+    }
+    
+    // Required fields
+    for (const field of requiredFields) {
+        const el = document.getElementById(prefix + field.id);
+        if (!el || !el.value.trim()) {
+            window.showToast(`${field.name} is required.`, 'error');
+            el?.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Attach modal edit/save/cancel listeners (replaces timeout manual code).
+ */
+function attachModalListeners(prefix, editableFields, allFields, buildFormData) {
+    const editBtn = document.getElementById(prefix + '-edit-btn');
+    const saveIcon = document.getElementById(prefix + '-save-icon');
+    const cancelIcon = document.getElementById(prefix + '-cancel-icon');
+    
+    if (editBtn) {
+        editBtn.onclick = () => window.enterEditMode(prefix, editableFields, allFields);
+    }
+    
+    if (saveIcon) {
+        saveIcon.onclick = () => {
+            if (!window.validateRecord(prefix, [])) return; // Pass required fields config
+            window.saveEdit(prefix, buildFormData, allFields);
+        };
+    }
+    
+    if (cancelIcon) {
+        cancelIcon.onclick = () => window.cancelEdit(prefix, allFields);
+    }
+}
+
+/**
+ * Init add-record modal (generic).
+ */
+function initAddRecordModal(prefix, endpoint) {
+    const formId = `add-record-form`; // TODO: make dynamic if needed
+    const submitBtnId = `${prefix === 'hoa' ? 'add-record-submit-btn' : 'add-rem-record-submit-btn'}`;
+    
+    const submitBtn = document.getElementById(submitBtnId);
+    if (submitBtn) {
+        submitBtn.onclick = async () => {
+            // Validate then confirm modal
+            if (!window.validateRecord('add-', [])) return;
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
+        };
+    }
+    
+    // Confirm save handler (shared)
+    const confirmBtn = document.getElementById('confirm-save-record-yes-btn');
+    if (confirmBtn) {
+        confirmBtn.onclick = async () => {
+            const form = document.getElementById(formId);
+            const formData = new FormData(form);
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    form.reset();
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-save-record-modal' } }));
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: formId.replace('-form', '') } }));
+                    window.showToast(data.message || 'Record added!', 'success');
+                    await window[`update${prefix.charAt(0).toUpperCase() + prefix.slice(1)}Data`]();
+                }
+            } catch (e) {
+                window.showToast('Error adding record', 'error');
+            }
+        };
+    }
+}
+
+// Export loading overlays (moved from hoa/rem)
+window.showExportLoading = function(type) {
+    const overlay = document.getElementById(`export-loading-${type}`);
+    if (overlay) overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+};
+
+window.hideExportLoading = function(type) {
+    const overlay = document.getElementById(`export-loading-${type}`);
+    if (overlay) overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+};
+
 window.enterFileNameEditMode = enterFileNameEditMode;
 window.saveFileName = saveFileName;
 window.cancelFileNameEdit = cancelFileNameEdit;
@@ -416,3 +594,9 @@ window.validateForm = validateForm;
 window.initGenericModal = initGenericModal;
 window.resetEditModeState = resetEditModeState;
 window.resetAllAsterisks = resetAllAsterisks;
+window.loadProvinceMunicipalities = loadProvinceMunicipalities;
+window.loadMunicipalities = loadMunicipalities;
+window.setupCascadingDropdown = setupCascadingDropdown;
+window.validateRecord = validateRecord;
+window.attachModalListeners = attachModalListeners;
+window.initAddRecordModal = initAddRecordModal;

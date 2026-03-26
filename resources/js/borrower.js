@@ -58,8 +58,8 @@ function initBorrowerRecords() {
     };
 
     // Open modal
-    let openModal = (fromHistory = false, borrowerName = null) => {
-        resetModalForAdding(fromHistory, borrowerName);
+    let openModal = (fromHistory = false, borrowerName = null, division = '') => {
+        resetModalForAdding(fromHistory, borrowerName, division);
         window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrower' } }));
     };
 
@@ -227,7 +227,7 @@ function initBorrowerRecords() {
     };
 
     // Function to reset modal for adding new record
-    const resetModalForAdding = (fromHistory = false, borrowerName = null) => {
+    const resetModalForAdding = (fromHistory = false, borrowerName = null, division = '') => {
         // Change modal title back
         const modalTitle = document.getElementById('modal-title');
         if (modalTitle) {
@@ -258,13 +258,32 @@ function initBorrowerRecords() {
             }
         });
 
-        // If from history, set borrower name to the provided borrower name and make it readonly
+        // If from history, set borrower name and division then make readonly/disabled
         if (fromHistory && borrowerName) {
             const borrowerNameField = document.getElementById('borrower-name');
             if (borrowerNameField) {
                 borrowerNameField.value = borrowerName;
                 borrowerNameField.setAttribute('readonly', 'readonly');
                 borrowerNameField.classList.add('bg-gray-100');
+            }
+
+            // Set and disable division select field for existing borrower
+            const divisionField = document.getElementById('division');
+            if (divisionField && division) {
+                divisionField.value = division;
+                divisionField.disabled = true;
+                divisionField.classList.add('bg-gray-100');
+            } else if (divisionField) {
+                divisionField.disabled = true;
+                divisionField.classList.add('bg-gray-100');
+            }
+        } else {
+            // For new borrower records, ensure division field is enabled and cleared
+            const divisionField = document.getElementById('division');
+            if (divisionField) {
+                divisionField.disabled = false;
+                divisionField.classList.remove('bg-gray-100');
+                divisionField.value = '';
             }
         }
 
@@ -337,7 +356,10 @@ function initBorrowerRecords() {
         if (addNewRecordBtn) {
             addNewRecordBtn.addEventListener('click', () => {
                 closeHistoryModal();
-                openModal(true, borrowerName); // Pass borrowerName from history
+                // Get division from main table row
+                const mainTableRow = document.querySelector(`tr[data-borrower-name="${borrowerName}"]`);
+                const division = mainTableRow ? mainTableRow.getAttribute('data-division') : '';
+                openModal(true, borrowerName, division); // Pass borrowerName and division from history
             });
         }
     };
@@ -366,7 +388,7 @@ function initBorrowerRecords() {
             row.className = 'hover:bg-gray-50';
             row.innerHTML = `
                 <td class="px-6 py-4 text-center text-sm text-gray-900">${record.docket_number}</td>
-                <td class="px-6 py-4 text-center text-sm text-gray-900">${record.file_location === 'HOA Records' ? 'HOA' : record.file_location === 'REM Records' ? (record.province ? `REM - ${record.province}` : 'REM') : record.file_location}</td>
+                <td class="px-6 py-4 text-center text-sm text-gray-900">${record.file_location === 'HOA Records' ? 'HOA' : record.file_location === 'REM Records' ? 'REM' : record.file_location}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-900">${new Date(record.date_borrowed).toLocaleString()}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-900 ${record.date_returned ? '' : 'cursor-pointer text-blue-600 hover:text-blue-800'}" id="returned-date-${record.id}" ${record.date_returned ? '' : `onclick="window.openVerifyReturnedDateModal(${record.id})"`}>${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-900">

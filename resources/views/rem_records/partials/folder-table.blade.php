@@ -24,6 +24,17 @@
             <option value="UNAVAILABLE">UNAVAILABLE</option>
         </select>
 
+        <!-- Municipality Filter -->
+        <select class="rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-700" id="remMunicipalityFilter">
+            <option value="">All Municipalities</option>
+            @php
+                $municipalities = $records->pluck('municipality.municipality_name')->filter()->unique()->sort()->values();
+            @endphp
+            @foreach($municipalities as $municipality)
+                <option value="{{ $municipality }}">{{ $municipality }}</option>
+            @endforeach
+        </select>
+
         <!-- Add Docket Button -->
         @unless(auth()->user()->role === 'Staff')
         <button class="rounded-xl border border-gray-300 bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" id="addRemDocketBtn">Add Docket</button>
