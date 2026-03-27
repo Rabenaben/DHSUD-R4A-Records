@@ -27,6 +27,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     // Dashboard routes (DisplayController)
     Route::controller(DisplayController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
+        Route::get('/dashboard/borrowed-records', 'borrowedRecords')->name('dashboard.borrowed-records');
         Route::get('/rem_records', 'remDashboard')->name('rem_records');
         Route::get('/hoa_records', 'hoaDashboard')->name('hoa_records');
         Route::get('/borrowers', 'borrowerDashboard')->name('borrowers')->middleware('role:Admin');

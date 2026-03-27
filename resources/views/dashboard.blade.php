@@ -14,7 +14,7 @@
 
             <!-- Stats Grid -->
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
-                @foreach ($cards as $card)
+                @foreach ($cards as $index => $card)
                     @php
                         $bgClass = match ($card['from']) {
                             'gray-600' => 'from-gray-600 to-gray-900',
@@ -26,9 +26,10 @@
                             default => '',
                         };
                         $textClass = $card['text'] === 'text-white' ? 'text-white' : 'text-black';
+                        $isBorrowedCard = $index === 5;
                     @endphp
                     <div
-                        class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow transition-transform duration-200 hover:-translate-y-2 hover:transform">
+                        class="relative flex h-20 items-center justify-between rounded-lg bg-white p-3 shadow transition-transform duration-200 hover:-translate-y-2 hover:transform {{ $isBorrowedCard ? 'borrowed-card cursor-pointer hover:bg-yellow-50' : '' }}">
 
                         <!-- LEFT COLORED BAR -->
                         <div class="bg-linear-to-r {{ $bgClass }} absolute bottom-0 left-0 top-0 w-2 rounded-l-lg">
@@ -49,6 +50,9 @@
                     </div>
                 @endforeach
             </div>
+
+            <!-- Borrowed Records Modal -->
+            <x-borrowed-records-modal />
 
             <!-- Recent Activity Logs -->
             <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">
