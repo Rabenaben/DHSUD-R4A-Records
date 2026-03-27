@@ -52,7 +52,7 @@
             </div>
 
             <!-- Borrowed Records Modal -->
-            <x-borrowed-records-modal />
+            @include('dashboard.partials.borrowed-records-modal')
 
             <!-- Recent Activity Logs -->
             <div class="rounded-xl border border-gray-300 bg-white p-4 shadow">

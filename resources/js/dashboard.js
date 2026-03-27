@@ -1,11 +1,10 @@
 // Borrowed status card functionality for dashboard
 document.addEventListener('DOMContentLoaded', function() {
     const borrowedCard = document.querySelector('.borrowed-card');
-    const modal = document.getElementById('borrowedRecordsModal');
     const closeBtn = document.getElementById('closeBorrowedModal');
     const tableBody = document.getElementById('borrowedRecordsTableBody');
 
-    if (!borrowedCard || !modal || !closeBtn || !tableBody) return;
+    if (!borrowedCard || !closeBtn || !tableBody) return;
 
     // Click handler for borrowed card
     borrowedCard.addEventListener('click', async function() {
@@ -29,33 +28,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 `).join('');
             }
 
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrowed-records' } }));
         } catch (error) {
             console.error('Error loading borrowed records:', error);
             tableBody.innerHTML = '<tr><td colspan="3" class="px-6 py-12 text-center text-red-500 text-lg">Error loading records. Please try again.</td></tr>';
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'borrowed-records' } }));
         }
     });
 
     // Close modal handlers
     function closeModal() {
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
+        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'borrowed-records' } }));
     }
 
     closeBtn.addEventListener('click', closeModal);
 
     // Close on overlay click
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) closeModal();
-    });
+    // `x-modal` handles backdrop click automatically.
 
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            closeModal();
-        }
-    });
+    // x-modal handles Escape key automatically by closing itself.
 });

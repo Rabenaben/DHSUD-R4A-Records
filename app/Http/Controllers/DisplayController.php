@@ -46,7 +46,41 @@ class DisplayController extends Controller
             ['title' => 'Borrowed', 'count' => $rem['borrowed'] + $hoa['borrowed'], 'from' => 'yellow-300', 'to' => 'yellow-600', 'text' => 'text-black', 'icon' => 'bi-arrow-left-right'],
         ];
 
-        return view('dashboard', compact('cards'));
+        return view('dashboard.dashboard', compact('cards'));
+    }
+
+    /**
+     * Get all borrowed records (HOA + REM) for dashboard borrowed status card modal
+     */
+    public function borrowedRecords()
+    {
+        $hoaBorrowed = HoaDatabase::select('docket_no', 'hoa_name as record_name')
+            ->where('status', 'BORROWED')
+            ->orderBy('docket_no')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'docket_no' => $record->docket_no,
+                    'record_name' => $record->record_name,
+                    'type' => 'HOA'
+                ];
+            });
+
+        $remBorrowed = RemDatabase::select('docket_no', 'project_name as record_name')
+            ->where('status', 'BORROWED')
+            ->orderBy('docket_no')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'docket_no' => $record->docket_no,
+                    'record_name' => $record->record_name,
+                    'type' => 'REM'
+                ];
+            });
+
+        $borrowedRecords = $hoaBorrowed->concat($remBorrowed)->sortBy('docket_no');
+
+        return response()->json($borrowedRecords->values());
     }
 
     // 🔹 REM Dashboard
@@ -367,39 +401,5 @@ class DisplayController extends Controller
             });
 
         return view('archived.archive', compact('archivedFiles'));
-    }
-
-    /**
-     * Get all borrowed records (HOA + REM) for dashboard borrowed status card modal
-     */
-    public function borrowedRecords()
-    {
-        $hoaBorrowed = HoaDatabase::select('docket_no', 'hoa_name as record_name')
-            ->where('status', 'BORROWED')
-            ->orderBy('docket_no')
-            ->get()
-            ->map(function ($record) {
-                return [
-                    'docket_no' => $record->docket_no,
-                    'record_name' => $record->record_name,
-                    'type' => 'HOA'
-                ];
-            });
-
-        $remBorrowed = RemDatabase::select('docket_no', 'project_name as record_name')
-            ->where('status', 'BORROWED')
-            ->orderBy('docket_no')
-            ->get()
-            ->map(function ($record) {
-                return [
-                    'docket_no' => $record->docket_no,
-                    'record_name' => $record->record_name,
-                    'type' => 'REM'
-                ];
-            });
-
-        $borrowedRecords = $hoaBorrowed->concat($remBorrowed)->sortBy('docket_no');
-
-        return response()->json($borrowedRecords->values());
     }
 }
