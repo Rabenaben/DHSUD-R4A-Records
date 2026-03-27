@@ -169,6 +169,18 @@ function handleConfirmSaveFile() {
         const docketNo = formData.get('docket_no');
         const type = window.currentRecordType;
 
+        // Show loading state
+        confirmSaveBtn.disabled = true;
+        confirmSaveBtn.innerHTML = `
+            <span class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Uploading...
+            </span>
+        `;
+
         fetch(`/${type}/${docketNo}/upload-file`, {
             method: 'POST',
             body: formData,
@@ -197,6 +209,11 @@ function handleConfirmSaveFile() {
             .catch(error => {
                 console.error('Error:', error);
                 window.showToast('An error occurred while uploading the files.', 'error');
+            })
+            .finally(() => {
+                // Reset button
+                confirmSaveBtn.disabled = false;
+                confirmSaveBtn.innerHTML = 'Confirm';
             });
     });
 }
@@ -368,6 +385,42 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
 // =========================================
 // Utility Functions
 // =========================================
+
+/**
+ * Creates a debounced version of a function.
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - Delay in milliseconds.
+ * @returns {Function} Debounced function.
+ */
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+/**
+ * Filters file rows by filename search term.
+ * @param {string} type - Record type ('hoa' or 'rem').
+ * @param {string} searchTerm - Search term to filter by.
+ */
+function filterFiles(type, searchTerm) {
+    const rows = document.querySelectorAll(`.${type}-file-row`);
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    rows.forEach(row => {
+        const filenameCell = row.querySelector('td:first-child');
+        if (filenameCell) {
+            const filename = filenameCell.textContent.toLowerCase();
+            if (searchLower === '' || filename.includes(searchLower)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+}
 
 /**
  * Sets the value of an element by ID.
@@ -648,9 +701,9 @@ function renderGenericFileList(files, record, type) {
     } else {
         tbody.innerHTML = files.map(f => `
             <tr class="cursor-pointer hover:bg-gray-50 ${type}-file-row" data-file-index="${f.index}">
-                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">${f.name}</td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${new Date(f.date_added).toLocaleString()}</td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${f.last_updated_by || 'Unknown'}</td>
+                <td class="px-4 py-4 wrap-break-word text-sm font-medium text-gray-900 text-center">${f.name}</td>
+                <td class="px-4 py-4 wrap-break-word text-sm text-gray-500 text-center">${new Date(f.date_added).toLocaleString()}</td>
+                <td class="px-4 py-4 wrap-break-word text-sm text-gray-500 text-center">${f.last_updated_by || 'Unknown'}</td>
             </tr>
         `).join('');
 
@@ -662,6 +715,36 @@ function renderGenericFileList(files, record, type) {
             const fileIndex = parseInt(row.dataset.fileIndex);
             showGenericFilePreview(record, fileIndex, type);
         });
+
+        // Attach search input listener with debounce
+        const searchInput = document.getElementById(`${type}-files-search`);
+        const clearBtn = document.getElementById(`${type}-files-search-clear`);
+        
+        if (searchInput) {
+            // Remove existing listeners to prevent duplicates
+            searchInput.removeEventListener('input', window[`${type}SearchHandler`]);
+            
+            // Create debounced handler
+            window[`${type}SearchHandler`] = debounce((e) => {
+                filterFiles(type, e.target.value);
+            }, 300);
+            
+            searchInput.addEventListener('input', window[`${type}SearchHandler`]);
+        }
+        
+        // Attach clear button listener
+        if (clearBtn) {
+            clearBtn.removeEventListener('click', window[`${type}ClearHandler`]);
+            window[`${type}ClearHandler`] = function() {
+                const input = document.getElementById(`${type}-files-search`);
+                if (input) {
+                    input.value = '';
+                    filterFiles(type, '');
+                    input.focus();
+                }
+            };
+            clearBtn.addEventListener('click', window[`${type}ClearHandler`]);
+        }
     }
 
     // Enable or disable the Export All Files button based on file count

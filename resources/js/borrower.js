@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', initBorrowerRecords);
 
+function formatBorrowerId(id) {
+    return String(id).padStart(3, '0');
+}
+
 function initBorrowerRecords() {
     const searchInput = document.getElementById('searchInput');
     const divisionFilter = document.getElementById('divisionFilter');
@@ -8,7 +12,7 @@ function initBorrowerRecords() {
     const borrowerForm = document.getElementById('borrower-form');
     const cancelBtn = document.getElementById('cancel-btn');
     const fileLocationSelect = document.getElementById('file-location');
-    const docketInput = document.getElementById('docket-no');
+    const docketInput = document.getElementById('borrower-docket-no');
 
 
     if (!searchInput || !tableBody) return;
@@ -45,6 +49,64 @@ function initBorrowerRecords() {
         noRecordsRow.style.display = anyVisible ? 'none' : 'table-row';
     };
 
+    // Debounce utility for API calls
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(null, args), delay);
+        };
+    };
+
+    // Fetch docket details and populate fields
+    const fetchDocketDetails = async (docketNo, fileLocation) => {
+        const trimmedDocketNo = docketNo ? docketNo.trim() : '';
+        if (!trimmedDocketNo || trimmedDocketNo.length < 3 || !fileLocation) {
+            // Clear fields if empty or too short
+            const projectNameInput = document.getElementById('borrower-project-name');
+            const locationInput = document.getElementById('borrower-location');
+            if (projectNameInput) projectNameInput.value = '';
+            if (locationInput) locationInput.value = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/borrowers/docket/${encodeURIComponent(trimmedDocketNo)}?type=${encodeURIComponent(fileLocation)}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            const projectNameInput = document.getElementById('borrower-project-name');
+            const locationInput = document.getElementById('borrower-location');
+
+            if (result.success) {
+                if (projectNameInput) projectNameInput.value = result.project_name;
+                if (locationInput) locationInput.value = result.location;
+            } else {
+                // Clear on error/not found
+                if (projectNameInput) projectNameInput.value = '';
+                if (locationInput) locationInput.value = '';
+            }
+        } catch (error) {
+            console.error('Error fetching docket details:', error);
+            // Clear fields on error
+            const projectNameInput = document.getElementById('borrower-project-name');
+            const locationInput = document.getElementById('borrower-location');
+            if (projectNameInput) projectNameInput.value = '';
+            if (locationInput) locationInput.value = '';
+        }
+    };
+
+    // Debounced version for input events
+    const debouncedFetchDocketDetails = debounce((docketNo, fileLocation) => {
+        fetchDocketDetails(docketNo, fileLocation);
+    }, 500);
+
     // Generalized Filter Docket List
     const filterDocketList = (selectElement, docketInputElement, hoaListId, remListId) => {
         const selectedLocation = selectElement.value;
@@ -55,6 +117,9 @@ function initBorrowerRecords() {
         } else {
             docketInputElement.removeAttribute('list');
         }
+        // Clear docket and related fields when location changes
+        docketInputElement.value = '';
+        debouncedFetchDocketDetails('', selectedLocation);
     };
 
     // Open modal
@@ -75,6 +140,11 @@ function initBorrowerRecords() {
 
         const formData = new FormData(formElement);
         const data = Object.fromEntries(formData.entries());
+
+        // Always trim docket_number before sending
+        if (data.docket_number) {
+            data.docket_number = data.docket_number.trim();
+        }
 
         try {
             const response = await fetch('/borrowers', {
@@ -160,6 +230,15 @@ function initBorrowerRecords() {
         fileLocationSelect.addEventListener('change', () => filterDocketList(fileLocationSelect, docketInput, 'hoa-docket-list', 'rem-docket-list'));
     }
 
+    // Auto-populate project/location when docket changes
+    if (docketInput) {
+        docketInput.addEventListener('input', (e) => {
+            const fileLocation = fileLocationSelect ? fileLocationSelect.value : '';
+            // Always trim docket number before sending to fetchDocketDetails
+            debouncedFetchDocketDetails(e.target.value.trim(), fileLocation);
+        });
+    }
+
     if (addRecordBtn) {
         addRecordBtn.addEventListener('click', () => openModal(false));
     }
@@ -208,7 +287,7 @@ function initBorrowerRecords() {
             newRow.onclick = () => editBorrower(borrower.id);
 
             newRow.innerHTML = `
-                <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.id}</td>
+                <td class="px-6 py-4 text-center text-sm text-gray-500">${formatBorrowerId(borrower.id)}</td>
                 <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.division || 'N/A'}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
@@ -388,6 +467,7 @@ function initBorrowerRecords() {
             row.className = 'hover:bg-gray-50';
             row.innerHTML = `
                 <td class="px-6 py-4 text-center text-sm text-gray-900">${record.docket_number}</td>
+                <td class="px-6 py-4 text-center text-sm text-gray-900">${record.project_name || 'N/A'}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-900">${record.file_location === 'HOA Records' ? 'HOA' : record.file_location === 'REM Records' ? 'REM' : record.file_location}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-900">${new Date(record.date_borrowed).toLocaleString()}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-900 ${record.date_returned ? '' : 'cursor-pointer text-blue-600 hover:text-blue-800'}" id="returned-date-${record.id}" ${record.date_returned ? '' : `onclick="window.openVerifyReturnedDateModal(${record.id})"`}>${record.date_returned ? new Date(record.date_returned).toLocaleString() : 'N/A'}</td>

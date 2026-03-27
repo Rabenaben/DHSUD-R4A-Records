@@ -26,15 +26,17 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/6 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Docket No.</th>
-                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/6 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                                Project/HOA Name</th>
+                            <th class="w-1/6 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 File Type</th>
-                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/6 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Date Borrowed</th>
-                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/6 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Date Returned</th>
-                            <th class="w-1/5 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <th class="w-1/6 px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                 Status</th>
                         </tr>
                     </thead>

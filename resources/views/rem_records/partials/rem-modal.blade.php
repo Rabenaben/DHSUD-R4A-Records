@@ -110,7 +110,26 @@
             <div class="flex-1 w-full overflow-hidden rounded-lg border border-gray-300 bg-white"
                 id="rem-file-list-view" style="display: block;">
                 <div class="mb-2 flex items-center justify-between bg-gray-50 p-4">
-                    <h4 class="text-sm font-semibold text-gray-900">Files</h4>
+                    <div class="flex items-center gap-3">
+                        <h4 class="text-sm font-semibold text-gray-900">Files</h4>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="rem-files-search"
+                                placeholder="Search files..." 
+                                class="w-48 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                            <button 
+                                id="rem-files-search-clear"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
+                                style="display: none;"
+                            >
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div class="flex items-center space-x-2">
                         @unless(auth()->user()->role === 'Staff')
                         <x-secondary-button id="rem-add-file-btn">Add File</x-secondary-button>
@@ -125,13 +144,13 @@
                         <thead class="bg-gray-50 sticky top-0">
                             <tr>
                                 <th
-                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    class="w-2/5 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     File Name</th>
                                 <th
-                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    class="w-1/5 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Date Modified</th>
                                 <th
-                                    class="w-1/3 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    class="w-2/5 px-4 py-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Last Updated By</th>
                             </tr>
                         </thead>

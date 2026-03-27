@@ -16,17 +16,17 @@
                         No files chosen
                     </div>
                 </div>
-                <div id="selected-files" class="mt-2 text-sm text-gray-600"></div>
+                <div class="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div id="selected-files" class="text-sm text-gray-600"></div>
+                </div>
             </div>
-
-
 
             <div class="flex justify-end gap-3">
                 <button type="button" id="cancel-add-file-btn"
                     class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600">
                     Cancel
                 </button>
-                <button type="submit"
+                <button type="submit" id="add-file-submit"
                     class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                     Add File
                 </button>

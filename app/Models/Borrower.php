@@ -13,9 +13,11 @@ class Borrower extends Model
 
     protected $fillable = [
         'borrower_name',
-        'docket_number',
+        'docket_number', 
         'file_location',
         'division',
+        'project_name',
+        'location',
         'date_borrowed',
         'date_returned',
     ];
