@@ -2,6 +2,7 @@ import './bootstrap';
 import 'flowbite';
 import './file-utils';
 import './record-utils';
+import './dashboard';
 import './rem';
 import './hoa';
 import './borrower';
