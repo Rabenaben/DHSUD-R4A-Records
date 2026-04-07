@@ -12,7 +12,7 @@
         <div class="space-y-4">
             <!-- Status Cards -->
             @php $totalDockets = $totalHoaDockets; @endphp
-            <x-status-cards :totalDockets="$totalDockets" :onShelf="$onShelf" :unavailable="$unavailable" :borrowed="$borrowed" theme="hoa" />
+            <x-status-cards :totalDockets="$totalDockets" :onShelf="$onShelf" :archived="$archived" :borrowed="$borrowed" theme="hoa" />
 
             <!-- Region Tabs -->
             <div class="flex items-center justify-between rounded-lg bg-gray-300 p-2 shadow-sm">

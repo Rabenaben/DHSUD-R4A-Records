@@ -21,7 +21,7 @@
             <option value="">All Status</option>
             <option value="ON-SHELF">ON-SHELF</option>
             <option value="BORROWED">BORROWED</option>
-            <option value="UNAVAILABLE">UNAVAILABLE</option>
+            <option value="ARCHIVED">ARCHIVED</option>
         </select>
 
         <!-- Municipality Filter -->

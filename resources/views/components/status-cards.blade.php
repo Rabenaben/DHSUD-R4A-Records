@@ -2,14 +2,14 @@
     $baseColors = [
         'total' => 'from-gray-600 to-gray-900',
         'onShelf' => 'from-green-400 to-green-700',
-        'unavailable' => 'from-red-500 to-red-800',
+        'archived' => 'from-red-500 to-red-800',
         'borrowed' => 'from-yellow-400 to-yellow-700',
     ];
 
     $cards = [
         'total' => ['label' => 'Total Dockets', 'value' => $totalDockets, 'icon' => 'bi-folder2-open'],
         'onShelf' => ['label' => 'On-Shelf', 'value' => $onShelf, 'icon' => 'bi-archive-fill'],
-        'unavailable' => ['label' => 'Unavailable', 'value' => $unavailable, 'icon' => 'bi-file-earmark-x-fill'],
+        'archived' => ['label' => 'Archived', 'value' => $archived, 'icon' => 'bi-file-earmark-x-fill'],
         'borrowed' => ['label' => 'Borrowed', 'value' => $borrowed, 'icon' => 'bi-arrow-left-right'],
     ];
 @endphp

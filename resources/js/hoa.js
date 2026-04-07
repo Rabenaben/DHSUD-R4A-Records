@@ -154,6 +154,19 @@ function openHoaModal(record) {
         if (editFileNameBtn) editFileNameBtn.addEventListener('click', () => window.enterFileNameEditMode('hoa'));
 
         window.setupCascadingDropdown('province', 'municipality', 'hoa');
+
+        // Archive Docket button listener
+        const archiveDocketBtn = document.getElementById('hoa-archive-docket-btn');
+        if (archiveDocketBtn) {
+            archiveDocketBtn.addEventListener('click', () => {
+                window.promptArchiveDocket('hoa', record.docket_no, 'hoa', async () => {
+                    if (typeof updateHoaData === 'function') {
+                        await updateHoaData();
+                    }
+                });
+            });
+        }
+
     }, 100); // Small delay to ensure modal is rendered
 }
 
@@ -477,13 +490,13 @@ async function updateHoaData() {
         // Update status cards
         const totalEl = document.querySelector('.status-card-total h2');
         const onShelfEl = document.querySelector('.status-card-onShelf h2');
-        const unavailableEl = document.querySelector('.status-card-unavailable h2');
+        const archivedEl = document.querySelector('.status-card-archived h2');
         const borrowedEl = document.querySelector('.status-card-borrowed h2');
 
-        if (totalEl) totalEl.textContent = data.counts.total;
-        if (onShelfEl) onShelfEl.textContent = data.counts.onShelf;
-        if (unavailableEl) unavailableEl.textContent = data.counts.unavailable;
-        if (borrowedEl) borrowedEl.textContent = data.counts.borrowed;
+        if (totalEl) totalEl.textContent = Number(data.counts.total).toLocaleString();
+        if (onShelfEl) onShelfEl.textContent = Number(data.counts.onShelf).toLocaleString();
+        if (archivedEl) archivedEl.textContent = Number(data.counts.archived).toLocaleString();
+        if (borrowedEl) borrowedEl.textContent = Number(data.counts.borrowed).toLocaleString();
     } catch (error) {
         console.error('Error updating HOA status cards:', error);
     }

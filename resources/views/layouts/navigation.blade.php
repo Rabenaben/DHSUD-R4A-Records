@@ -17,7 +17,8 @@
             <a class="ms-2 flex items-center gap-3" href="{{ route('dashboard') }}">
                 <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white"
                     variant="bp" />
-                <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent whitespace-nowrap">
+                <h1
+                    class="bg-linear-to-r whitespace-nowrap from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent">
                     DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT REGION IV-A
                 </h1>
             </a>
@@ -29,27 +30,32 @@
             <div class="mr-3 text-sm text-gray-700 dark:text-gray-300">
                 {{ auth()->user()->name }} | {{ auth()->user()->remarks ?? 'N/A' }}
             </div>
-            <x-dropdown align="right" width="48">
-                <x-slot name="trigger">
-                    <button
-                        class="flex items-center rounded-full bg-gray-800 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
-                        <span class="sr-only">Open user menu</span>
-                        <img class="h-8 w-8 rounded-full" src="{{ asset('images/default-profile.png') }}"
-                            alt="user photo">
-                    </button>
-                </x-slot>
 
-                <x-slot name="content">
-                    <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <x-dropdown-link :href="route('logout')"
-                            onclick="event.preventDefault(); this.closest('form').submit();">
-                            {{ __('Log Out') }}
-                        </x-dropdown-link>
-                    </form>
-                </x-slot>
-            </x-dropdown>
+            <div class="mr-3">
+                <x-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        <button
+                            class="flex items-center rounded-full bg-gray-800 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+                            <span class="sr-only">Open user menu</span>
+                            <img class="h-8 w-8 rounded-full" src="{{ asset('images/default-profile.png') }}"
+                                alt="user photo">
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-dropdown-link :href="route('logout')"
+                                onclick="event.preventDefault(); this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-dropdown>
+            </div>
+
+            <x-notification-bell />
         </div>
     </div>
 </nav>
@@ -82,40 +88,36 @@
                 </x-nav-link>
             </li>
 
-            @if(auth()->user()->role === 'Admin')
-            <li>
-                <x-nav-link :href="route('borrowers')" :active="request()->routeIs('borrowers')">
-                    <i class="bi bi-person-lines-fill h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
-                    <span class="ms-3">Borrowers</span>
-                </x-nav-link>
-            </li>
-            @endif
+            @if (auth()->user()->role === 'Admin')
+                <li>
+                    <x-nav-link :href="route('borrowers')" :active="request()->routeIs('borrowers')">
+                        <i
+                            class="bi bi-person-lines-fill h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                        <span class="ms-3">Borrowers</span>
+                    </x-nav-link>
+                </li>
 
-            @if(auth()->user()->role === 'Admin')
-            <li>
-                <x-nav-link :href="route('request-history')" :active="request()->routeIs('request-history')">
-                    <i class="bi bi-clock-history h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
-                    <span class="ms-3">Request History</span>
-                </x-nav-link>
-            </li>
-            @endif
+                <li>
+                    <x-nav-link :href="route('request-history')" :active="request()->routeIs('request-history')">
+                        <i
+                            class="bi bi-clock-history h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                        <span class="ms-3">Request History</span>
+                    </x-nav-link>
+                </li>
 
-            @if(auth()->user()->role === 'Admin')
-            <li>
-                <x-nav-link :href="route('archive')" :active="request()->routeIs('archive')">
-                    <i class="bi bi-archive h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
-                    <span class="ms-3">Archived Files</span>
-                </x-nav-link>
-            </li>
-            @endif
+                <li>
+                    <x-nav-link :href="route('archive')" :active="request()->routeIs('archive')">
+                        <i class="bi bi-archive h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                        <span class="ms-3">Archived Files</span>
+                    </x-nav-link>
+                </li>
 
-            @if(auth()->user()->role === 'Admin')
-            <li>
-                <x-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
-                    <i class="bi bi-people h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
-                    <span class="ms-3">Accounts</span>
-                </x-nav-link>
-            </li>
+                <li>
+                    <x-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
+                        <i class="bi bi-people h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                        <span class="ms-3">Accounts</span>
+                    </x-nav-link>
+                </li>
             @endif
         </ul>
     </div>

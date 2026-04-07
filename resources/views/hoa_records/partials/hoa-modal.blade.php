@@ -99,12 +99,8 @@
             <h3 class="mb-2 mt-4 text-[15px] font-semibold">Additional Information</h3>
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
-                    <x-input-label for="status" value="Status" required :class="'required-label'" />
-                    <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600"
-                        id="status" disabled>
-                        <option value="ON-SHELF">ON-SHELF</option>
-                        <option value="UNAVAILABLE">UNAVAILABLE</option>
-                    </select>
+                    <x-input-label for="status" value="Status" />
+                    <input type="text" id="status" value="ON-SHELF" readonly class="w-full rounded-lg border border-gray-300 p-2 bg-gray-100" />
                 </div>
                 <div class="flex-1">
                     <x-input-label for="quantity" value="Quantity" :required="true" :class="'required-label'" />
@@ -153,6 +149,9 @@
                         <x-secondary-button id="hoa-export-all-files-btn" class="bg-green-600! text-white! hover:bg-green-700! opacity-50 cursor-not-allowed" disabled>
                             Export All Files
                         </x-secondary-button>
+                        <x-secondary-button id="hoa-archive-docket-btn" class="bg-red-600! text-white! hover:bg-red-700!">
+                            Archive Docket
+                        </x-secondary-button>
                         @endunless
                     </div>
                 </div>
@@ -171,7 +170,7 @@
                                     Last Updated By</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white max-h-[20vh] overflow-y-auto" id="hoa-file-list-body">
+                        <tbody class="divide-y divide-gray-200 bg-white" id="hoa-file-list-body">
                             {{-- Files will be rendered here via JS --}}
                         </tbody>
                     </table>

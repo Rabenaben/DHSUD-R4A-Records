@@ -41,7 +41,7 @@ trait ExportTrait
         $data = [
             'total' => $this->model::count(),
             'onShelf' => $this->model::where('status', 'ON-SHELF')->count(),
-            'unavailable' => $this->model::where('status', 'UNAVAILABLE')->count(),
+            'archived' => $this->model::where('status', 'ARCHIVED')->count(),
             'borrowed' => $this->model::where('status', 'BORROWED')->count(),
         ];
 

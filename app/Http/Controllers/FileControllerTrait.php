@@ -12,6 +12,22 @@ trait FileControllerTrait
     protected $folder;
     protected $recordType;
 
+    /**
+     * Generate unique display name avoiding duplicates in existing files.
+     */
+    private function generateUniqueDisplayName(array $existingNames, string $basename): string
+    {
+        if (!in_array($basename, $existingNames)) {
+            return $basename;
+        }
+
+        $counter = 1;
+        while (in_array("{$basename} ({$counter})", $existingNames)) {
+            $counter++;
+        }
+        return "{$basename} ({$counter})";
+    }
+
     public function getFiles($docketNo)
     {
         $record = $this->model::where('docket_no', $docketNo)->first();
@@ -49,8 +65,9 @@ trait FileControllerTrait
             return response()->json(['success' => false, 'message' => $this->recordType . ' record not found.']);
         }
 
-        // Get existing files
+        // Get existing files and extract display names
         $files = json_decode($record->files, true) ?? [];
+        $existingNames = array_column($files, 'name');
 
         $uploadedFiles = [];
         $errors = [];
@@ -62,15 +79,19 @@ trait FileControllerTrait
                 // Create a subfolder named after the docket number
                 $path = $file->storeAs($this->folder . '/' . $docketNo, $fileName, 'local');
 
+                $originalBasename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $uniqueDisplayName = $this->generateUniqueDisplayName($existingNames, $originalBasename);
+
                 // Add new file
                 $files[] = [
-                    'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                    'name' => $uniqueDisplayName,
                     'path' => $path,
                     'date_added' => now('Asia/Manila')->toDateTimeString(),
                     'original_name' => $file->getClientOriginalName(),
                     'last_updated_by' => Auth::check() ? Auth::user()->name : 'Unknown',
                 ];
 
+                $existingNames[] = $uniqueDisplayName; // Update for next files
                 $uploadedFiles[] = $file->getClientOriginalName();
             } catch (\Exception $e) {
                 $errors[] = $file->getClientOriginalName() . ': ' . $e->getMessage();

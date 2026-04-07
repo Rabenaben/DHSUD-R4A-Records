@@ -634,6 +634,16 @@ function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
         });
     }
 
+    // Disable archive button if the record is already archived
+    const archiveDocketBtn = document.getElementById(`${type}-archive-docket-btn`);
+    if (archiveDocketBtn) {
+        const isArchived = String(transformedRecord.status || '').toUpperCase() === 'ARCHIVED';
+        archiveDocketBtn.disabled = isArchived;
+        archiveDocketBtn.title = isArchived ? 'This docket is already archived' : 'Archive Docket';
+        archiveDocketBtn.classList.toggle('opacity-50', isArchived);
+        archiveDocketBtn.classList.toggle('cursor-not-allowed', isArchived);
+    }
+
     // Attach export all files button event
     const exportAllFilesBtn = document.getElementById(`${type}-export-all-files-btn`);
     if (exportAllFilesBtn) {
@@ -839,7 +849,7 @@ function updateGenericStatusCards(counts) {
     const cards = [
         { key: 'total', selector: '.status-card-total' },
         { key: 'onShelf', selector: '.status-card-onShelf' },
-        { key: 'unavailable', selector: '.status-card-unavailable' },
+        { key: 'archived', selector: '.status-card-archived' },
         { key: 'borrowed', selector: '.status-card-borrowed' },
     ];
 
@@ -848,7 +858,8 @@ function updateGenericStatusCards(counts) {
         if (element) {
             const countElement = element.querySelector('h2');
             if (countElement) {
-                countElement.textContent = counts[card.key];
+                const value = Number(counts[card.key]);
+                countElement.textContent = isNaN(value) ? counts[card.key] : value.toLocaleString();
             }
         }
     });

@@ -502,6 +502,60 @@ function validateRecord(prefix, requiredFields) {
 }
 
 /**
+ * Prompts the archive docket confirmation modal and archives the docket on confirm.
+ * @param {string} type - The record type ('hoa' or 'rem').
+ * @param {string} docketNo - The docket number.
+ * @param {string} recordModalName - The name of the record modal to close after archive.
+ * @param {Function} updateCallback - Callback to refresh data after successful archive.
+ */
+function promptArchiveDocket(type, docketNo, recordModalName, updateCallback) {
+    const confirmMessageEl = document.getElementById('confirm-archive-file-message');
+    if (confirmMessageEl) {
+        confirmMessageEl.textContent = `Are you sure you want to archive docket ${docketNo}? All files will be archived.`;
+    }
+
+    window.pendingArchiveType = type;
+    window.pendingArchiveDocketNo = docketNo;
+    window.pendingArchiveCloseModalName = recordModalName;
+    window.pendingArchiveUpdateCallback = updateCallback;
+
+    window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-archive-file-modal' } }));
+
+    const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
+    if (confirmYesBtn && !confirmYesBtn.dataset.archiveDocketListenerAttached) {
+        confirmYesBtn.dataset.archiveDocketListenerAttached = 'true';
+        confirmYesBtn.addEventListener('click', async () => {
+            window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
+
+            try {
+                const response = await fetch(`/records/${window.pendingArchiveType}/${window.pendingArchiveDocketNo}/archive-docket`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.showToast('Docket archived successfully!', 'success');
+                    if (window.pendingArchiveCloseModalName) {
+                        window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: window.pendingArchiveCloseModalName } }));
+                    }
+                    if (typeof window.pendingArchiveUpdateCallback === 'function') {
+                        await window.pendingArchiveUpdateCallback();
+                    }
+                } else {
+                    window.showToast(data.message || 'Archive failed', 'error');
+                }
+            } catch (error) {
+                console.error('Archive error:', error);
+                window.showToast('Archive failed. Please try again.', 'error');
+            }
+        });
+    }
+}
+
+/**
  * Attach modal edit/save/cancel listeners (replaces timeout manual code).
  */
 function attachModalListeners(prefix, editableFields, allFields, buildFormData) {
@@ -568,6 +622,63 @@ function initAddRecordModal(prefix, endpoint) {
     }
 }
 
+// =========================================
+// Archive/Unarchive Functions
+// =========================================
+
+/**
+ * Unarchives all files for a given docket.
+ * @param {string} type - The record type ('hoa' or 'rem').
+ * @param {string} docketNo - The docket number.
+ * @param {HTMLElement} button - The unarchive button element.
+ */
+function unarchiveDocket(type, docketNo, button) {
+    button.disabled = true;
+    button.textContent = 'Unarchiving...';
+
+    fetch(`/records/${type}/${docketNo}/unarchive-docket`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the row from the table
+                button.closest('tr').remove();
+                window.showToast('All files unarchived successfully!', 'success');
+
+                // Check if table is empty and show no records message
+                const tableBody = document.querySelector('#archiveTable tbody');
+                const archiveRows = tableBody.querySelectorAll('.archive-row');
+                const noRecordsRow = document.getElementById('no-archived-records-row');
+
+                if (archiveRows.length === 0) {
+                    if (noRecordsRow) {
+                        noRecordsRow.style.display = '';
+                    } else if (tableBody) {
+                        const newNoRecordsRow = document.createElement('tr');
+                        newNoRecordsRow.id = 'no-archived-records-row';
+                        newNoRecordsRow.innerHTML = '<td class="px-6 py-4 text-center text-sm italic text-gray-500" colspan="7">No archived files found</td>';
+                        tableBody.appendChild(newNoRecordsRow);
+                    }
+                }
+            } else {
+                window.showToast('Failed to unarchive file.', 'error');
+                button.disabled = false;
+                button.textContent = 'Unarchive';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.showToast('An error occurred while unarchiving the file.', 'error');
+            button.disabled = false;
+            button.textContent = 'Unarchive';
+        });
+}
+
 // Export loading overlays (moved from hoa/rem)
 window.showExportLoading = function(type) {
     const overlay = document.getElementById(`export-loading-${type}`);
@@ -579,6 +690,25 @@ window.hideExportLoading = function(type) {
     const overlay = document.getElementById(`export-loading-${type}`);
     if (overlay) overlay.classList.add('hidden');
     document.body.style.overflow = '';
+};
+
+// Borrower page loading overlay
+window.showBorrowerLoading = function() {
+    const overlay = document.getElementById('borrower-loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.hideBorrowerLoading = function() {
+    const overlay = document.getElementById('borrower-loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
 };
 
 window.enterFileNameEditMode = enterFileNameEditMode;
@@ -600,3 +730,5 @@ window.setupCascadingDropdown = setupCascadingDropdown;
 window.validateRecord = validateRecord;
 window.attachModalListeners = attachModalListeners;
 window.initAddRecordModal = initAddRecordModal;
+window.promptArchiveDocket = promptArchiveDocket;
+window.unarchiveDocket = unarchiveDocket;

@@ -1,5 +1,29 @@
 document.addEventListener('DOMContentLoaded', initBorrowerRecords);
 
+// Auto-open borrower records from notification (called from borrower.blade.php)
+window.initAutoOpenFromNotification = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const borrowerName = decodeURIComponent(urlParams.get('borrower') || '');
+    
+    if (borrowerName && window.editBorrower) {
+        window.showBorrowerLoading();
+        // Find matching borrower row (flexible matching)
+        const selector = `tr[data-borrower-name="${borrowerName.replace(/"/g, '\\"')}"], tr[data-borrower-name*="${borrowerName.trim()}"]`;
+        const borrowerRow = document.querySelector(selector);
+        
+        if (borrowerRow) {
+            const borrowerId = borrowerRow.getAttribute('data-id');
+            window.editBorrower(borrowerId);
+        } else {
+            window.hideBorrowerLoading();
+        }
+        
+        // Clear query param from URL
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+    }
+};
+
 function formatBorrowerId(id) {
     return String(id).padStart(3, '0');
 }
@@ -385,6 +409,7 @@ function initBorrowerRecords() {
 
         const borrowerName = row.getAttribute('data-borrower-name');
 
+        window.showBorrowerLoading();
         try {
             const response = await fetch(`/borrowers/history/${encodeURIComponent(borrowerName)}`, {
                 method: 'GET',
@@ -404,6 +429,8 @@ function initBorrowerRecords() {
         } catch (error) {
             console.error('Error:', error);
             window.showToast('Error loading borrower history. Please try again.', 'error');
+        } finally {
+            window.hideBorrowerLoading();
         }
     };
 

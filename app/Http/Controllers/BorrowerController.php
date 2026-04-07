@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Borrower;
 use App\Models\RemDatabase;
 use App\Models\HoaDatabase;
+use Illuminate\Support\Facades\Cache;
 
 class BorrowerController extends Controller
 {
@@ -165,6 +166,8 @@ class BorrowerController extends Controller
         // Log the borrow activity
         $this->logActivity($validated['docket_number'], null, $validated['file_location'], 'Borrow');
 
+        Cache::forget('overdue_notices');
+
         return response()->json([
             'success' => true,
             'borrower' => $borrower,
@@ -270,11 +273,41 @@ class BorrowerController extends Controller
             );
         }
 
+        Cache::forget('overdue_notices');
+
         return response()->json([
             'success' => true,
             'borrower' => $borrower,
             'borrower_status' => $borrowerStatus,
             'message' => 'Returned date updated successfully.'
         ]);
+    }
+
+    /**
+     * Get overdue borrower notices (1 week past due)
+     */
+    public function getOverdueNotices()
+    {
+        return Cache::remember('overdue_notices', 3600, function () {
+            $overdue = Borrower::whereNull('date_returned')
+                ->where('date_borrowed', '<', now()->subDays(7))
+                ->orderBy('borrower_name')
+                ->orderBy('date_borrowed', 'desc')
+                ->get()
+                ->groupBy('borrower_name')
+                ->map(function ($group, $name) {
+                    return [
+                        'borrower_name' => $name,
+                        'dockets' => $group->pluck('docket_number')->unique()->toArray(),
+                        'count' => $group->count()
+                    ];
+                })->values();
+
+            return response()->json([
+                'success' => true,
+                'count' => $overdue->sum('count'),
+                'notices' => $overdue
+            ]);
+        });
     }
 }
