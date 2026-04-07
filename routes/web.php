@@ -62,6 +62,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::post('/borrowers', 'storeBorrower')->name('borrowers.store');
         Route::patch('/borrowers/{id}', 'updateBorrower')->name('borrowers.update');
         Route::patch('/borrowers/{id}/return', 'updateReturnedDate')->name('borrowers.update.return');
+        Route::get('/overdue-notices', 'getOverdueNotices')->name('borrowers.overdue.notices');
     });
 
 // Archive routes (ArchiveController)
