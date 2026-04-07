@@ -21,9 +21,9 @@
     <header
         class="bg-linear-to-b fixed inset-x-0 top-0 z-50 flex items-center justify-between from-gray-200 to-white px-4 py-3 backdrop-blur-sm">
         <div class="flex items-center gap-3">
-            <img class="h-10" src="{{ asset('images/bp.png') }}" alt="logo">
+            <img class="h-10" src="{{ asset('images/dhsudlogo.png') }}" alt="DHSUD Logo">
             <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent">
-                DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT
+                DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT REGION IV-A
             </h1>
         </div>
         <div class="text-sm text-gray-600" id="realtime-clock"></div>

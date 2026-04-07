@@ -14,6 +14,7 @@ return new class extends Migration
         // Create hoa_database table
         Schema::create('hoa_database', function (Blueprint $table) {
             $table->integer('id', true);
+            $table->integer('hoa_id');
             $table->string('docket_no', 100)->nullable()->unique('docket_no');
             $table->string('hoa_name')->nullable()->index('idx_hoa_name');
             $table->string('location')->nullable();
@@ -22,9 +23,13 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->integer('municipality_id')->nullable()->index('municipality_id');
             $table->integer('province_id')->nullable()->index('province_id');
-            $table->string('region')->nullable()->after('province_id');
+            $table->string('classification', 100)->nullable();
+            $table->string('hoa_status', 100)->nullable();
+            $table->json('files')->nullable();
 
             $table->index(['docket_no'], 'idx_hoa_docket_no');
+
+            $table->timestamps();
         });
 
         // Create rem table
@@ -37,6 +42,8 @@ return new class extends Migration
             $table->string('status', 100)->nullable()->index('idx_rem_status');
             $table->double('quantity')->nullable();
             $table->text('remarks')->nullable();
+            $table->timestamps();
+            $table->json('files')->nullable();
         });
     }
 

@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Borrower extends Model
+{
+    use HasFactory;
+
+    protected $table = 'borrowers';
+
+    protected $fillable = [
+        'borrower_name',
+        'docket_number', 
+        'file_location',
+        'division',
+        'project_name',
+        'location',
+        'date_borrowed',
+        'date_returned',
+    ];
+
+
+
+}

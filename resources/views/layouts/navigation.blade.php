@@ -14,14 +14,12 @@
             </button>
 
             <!-- App Logo -->
-            <a class="ms-2 flex" href="{{ route('dashboard') }}">
+            <a class="ms-2 flex items-center gap-3" href="{{ route('dashboard') }}">
                 <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white"
                     variant="bp" />
-                <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-white"
-                    variant="dhsud" />
-                <span class="ms-2 self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white">
-                    {{ config('app.name', 'DHSUDRECORDS') }}
-                </span>
+                <h1 class="bg-linear-to-r from-blue-600 to-red-600 bg-clip-text text-xl font-bold text-transparent whitespace-nowrap">
+                    DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT REGION IV-A
+                </h1>
             </a>
         </div>
 
@@ -84,12 +82,41 @@
                 </x-nav-link>
             </li>
 
+            @if(auth()->user()->role === 'Admin')
+            <li>
+                <x-nav-link :href="route('borrowers')" :active="request()->routeIs('borrowers')">
+                    <i class="bi bi-person-lines-fill h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">Borrowers</span>
+                </x-nav-link>
+            </li>
+            @endif
+
+            @if(auth()->user()->role === 'Admin')
+            <li>
+                <x-nav-link :href="route('request-history')" :active="request()->routeIs('request-history')">
+                    <i class="bi bi-clock-history h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">Request History</span>
+                </x-nav-link>
+            </li>
+            @endif
+
+            @if(auth()->user()->role === 'Admin')
+            <li>
+                <x-nav-link :href="route('archive')" :active="request()->routeIs('archive')">
+                    <i class="bi bi-archive h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">Archived Files</span>
+                </x-nav-link>
+            </li>
+            @endif
+
+            @if(auth()->user()->role === 'Admin')
             <li>
                 <x-nav-link :href="route('accounts')" :active="request()->routeIs('accounts')">
                     <i class="bi bi-people h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
                     <span class="ms-3">Accounts</span>
                 </x-nav-link>
             </li>
+            @endif
         </ul>
     </div>
 </aside>
