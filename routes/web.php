@@ -33,6 +33,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/borrowers', 'borrowerDashboard')->name('borrowers')->middleware('role:Admin');
         Route::get('/request-history', 'requestHistoryDashboard')->name('request-history')->middleware('role:Admin');
         Route::get('/archive', 'archivedDashboard')->name('archive')->middleware('role:Admin');
+        Route::get('/records/{type}/{docketNo}/archive-files', 'getArchiveFiles')->name('records.archive.files')->where(['type' => '(hoa|rem)', 'docketNo' => '.*']);
         Route::get('/rem/folder/{province}', 'loadFolder')->name('folder.load');
         Route::get('/hoa_records/ajax', 'loadHoaRecordsAjax')->name('hoa_records.ajax');
     });
@@ -61,6 +62,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::post('/borrowers', 'storeBorrower')->name('borrowers.store');
         Route::patch('/borrowers/{id}', 'updateBorrower')->name('borrowers.update');
         Route::patch('/borrowers/{id}/return', 'updateReturnedDate')->name('borrowers.update.return');
+        Route::get('/overdue-notices', 'getOverdueNotices')->name('borrowers.overdue.notices');
     });
 
 // Archive routes (ArchiveController)
@@ -70,6 +72,8 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         ->group(function () {
             Route::patch('/{type}/{docketNo}/files/{fileIndex}/archive', 'archiveFile');
             Route::patch('/{type}/{docketNo}/files/{fileIndex}/unarchive', 'unarchiveFile');
+            Route::patch('/{type}/{docketNo}/archive-docket', 'archiveDocket');
+            Route::patch('/{type}/{docketNo}/unarchive-docket', 'unarchiveDocket');
             Route::get('/{type}/{docketNo}/download/{fileIndex}', 'downloadFile');
         });
 

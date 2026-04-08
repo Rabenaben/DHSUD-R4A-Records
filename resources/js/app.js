@@ -101,4 +101,49 @@ const toastInstance = new Toast();
 
 window.showToast = (message, type) => toastInstance.show(message, type);
 
+// Notification Bell Component
+function notificationBell() {
+    return {
+        notices: [],
+        count: 0,
+        isOpen: false,
+        loading: false,
+
+        async fetchNotices() {
+            if (this.loading) return;
+            this.loading = true;
+            
+            try {
+                const response = await fetch('/overdue-notices');
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.notices = data.notices || [];
+                    this.count = data.count || 0;
+                }
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        handleNoticeClick(notice) {
+            window.location.href = `/borrowers?borrower=${encodeURIComponent(notice.borrower_name)}`;
+            this.isOpen = false;
+        },
+
+        init() {
+            this.fetchNotices();
+            // Poll every 5 minutes
+            setInterval(() => this.fetchNotices(), 5 * 60 * 1000);
+        }
+    }
+}
+
+// Auto-register notificationBell globally
+document.addEventListener('alpine:init', () => {
+    Alpine.data('notificationBell', notificationBell);
+});
+
 Alpine.start();

@@ -12,7 +12,7 @@
         <div class="space-y-4">
             <!-- Status Cards -->
             @php $totalDockets = $totalRemDockets; @endphp
-            <x-status-cards :totalDockets="$totalDockets" :onShelf="$onShelf" :unavailable="$unavailable" :borrowed="$borrowed" theme="rem" />
+            <x-status-cards :totalDockets="$totalDockets" :onShelf="$onShelf" :archived="$archived" :borrowed="$borrowed" theme="rem" />
 
             <!-- Folder Container -->
             <div id="folderContainer">

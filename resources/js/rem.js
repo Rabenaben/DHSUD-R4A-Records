@@ -112,6 +112,19 @@ function openRemModal(record) {
         }
 
         window.setupCascadingDropdown('rem-province', 'rem-municipality', 'rem');
+
+        // Archive Docket button listener
+        const archiveDocketBtn = document.getElementById('rem-archive-docket-btn');
+        if (archiveDocketBtn) {
+            archiveDocketBtn.addEventListener('click', () => {
+                window.promptArchiveDocket('rem', record.docket_no, 'rem', async () => {
+                    if (typeof updateRemData === 'function') {
+                        await updateRemData();
+                    }
+                });
+            });
+        }
+
     }, 100);
 }
 
@@ -224,7 +237,37 @@ function attachBackButton(container, originalHTML) {
 }
 
 async function updateRemData() {
-    window.updateData('rem');
+    if (window.currentProvince) {
+        const container = document.getElementById('folderContainer');
+        if (container) {
+            showLoading(container);
+
+            try {
+                const response = await fetch(`/rem/folder/${window.currentProvince}`);
+                if (!response.ok) {
+                    throw new Error('Failed to refresh REM folder content');
+                }
+
+                container.innerHTML = await response.text();
+
+                const display = container.querySelector('#currentProvinceDisplay');
+                if (display) {
+                    display.textContent = `Current Province: ${window.currentProvinceName || ''}`;
+                    display.classList.remove('hidden');
+                }
+
+                attachFilters(container);
+                attachBackButton(container, window.originalFolderHTML);
+                initRemExport();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+
+    if (typeof window.updateData === 'function') {
+        window.updateData('rem');
+    }
 }
 
 // =========================================

@@ -84,7 +84,7 @@ class HoaController extends Controller
             'location' => 'required|string',
             'province_id' => 'required|exists:provinces,province_id',
             'municipality_id' => 'required|exists:municipalities,municipality_id',
-            'status' => 'required|in:ON-SHELF,UNAVAILABLE',
+            'status' => 'required|in:ON-SHELF,ARCHIVED',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ];
@@ -140,7 +140,7 @@ class HoaController extends Controller
             'location' => 'required|string',
             'province_id' => 'required|exists:provinces,province_id',
             'municipality_id' => 'required|exists:municipalities,municipality_id',
-            'status' => 'required|in:ON-SHELF,UNAVAILABLE',
+            'status' => 'required|in:ON-SHELF,ARCHIVED',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ];

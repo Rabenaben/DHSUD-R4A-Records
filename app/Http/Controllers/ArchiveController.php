@@ -31,6 +31,7 @@ class ArchiveController extends Controller
         }
 
         $files[$fileIndex]['archived'] = true;
+        $files[$fileIndex]['date_archived'] = now('Asia/Manila')->toDateTimeString();
 
         $record->files = json_encode($files);
         $record->save();
@@ -71,6 +72,75 @@ class ArchiveController extends Controller
         $this->logActivity($docketNo, $files[$fileIndex]['name'], $fileLocation, 'Unarchive');
 
         return response()->json(['success' => true]);
+    }
+
+    // 🔹 Archive Docket (set all files archived = true)
+    public function archiveDocket($type, $docketNo)
+    {
+        if ($type === 'hoa') {
+            $record = HoaDatabase::where('docket_no', $docketNo)->first();
+        } elseif ($type === 'rem') {
+            $record = RemDatabase::where('docket_no', $docketNo)->first();
+        }
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => 'Record not found.']);
+        }
+
+        $files = json_decode($record->files, true) ?? [];
+        $archivedCount = 0;
+
+        foreach ($files as $index => &$file) {
+            if (!isset($file['archived']) || !$file['archived']) {
+                $file['archived'] = true;
+                $file['date_archived'] = now('Asia/Manila')->toDateTimeString();
+                $archivedCount++;
+            }
+        }
+
+        $record->files = json_encode($files);
+        $record->status = 'ARCHIVED';
+        $record->save();
+
+        // Log activity
+        $fileLocation = $type === 'hoa' ? 'HOA Records' : 'REM - ' . ($record->province->province_name ?? 'Unknown');
+        $this->logActivity($docketNo, $archivedCount . ' file(s)', $fileLocation, 'Archived Docket');
+
+        return response()->json(['success' => true, 'message' => $archivedCount . ' file(s) archived.']);
+    }
+
+    // 🔹 Unarchive All Files for Docket
+    public function unarchiveDocket($type, $docketNo)
+    {
+        if ($type === 'hoa') {
+            $record = HoaDatabase::where('docket_no', $docketNo)->first();
+        } elseif ($type === 'rem') {
+            $record = RemDatabase::where('docket_no', $docketNo)->first();
+        }
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => 'Record not found.']);
+        }
+
+        $files = json_decode($record->files, true) ?? [];
+        $unarchivedCount = 0;
+
+        foreach ($files as $index => &$file) {
+            if (isset($file['archived']) && $file['archived']) {
+                $file['archived'] = false;
+                $unarchivedCount++;
+            }
+        }
+
+        $record->files = json_encode($files);
+        $record->status = 'ON-SHELF';
+        $record->save();
+
+        // Log activity
+        $fileLocation = $type === 'hoa' ? 'HOA Records' : 'REM - ' . ($record->province->province_name ?? 'Unknown');
+        $this->logActivity($docketNo, $unarchivedCount . ' archived file(s)', $fileLocation, 'Unarchived all');
+
+        return response()->json(['success' => true, 'message' => $unarchivedCount . ' file(s) unarchived.']);
     }
 
     // 🔹 Download File

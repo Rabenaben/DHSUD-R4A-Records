@@ -1,10 +1,24 @@
-# Task: Fix file name column width in HOA/REM modals
+# Overdue Notices Optimization Task
 
-## Plan Steps:
-- [ ] 1. Update File Name th in hoa-modal.blade.php: add max-w-[250px] truncate overflow-hidden
-- [ ] 2. Update File Name th in rem-modal.blade.php: add max-w-[250px] truncate overflow-hidden  
-- [ ] 3. Verify table cells (td) also respect width (check JS rendering if needed)
-- [ ] 4. Test with long filenames
-- [ ] 5. Complete task
+## Current Status
+- [x] Analyzed implementation (backend DB query)
+- [x] Plan approved by user
 
-Current progress: Starting step 1.
+## Steps to Complete
+
+### 1. Database Optimization
+- [x] Create migration for overdue index
+- [x] Run `php artisan migrate`
+
+### 2. Caching Implementation
+- [x] Add Cache::remember to `getOverdueNotices()`
+- [x] Add Cache::forget in `storeBorrower()` & `updateReturnedDate()`
+
+### 3. Testing
+- [ ] Test `/overdue-notices` endpoint (fresh vs cached)
+- [ ] Verify invalidation on borrow/return
+- [ ] Check query performance
+
+### 4. Completion
+- [ ] Update TODO.md as done
+- [ ] attempt_completion

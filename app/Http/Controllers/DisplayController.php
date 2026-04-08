@@ -19,14 +19,14 @@ class DisplayController extends Controller
         $counts = $model::selectRaw("
             COUNT(*) as total,
             SUM(CASE WHEN status = 'ON-SHELF' THEN 1 ELSE 0 END) as onShelf,
-            SUM(CASE WHEN status = 'UNAVAILABLE' THEN 1 ELSE 0 END) as unavailable,
+            SUM(CASE WHEN status = 'ARCHIVED' THEN 1 ELSE 0 END) as archived,
             SUM(CASE WHEN status = 'BORROWED' THEN 1 ELSE 0 END) as borrowed
         ")->first();
 
         return [
             'total' => $counts->total ?? 0,
             'onShelf' => $counts->onShelf ?? 0,
-            'unavailable' => $counts->unavailable ?? 0,
+            'archived' => $counts->archived ?? 0,
             'borrowed' => $counts->borrowed ?? 0,
         ];
     }
@@ -50,7 +50,7 @@ class DisplayController extends Controller
             ['title' => 'Total REM Dockets', 'count' => $rem['total'], 'from' => 'blue-500', 'to' => 'blue-800', 'text' => 'text-black', 'icon' => 'bi-gear-wide-connected'],
             ['title' => 'Total HOA Dockets', 'count' => $hoa['total'], 'from' => 'orange-400', 'to' => 'orange-500', 'text' => 'text-black', 'icon' => 'bi-house-door-fill'],
             ['title' => 'On-Shelf', 'count' => $rem['onShelf'] + $hoa['onShelf'], 'from' => 'green-400', 'to' => 'green-700', 'text' => 'text-black', 'icon' => 'bi-archive-fill'],
-            ['title' => 'Unavailable', 'count' => $rem['unavailable'] + $hoa['unavailable'], 'from' => 'red-500', 'to' => 'red-800', 'text' => 'text-black', 'icon' => 'bi-file-earmark-x-fill'],
+            ['title' => 'Archived', 'count' => $rem['archived'] + $hoa['archived'], 'from' => 'red-500', 'to' => 'red-800', 'text' => 'text-black', 'icon' => 'bi-file-earmark-x-fill'],
             ['title' => 'Borrowed', 'count' => $rem['borrowed'] + $hoa['borrowed'], 'from' => 'yellow-300', 'to' => 'yellow-600', 'text' => 'text-black', 'icon' => 'bi-arrow-left-right'],
 >>>>>>> 01c74b22a6d9f699328241df2ae90e02a245c233
         ];
@@ -99,7 +99,6 @@ class DisplayController extends Controller
 
         // Get all unique provinces from REM table with province relationship (like HOA)
         $remRecords = RemDatabase::with('province')
-            ->where('status', '!=', 'ARCHIVED')
             ->get();
 
         // Get unique provinces with their IDs
@@ -118,7 +117,7 @@ class DisplayController extends Controller
         return view('rem_records.rem', [
             'totalRemDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
-            'unavailable' => $data['unavailable'],
+            'archived' => $data['archived'],
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,
             'allProvinces' => $allProvinces,
@@ -164,7 +163,7 @@ class DisplayController extends Controller
         return view('hoa_records.hoa', [
             'totalHoaDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
-            'unavailable' => $data['unavailable'],
+            'archived' => $data['archived'],
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,
             'municipalities' => $municipalities,
@@ -361,54 +360,158 @@ class DisplayController extends Controller
     // 🔹 Archived Files Dashboard
     public function archivedDashboard()
     {
-        $archivedFiles = [];
+        $archivedDockets = [];
 
-        // Collect archived files from HOA records - use chunking for memory efficiency
+        // Collect unique dockets with archived files from HOA records
         HoaDatabase::select('docket_no', 'hoa_name', 'files')
             ->whereNotNull('files')
             ->where('files', '!=', '[]')
-            ->chunk(100, function ($records) use (&$archivedFiles) {
+            ->chunk(100, function ($records) use (&$archivedDockets) {
                 foreach ($records as $record) {
                     $files = json_decode($record->files, true) ?? [];
-                    foreach ($files as $index => $file) {
+                    $archivedFileFound = false;
+                    foreach ($files as $file) {
                         if (isset($file['archived']) && $file['archived']) {
-                            $archivedFiles[] = [
+                            $archivedFileFound = true;
+                            break;
+                        }
+                    }
+                    if ($archivedFileFound) {
+                        $key = 'hoa_' . $record->docket_no;
+                        if (!isset($archivedDockets[$key])) {
+                            $archivedDockets[$key] = [
                                 'type' => 'hoa',
                                 'docket_no' => $record->docket_no,
                                 'record_name' => $record->hoa_name,
-                                'file_name' => $file['name'] ?? 'Unknown',
-                                'file_index' => $index,
-                                'date_added' => $file['date_added'] ?? null,
-                                'last_updated_by' => $file['last_updated_by'] ?? null,
+                                'archived_count' => 0,
+                                'date_added' => null,
+                                'last_updated_by' => null,
                             ];
                         }
                     }
                 }
             });
 
-        // Collect archived files from REM records - use chunking for memory efficiency
+        // Count archived files for HOA
+        HoaDatabase::select('docket_no', 'hoa_name', 'files')
+            ->whereNotNull('files')
+            ->where('files', '!=', '[]')
+            ->chunk(100, function ($records) use (&$archivedDockets) {
+                foreach ($records as $record) {
+                    $files = json_decode($record->files, true) ?? [];
+                    $count = 0;
+                    foreach ($files as $file) {
+                        if (isset($file['archived']) && $file['archived']) {
+                            $count++;
+                        }
+                    }
+                    if ($count > 0) {
+                        $key = 'hoa_' . $record->docket_no;
+                        if (isset($archivedDockets[$key])) {
+                            $archivedDockets[$key]['archived_count'] = $count;
+                            // Set sample date/updated from first archived file
+                            foreach ($files as $file) {
+                                if (isset($file['archived']) && $file['archived']) {
+                                    if (!$archivedDockets[$key]['date_added']) {
+                                        $archivedDockets[$key]['date_added'] = $file['date_archived'] ?? null;
+                                    }
+                                    if (!$archivedDockets[$key]['last_updated_by']) {
+                                        $archivedDockets[$key]['last_updated_by'] = $file['last_updated_by'] ?? null;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        // Same for REM
         RemDatabase::select('docket_no', 'project_name', 'files')
             ->whereNotNull('files')
             ->where('files', '!=', '[]')
-            ->chunk(100, function ($records) use (&$archivedFiles) {
+            ->chunk(100, function ($records) use (&$archivedDockets) {
                 foreach ($records as $record) {
                     $files = json_decode($record->files, true) ?? [];
-                    foreach ($files as $index => $file) {
+                    $archivedFileFound = false;
+                    foreach ($files as $file) {
                         if (isset($file['archived']) && $file['archived']) {
-                            $archivedFiles[] = [
+                            $archivedFileFound = true;
+                            break;
+                        }
+                    }
+                    if ($archivedFileFound) {
+                        $key = 'rem_' . $record->docket_no;
+                        if (!isset($archivedDockets[$key])) {
+                            $archivedDockets[$key] = [
                                 'type' => 'rem',
                                 'docket_no' => $record->docket_no,
                                 'record_name' => $record->project_name,
-                                'file_name' => $file['name'] ?? 'Unknown',
-                                'file_index' => $index,
-                                'date_added' => $file['date_added'] ?? null,
-                                'last_updated_by' => $file['last_updated_by'] ?? null,
+                                'archived_count' => 0,
+                                'date_added' => null,
+                                'last_updated_by' => null,
                             ];
                         }
                     }
                 }
             });
 
-        return view('archived.archive', compact('archivedFiles'));
+        RemDatabase::select('docket_no', 'project_name', 'files')
+            ->whereNotNull('files')
+            ->where('files', '!=', '[]')
+            ->chunk(100, function ($records) use (&$archivedDockets) {
+                foreach ($records as $record) {
+                    $files = json_decode($record->files, true) ?? [];
+                    $count = 0;
+                    foreach ($files as $file) {
+                        if (isset($file['archived']) && $file['archived']) {
+                            $count++;
+                        }
+                    }
+                    if ($count > 0) {
+                        $key = 'rem_' . $record->docket_no;
+                        if (isset($archivedDockets[$key])) {
+                            $archivedDockets[$key]['archived_count'] = $count;
+                            foreach ($files as $file) {
+                                if (isset($file['archived']) && $file['archived']) {
+                                    if (!$archivedDockets[$key]['date_added']) {
+                                        $archivedDockets[$key]['date_added'] = $file['date_archived'] ?? null;
+                                    }
+                                    if (!$archivedDockets[$key]['last_updated_by']) {
+                                        $archivedDockets[$key]['last_updated_by'] = $file['last_updated_by'] ?? null;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        $archivedDockets = array_values($archivedDockets);
+
+        return view('archived.archive', compact('archivedDockets'));
+    }
+
+    public function getArchiveFiles($type, $docketNo)
+    {
+        $modelClass = $type === 'hoa' ? HoaDatabase::class : RemDatabase::class;
+        $record = $modelClass::where('docket_no', $docketNo)->first();
+        
+        if (!$record) {
+            return response()->json(['files' => []]);
+        }
+        
+        $allFiles = json_decode($record->files, true) ?? [];
+        $archivedFiles = [];
+
+        foreach ($allFiles as $index => $file) {
+            if (isset($file['archived']) && $file['archived'] === true) {
+                $file['originalIndex'] = $index;
+                $archivedFiles[] = $file;
+            }
+        }
+
+        return response()->json(['files' => $archivedFiles]);
     }
 }

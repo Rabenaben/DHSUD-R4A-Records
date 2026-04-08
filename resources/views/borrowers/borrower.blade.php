@@ -6,6 +6,19 @@
         </h2>
     </x-slot>
 
+    <!-- Borrower Loading Overlay -->
+    <div id="borrower-loading-overlay" class="fixed inset-0 z-50 hidden bg-black/30 flex-col items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full mx-4 text-center border-4 border-blue-200">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <div class="space-y-2">
+                    <h3 class="text-lg font-semibold text-gray-900">Loading Borrower Record</h3>
+                    <p class="text-sm text-gray-600">Please wait while we fetch the history...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="mx-auto max-w-7xl p-4">
         <!-- Section Header Card -->
         <x-section-header :title="__('Borrower Records')" />
@@ -98,5 +111,14 @@
 
         <script>
             window.nextId = {{ $nextId }};
+            
+            // Auto-open from notification (delegates to borrower.js)
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(() => {
+                    if (window.initAutoOpenFromNotification) {
+                        window.initAutoOpenFromNotification();
+                    }
+                }, 200);
+            });
         </script>
 </x-app-layout>
