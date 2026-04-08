@@ -247,7 +247,7 @@ function archiveFile(type, docketNo, fileIndex) {
     const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
     if (confirmYesBtn && !confirmYesBtn.dataset.listenerAttached) {
         confirmYesBtn.dataset.listenerAttached = 'true';
-        confirmYesBtn.addEventListener('click', () => {
+        confirmYesBtn.onclick = () => {
             const type = window.pendingArchiveType;
             const docketNo = window.pendingArchiveDocketNo;
             const fileIndex = window.pendingArchiveFileIndex;
@@ -294,7 +294,7 @@ function archiveFile(type, docketNo, fileIndex) {
                     console.error('Error:', error);
                     window.showToast('An error occurred while archiving the file.', 'error');
                 });
-        });
+        };
     }
 }
 
@@ -408,7 +408,7 @@ function debounce(func, delay) {
 function filterFiles(type, searchTerm) {
     const rows = document.querySelectorAll(`.${type}-file-row`);
     const searchLower = searchTerm.toLowerCase().trim();
-    
+
     rows.forEach(row => {
         const filenameCell = row.querySelector('td:first-child');
         if (filenameCell) {
@@ -460,7 +460,7 @@ function openRecordModal(type, record, fileIndex, fieldConfig, previewIds) {
     // Attach archive button event
     const archiveBtn = document.getElementById(`archive-${type}-btn`);
     if (archiveBtn) {
-        archiveBtn.addEventListener('click', () => archiveFile(type, record.docket_no, window.currentFileIndex));
+        archiveBtn.onclick = () => archiveFile(type, record.docket_no, window.currentFileIndex);
     }
 }
 
@@ -729,23 +729,23 @@ function renderGenericFileList(files, record, type) {
         // Attach search input listener with debounce
         const searchInput = document.getElementById(`${type}-files-search`);
         const clearBtn = document.getElementById(`${type}-files-search-clear`);
-        
+
         if (searchInput) {
             // Remove existing listeners to prevent duplicates
             searchInput.removeEventListener('input', window[`${type}SearchHandler`]);
-            
+
             // Create debounced handler
             window[`${type}SearchHandler`] = debounce((e) => {
                 filterFiles(type, e.target.value);
             }, 300);
-            
+
             searchInput.addEventListener('input', window[`${type}SearchHandler`]);
         }
-        
+
         // Attach clear button listener
         if (clearBtn) {
             clearBtn.removeEventListener('click', window[`${type}ClearHandler`]);
-            window[`${type}ClearHandler`] = function() {
+            window[`${type}ClearHandler`] = function () {
                 const input = document.getElementById(`${type}-files-search`);
                 if (input) {
                     input.value = '';

@@ -115,7 +115,7 @@ function initUnarchiveButtons() {
             const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
             if (confirmYesBtn && !confirmYesBtn.dataset.unarchiveDocketListenerAttached) {
                 confirmYesBtn.dataset.unarchiveDocketListenerAttached = 'true';
-                confirmYesBtn.addEventListener('click', () => {
+                confirmYesBtn.onclick = () => {
                     const type = window.pendingUnarchiveType;
                     const docketNo = window.pendingUnarchiveDocketNo;
                     const button = window.pendingUnarchiveButton;
@@ -125,7 +125,7 @@ function initUnarchiveButtons() {
 
                     // Proceed with unarchiving
                     unarchiveDocket(type, docketNo, button);
-                });
+                };
             }
         }
     });
@@ -162,6 +162,18 @@ function initArchiveModal() {
         window.currentArchiveType = type;
         window.currentArchiveDocketNo = docketNo;
         // No initial fileIndex for per-docket row
+
+        // 🔧 FIX: Reset preview state before opening new modal
+        const previewIframe = document.getElementById('archive-file-preview');
+        if (previewIframe) previewIframe.src = '';
+
+        const previewView = document.getElementById('archive-file-preview-view');
+        const listView = document.getElementById('archive-file-list-view');
+        if (previewView) previewView.style.display = 'none';
+        if (listView) listView.style.display = 'block';
+
+        window.currentArchiveFileIndex = undefined;
+        window.pendingArchiveFileName = undefined;
 
         // Load archived files list (no initial preview)
         window.loadArchiveFileList(type.toLowerCase(), docketNo);
@@ -205,9 +217,9 @@ window.unarchiveArchiveFile = function () {
 
     // Attach event listener to the yes button if not already attached for file unarchive
     const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
-    if (confirmYesBtn && !confirmYesBtn.dataset.fileUnarchiveListenerAttached) {
-        confirmYesBtn.dataset.fileUnarchiveListenerAttached = 'true';
-        confirmYesBtn.addEventListener('click', function fileUnarchiveHandler() {
+
+    if (confirmYesBtn) {
+        confirmYesBtn.onclick = function () {
             const type = window.pendingUnarchiveType;
             const docketNo = window.pendingUnarchiveDocketNo;
             const fileIndex = window.pendingUnarchiveFileIndex;
@@ -217,7 +229,6 @@ window.unarchiveArchiveFile = function () {
             // Close the modal
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
 
-            // Proceed with unarchiving (original logic)
             fetch(`/records/${type}/${docketNo}/files/${fileIndex}/unarchive`, {
                 method: 'PATCH',
                 headers: {
@@ -228,33 +239,23 @@ window.unarchiveArchiveFile = function () {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        if (window.showToast) {
-                            window.showToast('File unarchived successfully!', 'success');
-                        }
+                        window.showToast?.('File unarchived successfully!', 'success');
                         window.archiveShowFileList();
                         window.loadArchiveFileList(type, docketNo);
                         updateArchiveRowCount(type.toUpperCase(), docketNo);
                         window.currentArchiveFileIndex = undefined;
                     } else {
-                        if (window.showToast) {
-                            window.showToast(data.message || 'Failed to unarchive file.', 'error');
-                        } else {
-                            alert(data.message || 'Failed to unarchive file.');
-                        }
+                        window.showToast?.(data.message || 'Failed to unarchive file.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error unarchiving file:', error);
-                    if (window.showToast) {
-                        window.showToast('An error occurred while unarchiving the file.', 'error');
-                    } else {
-                        alert('An error occurred while unarchiving the file.');
-                    }
+                    window.showToast?.('An error occurred while unarchiving the file.', 'error');
                 })
                 .finally(() => {
                     if (btn) btn.disabled = false;
                 });
-        });
+        };
     }
 };
 
@@ -318,10 +319,14 @@ function loadArchiveFilePreview(type, docketNo, fileIndex) {
     `;
     filePlaceholder.style.display = 'flex';
 
+    // Handle successful load
+    filePreview.onload = function () {
+        filePreview.style.display = 'block';
+        filePlaceholder.style.display = 'none';
+    };
+
     // Set the preview src directly (assuming archived files can be previewed like active files)
     filePreview.src = `/${lowerType}/${docketNo}/preview/${fileIndex}`;
-    filePreview.style.display = 'block';
-    filePlaceholder.style.display = 'none';
 
     // Handle load error
     filePreview.onerror = function () {
@@ -350,6 +355,15 @@ function exportArchiveFile() {
 window.loadArchiveFileList = function (type, docketNo) {
     const tbody = document.getElementById('archive-file-list-body');
     if (!tbody) return;
+
+    // 🔧 FIX: Ensure always start in file list view
+    const listView = document.getElementById('archive-file-list-view');
+    const previewView = document.getElementById('archive-file-preview-view');
+    if (listView) listView.style.display = 'block';
+    if (previewView) previewView.style.display = 'none';
+
+    const previewIframe = document.getElementById('archive-file-preview');
+    if (previewIframe) previewIframe.src = '';
 
     // Show loading
     tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">Loading archived files...</td></tr>';
@@ -418,9 +432,45 @@ window.exportArchiveFile = exportArchiveFile;
 
 // Unarchive functionality is implemented in file-utils.js
 
+// 🔧 FIX: Reset archive preview on modal close
+document.addEventListener('close-modal', function (e) {
+    if (e.detail.name === 'archive') {
+        // Clear iframe src to unload previous preview
+        const previewIframe = document.getElementById('archive-file-preview');
+        if (previewIframe) {
+            previewIframe.src = '';
+            previewIframe.style.display = 'none';
+        }
+
+        // Reset preview container/placeholder
+        const previewContainer = document.getElementById('archive-file-preview-container');
+        if (previewContainer) {
+            const placeholder = document.getElementById('archive-file-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+            } else {
+                previewContainer.innerHTML = '<div class="flex h-full items-center justify-center text-gray-500" id="archive-file-placeholder">No file selected</div>';
+            }
+        }
+
+        // Force show list view, hide preview view
+        const listView = document.getElementById('archive-file-list-view');
+        const previewView = document.getElementById('archive-file-preview-view');
+        if (listView) listView.style.display = 'block';
+        if (previewView) previewView.style.display = 'none';
+
+        // Clear global state
+        window.currentArchiveFileIndex = undefined;
+        window.pendingArchiveFileName = undefined;
+        window.currentArchiveType = undefined;
+        window.currentArchiveDocketNo = undefined;
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     initArchiveSearch();
     initUnarchiveButtons();
     initArchiveModal();
     initArchiveFileListSearch();
 });
+

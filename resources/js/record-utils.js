@@ -121,7 +121,7 @@ function showRequiredAsterisks(prefix) {
     // Find all required labels in the modal by looking for the label elements with required-label class
     // These are typically siblings or children of the input elements with the prefix in their ID
     const requiredLabels = document.querySelectorAll(`[for^="${prefix}-"], [for^="rem-"]`);
-    
+
     requiredLabels.forEach(label => {
         // Check if this label has a required-label class or is inside a container with required-label class
         if (label.classList.contains('required-label')) {
@@ -413,11 +413,11 @@ function initGenericModal(prefix, editableFields, allFields, buildFormData, afte
 async function loadProvinceMunicipalities(type, record, provinceSelectId, municipalitySelectId) {
     const provinceSelect = document.getElementById(provinceSelectId);
     const municipalitySelect = document.getElementById(municipalitySelectId);
-    
+
     try {
         const provincesRes = await fetch(`/${type}/provinces`);
         const provinces = await provincesRes.json();
-        
+
         provinceSelect.innerHTML = '<option value="">Select Province</option>';
         provinces.forEach(p => {
             const opt = document.createElement('option');
@@ -425,7 +425,7 @@ async function loadProvinceMunicipalities(type, record, provinceSelectId, munici
             opt.text = p.province_name;
             provinceSelect.appendChild(opt);
         });
-        
+
         if (record.province_id) {
             provinceSelect.value = record.province_id;
             await loadMunicipalities(type, record.province_id, municipalitySelectId);
@@ -443,9 +443,9 @@ async function loadMunicipalities(type, provinceId, municipalitySelectId) {
     const muniSelect = document.getElementById(municipalitySelectId);
     muniSelect.innerHTML = '<option value="">Select Municipality</option>';
     muniSelect.disabled = !provinceId;
-    
+
     if (!provinceId) return;
-    
+
     try {
         const res = await fetch(`/${type}/municipalities?province_id=${provinceId}`);
         const munis = await res.json();
@@ -466,7 +466,7 @@ async function loadMunicipalities(type, provinceId, municipalitySelectId) {
 function setupCascadingDropdown(provinceSelectId, muniSelectId, type) {
     const provinceSelect = document.getElementById(provinceSelectId);
     if (!provinceSelect) return;
-    
+
     provinceSelect.addEventListener('change', async () => {
         const provinceId = provinceSelect.value;
         await loadMunicipalities(type, provinceId, muniSelectId);
@@ -488,7 +488,7 @@ function validateRecord(prefix, requiredFields) {
         qtyEl.focus();
         return false;
     }
-    
+
     // Required fields
     for (const field of requiredFields) {
         const el = document.getElementById(prefix + field.id);
@@ -524,7 +524,7 @@ function promptArchiveDocket(type, docketNo, recordModalName, updateCallback) {
     const confirmYesBtn = document.getElementById('confirm-archive-file-yes-btn');
     if (confirmYesBtn && !confirmYesBtn.dataset.archiveDocketListenerAttached) {
         confirmYesBtn.dataset.archiveDocketListenerAttached = 'true';
-        confirmYesBtn.addEventListener('click', async () => {
+        confirmYesBtn.onclick = async () => {
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'confirm-archive-file-modal' } }));
 
             try {
@@ -551,7 +551,7 @@ function promptArchiveDocket(type, docketNo, recordModalName, updateCallback) {
                 console.error('Archive error:', error);
                 window.showToast('Archive failed. Please try again.', 'error');
             }
-        });
+        };
     }
 }
 
@@ -562,18 +562,18 @@ function attachModalListeners(prefix, editableFields, allFields, buildFormData) 
     const editBtn = document.getElementById(prefix + '-edit-btn');
     const saveIcon = document.getElementById(prefix + '-save-icon');
     const cancelIcon = document.getElementById(prefix + '-cancel-icon');
-    
+
     if (editBtn) {
         editBtn.onclick = () => window.enterEditMode(prefix, editableFields, allFields);
     }
-    
+
     if (saveIcon) {
         saveIcon.onclick = () => {
             if (!window.validateRecord(prefix, [])) return; // Pass required fields config
             window.saveEdit(prefix, buildFormData, allFields);
         };
     }
-    
+
     if (cancelIcon) {
         cancelIcon.onclick = () => window.cancelEdit(prefix, allFields);
     }
@@ -585,7 +585,7 @@ function attachModalListeners(prefix, editableFields, allFields, buildFormData) 
 function initAddRecordModal(prefix, endpoint) {
     const formId = `add-record-form`; // TODO: make dynamic if needed
     const submitBtnId = `${prefix === 'hoa' ? 'add-record-submit-btn' : 'add-rem-record-submit-btn'}`;
-    
+
     const submitBtn = document.getElementById(submitBtnId);
     if (submitBtn) {
         submitBtn.onclick = async () => {
@@ -594,7 +594,7 @@ function initAddRecordModal(prefix, endpoint) {
             window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: 'confirm-save-record-modal' } }));
         };
     }
-    
+
     // Confirm save handler (shared)
     const confirmBtn = document.getElementById('confirm-save-record-yes-btn');
     if (confirmBtn) {
@@ -680,20 +680,20 @@ function unarchiveDocket(type, docketNo, button) {
 }
 
 // Export loading overlays (moved from hoa/rem)
-window.showExportLoading = function(type) {
+window.showExportLoading = function (type) {
     const overlay = document.getElementById(`export-loading-${type}`);
     if (overlay) overlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 };
 
-window.hideExportLoading = function(type) {
+window.hideExportLoading = function (type) {
     const overlay = document.getElementById(`export-loading-${type}`);
     if (overlay) overlay.classList.add('hidden');
     document.body.style.overflow = '';
 };
 
 // Borrower page loading overlay
-window.showBorrowerLoading = function() {
+window.showBorrowerLoading = function () {
     const overlay = document.getElementById('borrower-loading-overlay');
     if (overlay) {
         overlay.classList.remove('hidden');
@@ -702,7 +702,7 @@ window.showBorrowerLoading = function() {
     }
 };
 
-window.hideBorrowerLoading = function() {
+window.hideBorrowerLoading = function () {
     const overlay = document.getElementById('borrower-loading-overlay');
     if (overlay) {
         overlay.classList.add('hidden');
