@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('hoa_database', function (Blueprint $table) {
-            $table->json('files')->nullable();
+            if (!Schema::hasColumn('hoa_database', 'files')) {
+                $table->json('files')->nullable();
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('hoa_database', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('hoa_database', 'files')) {
+                $table->dropColumn('files');
+            }
         });
     }
 };

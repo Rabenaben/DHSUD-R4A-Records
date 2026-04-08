@@ -53,6 +53,7 @@
                     <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
                     <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantity</th>
                     <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Remarks</th>
+                    <th class="w-1/8 px-6 py-3 text-center text-sm font-semibold text-gray-700">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200" id="remTableBody">
@@ -77,13 +78,24 @@
                         </td>
                         <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->quantity ?? '-' }}</td>
                         <td class="px-6 py-4 text-center text-sm text-gray-900">{{ $record->remarks ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">
+                            <button type="button"
+                                class="qr-btn rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700"
+                                data-type="rem"
+                                data-record-id="{{ $record->id }}"
+                                data-province-id="{{ $record->province_id }}"
+                                data-municipality-id="{{ $record->municipality_id }}"
+                                data-docket="{{ $record->docket_no }}">
+                                Genrate QR Code
+                            </button>
+                        </td>
                     </tr>
                 @empty
                 @endforelse
 
                 <!-- This row is always present -->
                 <tr id="noRemRecordsRow">
-                    <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="7">
+                    <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="8">
                         No REM records found
                     </td>
                 </tr>

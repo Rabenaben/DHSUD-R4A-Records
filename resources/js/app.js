@@ -10,6 +10,7 @@ import './archive';
 import './accounts';
 import './request-history';
 import './export-utils';
+import './qr-scan';
 
 import Alpine from 'alpinejs';
 

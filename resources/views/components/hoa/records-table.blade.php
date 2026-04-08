@@ -18,6 +18,7 @@
                 <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Province</th>
                 <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Municipality</th>
                 <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Status</th>
+                <th class="w-1/6 px-6 py-3 text-center text-sm font-semibold text-white">Action</th>
             </tr>
         </thead>
 
@@ -47,12 +48,23 @@
                             {{ $record->status }}
                         </span>
                     </td>
+                    <td class="px-6 py-4 text-center text-sm text-gray-900">
+                        <button type="button"
+                            class="qr-btn rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700"
+                            data-type="hoa"
+                            data-record-id="{{ $record->id }}"
+                            data-province-id="{{ $record->province_id }}"
+                            data-municipality-id="{{ $record->municipality_id }}"
+                            data-docket="{{ $record->docket_no }}">
+                            QR Code
+                        </button>
+                    </td>
                 </tr>
             @empty
             @endforelse
 
             <tr class="hidden" id="noRecordsRow">
-                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="8">
+                <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="7">
                     No HOA records found
                 </td>
             </tr>

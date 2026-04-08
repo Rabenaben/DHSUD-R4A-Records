@@ -10,6 +10,8 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\HoaController;
 use App\Http\Controllers\RemController;
 use App\Http\Controllers\ClientRequestController;
+use App\Http\Controllers\QrCodeController;
+use App\Http\Controllers\QrScanController;
 
 // 🔹 Public route
 Route::get('/', fn() => view('welcome'));
@@ -90,6 +92,24 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('/export-sql', 'exportSql')->name('hoa.export-sql');
         Route::get('/export-files', 'exportFiles')->name('hoa.export-files');
     });
+
+    // QR Scan routes
+    Route::get('/qr-scan', [QrScanController::class, 'index'])->name('qr.scan');
+    Route::get('/qr/info/{type}/{docketNo}', [QrScanController::class, 'info'])
+        ->name('qr.info')
+        ->where('docketNo', '.*');
+    Route::get('/qr/open/{type}/{docketNo}', [QrScanController::class, 'open'])
+        ->name('qr.open')
+        ->where('docketNo', '.*');
+    Route::get('/qr/record/{type}/{docketNo}', [QrScanController::class, 'record'])
+        ->name('qr.record')
+        ->where('docketNo', '.*');
+
+    // QR Code route
+    Route::get('/qr/{type}/{docketNo}', [QrCodeController::class, 'show'])
+        ->name('qr.show')
+        ->where('type', 'hoa|rem')
+        ->where('docketNo', '.*');
 
     // REM routes (RemController)
     Route::controller(RemController::class)->prefix('rem')->name('rem.')->group(function () {

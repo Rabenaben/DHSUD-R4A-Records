@@ -25,7 +25,7 @@
     </div>
 
     @include('rem_records.partials.rem-modal', ['provinces' => $provinces])
-    <x-add-record-modal type="rem" :provinces="$provinces" />
+    <x-add-record-modal type="rem" :provinces="$allProvinces" />
     <x-add-file-modal />
     <x-save-file-modal />
     <x-confirm-archive-file-modal />
