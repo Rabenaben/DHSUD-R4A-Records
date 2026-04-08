@@ -1,16 +1,9 @@
 @php
     $baseColors = [
-<<<<<<< HEAD
-        'total' => 'bg-linear-to-br from-gray-600 to-gray-900 border-gray-300 border-2',
-        'onShelf' => 'bg-linear-to-br from-green-400 to-green-700 border-gray-300 border-2',
-        'unavailable' => 'bg-linear-to-br from-red-500 to-red-800 border-gray-300 border-2',
-        'borrowed' => 'bg-linear-to-br from-yellow-400 to-yellow-700 border-gray-300 border',
-=======
         'total' => 'from-gray-600 to-gray-900',
         'onShelf' => 'from-green-400 to-green-700',
         'archived' => 'from-red-500 to-red-800',
         'borrowed' => 'from-yellow-400 to-yellow-700',
->>>>>>> 01c74b22a6d9f699328241df2ae90e02a245c233
     ];
 
     $cards = [
