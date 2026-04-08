@@ -288,6 +288,14 @@ class BorrowerController extends Controller
      */
     public function getOverdueNotices()
     {
+        if (auth('web')->user()->role !== 'Admin') {
+            return response()->json([
+                'success' => false,
+                'count' => 0,
+                'notices' => []
+            ]);
+        }
+
         return Cache::remember('overdue_notices', 3600, function () {
             $overdue = Borrower::whereNull('date_returned')
                 ->where('date_borrowed', '<', now()->subDays(7))

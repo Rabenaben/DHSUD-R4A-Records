@@ -55,7 +55,9 @@
                 </x-dropdown>
             </div>
 
+            @if (auth()->user()->role === 'Admin')
             <x-notification-bell />
+            @endif
         </div>
     </div>
 </nav>
