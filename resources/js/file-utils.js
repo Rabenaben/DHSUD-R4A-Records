@@ -16,6 +16,10 @@ window.goBackToFileList = goBackToFileList;
 window.exportFile = exportFile;
 window.exportAllFiles = exportAllFiles;
 window.archiveFile = archiveFile;
+
+// Export lock - prevents multiple simultaneous exports
+window.isExporting = false;
+
 window.openGenericModal = openGenericModal;
 window.loadGenericFileList = loadGenericFileList;
 window.renderGenericFileList = renderGenericFileList;
@@ -24,6 +28,10 @@ window.showGenericFileList = showGenericFileList;
 window.updateGenericData = updateGenericData;
 window.updateGenericStatusCards = updateGenericStatusCards;
 window.updateGenericTable = updateGenericTable;
+
+// Global cache + request tracker
+window.fileCache = window.fileCache || {};
+window.previewRequestId = 0;
 
 // =========================================
 // File List Modal Functions
@@ -105,6 +113,10 @@ function renderFileList(files, record, type) {
             if (!row) return;
 
             const fileIndex = parseInt(row.dataset.fileIndex);
+
+            // ✅ ADD THIS
+            window.selectedFileIndex = fileIndex;
+
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: 'file-list' } }));
 
             if (type === 'hoa') {
@@ -316,8 +328,10 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
     const filePreview = document.getElementById(previewId);
     const filePlaceholder = document.getElementById(placeholderId);
 
-    // Show loading state immediately
-    fileLabel.value = 'Loading...';
+    const requestId = ++window.previewRequestId; // track latest request
+
+    // Loading state
+    if (fileLabel) fileLabel.value = 'Loading...';
     filePreview.style.display = 'none';
     filePlaceholder.innerHTML = `
         <div class="flex flex-col items-center justify-center h-full">
@@ -327,59 +341,65 @@ function loadFilePreview(record, fileIndex, type, labelId, previewId, placeholde
     `;
     filePlaceholder.style.display = 'flex';
 
-    if (fileIndex !== undefined && fileIndex !== null) {
-        // Fetch the file URL
-        fetch(`/${type}/${record.docket_no}/files`)
-            .then(response => response.json())
-            .then(data => {
-                const files = data.files || [];
-                const file = files.find(f => f.index == fileIndex);
-                if (file) {
-                    fileLabel.value = file.name;
-                    filePreview.src = `/${type}/${record.docket_no}/preview/${fileIndex}`;
-                    filePreview.style.display = 'block';
-                    filePlaceholder.style.display = 'none';
-                } else {
-                    fileLabel.value = '';
-                    filePreview.style.display = 'none';
-                    filePlaceholder.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full">
-                            <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <span class="text-gray-500">No file selected</span>
-                        </div>
-                    `;
-                    filePlaceholder.style.display = 'flex';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching file:', error);
-                fileLabel.value = '';
-                filePreview.style.display = 'none';
-                filePlaceholder.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <svg class="w-12 h-12 text-red-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-gray-500">Error loading preview</span>
-                    </div>
-                `;
-                filePlaceholder.style.display = 'flex';
-            });
-    } else {
-        fileLabel.value = '';
-        filePreview.style.display = 'none';
-        filePlaceholder.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-full">
-                <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <span class="text-gray-500">No file selected</span>
-            </div>
-        `;
-        filePlaceholder.style.display = 'flex';
+    if (fileIndex === undefined || fileIndex === null) return;
+
+    const cacheKey = `${type}-${record.docket_no}`;
+
+    // ✅ Use cache if available
+    const loadFromFiles = (files) => {
+        // Ignore stale responses
+        if (requestId !== window.previewRequestId) return;
+
+        const file = files.find(f => f.index == fileIndex);
+
+        if (file) {
+            if (fileLabel) fileLabel.value = file.name;
+
+            filePreview.src = `/${type}/${record.docket_no}/preview/${fileIndex}`;
+            filePreview.style.display = 'block';
+            filePlaceholder.style.display = 'none';
+        } else {
+            if (fileLabel) fileLabel.value = '';
+
+            filePreview.style.display = 'none';
+            filePlaceholder.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full">
+                    <span class="text-gray-500">No file selected</span>
+                </div>
+            `;
+            filePlaceholder.style.display = 'flex';
+        }
+    };
+
+    // If cached → use it immediately
+    if (window.fileCache[cacheKey]) {
+        loadFromFiles(window.fileCache[cacheKey]);
+        return;
     }
+
+    // Otherwise fetch
+    fetch(`/${type}/${record.docket_no}/files`)
+        .then(res => res.json())
+        .then(data => {
+            const files = data.files || [];
+
+            // Save to cache
+            window.fileCache[cacheKey] = files;
+
+            loadFromFiles(files);
+        })
+        .catch(err => {
+            console.error('Error fetching file:', err);
+
+            if (requestId !== window.previewRequestId) return;
+
+            if (fileLabel) fileLabel.value = '';
+            filePlaceholder.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full">
+                    <span class="text-red-500">Failed to load preview</span>
+                </div>
+            `;
+        });
 }
 
 // =========================================
@@ -421,6 +441,80 @@ function filterFiles(type, searchTerm) {
         }
     });
 }
+
+/**
+ * Initializes file list search for modals (HOA/REM) - mirrors archive.js logic.
+ * Shows "No files found" row when no matches.
+ * @param {string} type - Record type ('hoa' or 'rem').
+ */
+function initFileListSearch(type) {
+    const searchInput = document.getElementById(`${type}-files-search`);
+    const clearBtn = document.getElementById(`${type}-files-search-clear`);
+    const tbody = document.getElementById(`${type}-file-list-body`);
+
+    if (!searchInput || !tbody) return;
+
+    const filterFileRows = () => {
+        const searchValue = (searchInput.value || '').trim().toLowerCase();
+        let visibleRows = 0;
+
+        // Get original file count before filtering
+        const originalFileCount = tbody.querySelectorAll(`tr.${type}-file-row`).length;
+
+        // Filter data rows only
+        tbody.querySelectorAll(`tr.${type}-file-row`).forEach(row => {
+            const name = row.children[0]?.textContent?.toLowerCase() || '';
+            const date = row.children[1]?.textContent?.toLowerCase() || '';
+            const user = row.children[2]?.textContent?.toLowerCase() || '';
+            const matches = [name, date, user].some(text => text.includes(searchValue));
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleRows++;
+        });
+
+        // Manage no-files row ONLY if there were originally files but none match search
+        let noFilesRow = tbody.querySelector(`tr.no-${type}-files-row`);
+        if (!noFilesRow) {
+            noFilesRow = document.createElement('tr');
+            noFilesRow.className = `no-${type}-files-row`;
+            const td = document.createElement('td');
+            td.colSpan = 3;
+            td.className = 'px-6 py-4 text-center text-sm italic text-gray-500';
+            td.textContent = 'No files found.';
+            noFilesRow.appendChild(td);
+            tbody.appendChild(noFilesRow);
+        }
+
+        // Show "No files found" ONLY when original files exist but visible rows = 0
+        noFilesRow.style.display = (originalFileCount > 0 && visibleRows === 0) ? '' : 'none';
+    };
+
+    // Input handler
+    const inputHandler = () => {
+        filterFileRows();
+        if (clearBtn) clearBtn.style.display = searchInput.value ? '' : 'none';
+    };
+
+    // Remove existing listeners
+    searchInput.removeEventListener('input', window[`${type}SearchHandler`]);
+
+    window[`${type}SearchHandler`] = inputHandler;
+    searchInput.addEventListener('input', inputHandler);
+
+    // Clear button handler
+    if (clearBtn) {
+        clearBtn.removeEventListener('click', window[`${type}ClearHandler`]);
+        window[`${type}ClearHandler`] = () => {
+            searchInput.value = '';
+            filterFileRows();
+            clearBtn.style.display = 'none';
+        };
+        clearBtn.addEventListener('click', window[`${type}ClearHandler`]);
+    }
+
+    // Initial filter
+    filterFileRows();
+}
+
 
 /**
  * Sets the value of an element by ID.
@@ -491,6 +585,12 @@ function exportFile(type) {
  * @param {string} type - The type of record ('hoa' or 'rem').
  */
 function exportAllFiles(type) {
+    // Prevent multiple calls
+    if (window.isExporting) {
+        console.warn('Export already in progress');
+        return;
+    }
+
     if (!window.currentRecord) {
         if (window.showToast) {
             window.showToast('No record selected', 'error');
@@ -498,21 +598,26 @@ function exportAllFiles(type) {
         return;
     }
 
+    window.isExporting = true;
+
     const docketNo = window.currentRecord.docket_no;
     const url = `/${type}/${docketNo}/export-all-files`;
 
-    // Show loading toast (use 'default' instead of 'info' since Toast only supports success, error, default)
+    // Show loading toast
     if (window.showToast) {
-        window.showToast('Preparing files for download...', 'default');
+        window.showToast('Preparing ZIP download...', 'default');
     }
 
-    // Create a link and trigger download
+    // Single download trigger
     const link = document.createElement('a');
     link.href = url;
-    link.download = '';
+    link.download = `${type}_${docketNo}_files.zip`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    // Reset after delay (browser download starts instantly)
+    setTimeout(() => { window.isExporting = false; }, 2000);
 }
 
 // =========================================
@@ -638,16 +743,20 @@ function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
     const archiveDocketBtn = document.getElementById(`${type}-archive-docket-btn`);
     if (archiveDocketBtn) {
         const isArchived = String(transformedRecord.status || '').toUpperCase() === 'ARCHIVED';
+        // Initial disable - will be updated after files load
         archiveDocketBtn.disabled = isArchived;
         archiveDocketBtn.title = isArchived ? 'This docket is already archived' : 'Archive Docket';
         archiveDocketBtn.classList.toggle('opacity-50', isArchived);
         archiveDocketBtn.classList.toggle('cursor-not-allowed', isArchived);
     }
 
-    // Attach export all files button event
+    // Attach export button SAFELY (prevent duplicates)
     const exportAllFilesBtn = document.getElementById(`${type}-export-all-files-btn`);
-    if (exportAllFilesBtn) {
-        exportAllFilesBtn.addEventListener('click', () => {
+    if (exportAllFilesBtn && !exportAllFilesBtn.dataset.exportListener) {
+        exportAllFilesBtn.dataset.exportListener = 'attached';
+        exportAllFilesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             exportAllFiles(type);
         });
     }
@@ -700,6 +809,44 @@ function renderGenericFileList(files, record, type) {
     const tbodyId = `${type}-file-list-body`;
     const tbody = document.getElementById(tbodyId);
 
+    // Enable or disable Export All Files and Archive Docket buttons based on file count
+    const exportAllFilesBtn = document.getElementById(`${type}-export-all-files-btn`);
+    const archiveDocketBtn = document.getElementById(`${type}-archive-docket-btn`);
+
+    // Export button - update state + ensure listener
+    if (exportAllFilesBtn) {
+        const hasFiles = files.length > 0;
+        exportAllFilesBtn.disabled = !hasFiles;
+        exportAllFilesBtn.classList.toggle('opacity-50', !hasFiles);
+        exportAllFilesBtn.classList.toggle('cursor-not-allowed', !hasFiles);
+        exportAllFilesBtn.title = hasFiles ? 'Export All Files' : 'No files to export';
+
+        // Re-attach safely if needed
+        if (!exportAllFilesBtn.dataset.exportListener) {
+            exportAllFilesBtn.dataset.exportListener = 'attached';
+            exportAllFilesBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                exportAllFiles(type);
+            });
+        }
+    }
+
+    // Archive docket button - disable if no files OR already archived
+    if (archiveDocketBtn) {
+        const recordStatus = String(record.status || '').toUpperCase();
+        const isArchived = recordStatus === 'ARCHIVED';
+        const noFiles = files.length === 0;
+        const shouldDisable = isArchived || noFiles;
+
+        archiveDocketBtn.disabled = shouldDisable;
+        archiveDocketBtn.title = isArchived ? 'This docket is already archived' :
+            noFiles ? 'Upload files first before archiving docket' :
+                'Archive Docket';
+        archiveDocketBtn.classList.toggle('opacity-50', shouldDisable);
+        archiveDocketBtn.classList.toggle('cursor-not-allowed', shouldDisable);
+    }
+
     if (files.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -708,66 +855,30 @@ function renderGenericFileList(files, record, type) {
                 </td>
             </tr>
         `;
-    } else {
-        tbody.innerHTML = files.map(f => `
-            <tr class="cursor-pointer hover:bg-gray-50 ${type}-file-row" data-file-index="${f.index}">
-                <td class="px-4 py-4 wrap-break-word text-sm font-medium text-gray-900 text-center">${f.name}</td>
-                <td class="px-4 py-4 wrap-break-word text-sm text-gray-500 text-center">${new Date(f.date_added).toLocaleString()}</td>
-                <td class="px-4 py-4 wrap-break-word text-sm text-gray-500 text-center">${f.last_updated_by || 'Unknown'}</td>
-            </tr>
-        `).join('');
-
-        // Delegate click for file rows
-        tbody.addEventListener('click', function onGenericFileClick(e) {
-            const row = e.target.closest(`tr.${type}-file-row`);
-            if (!row) return;
-
-            const fileIndex = parseInt(row.dataset.fileIndex);
-            showGenericFilePreview(record, fileIndex, type);
-        });
-
-        // Attach search input listener with debounce
-        const searchInput = document.getElementById(`${type}-files-search`);
-        const clearBtn = document.getElementById(`${type}-files-search-clear`);
-
-        if (searchInput) {
-            // Remove existing listeners to prevent duplicates
-            searchInput.removeEventListener('input', window[`${type}SearchHandler`]);
-
-            // Create debounced handler
-            window[`${type}SearchHandler`] = debounce((e) => {
-                filterFiles(type, e.target.value);
-            }, 300);
-
-            searchInput.addEventListener('input', window[`${type}SearchHandler`]);
-        }
-
-        // Attach clear button listener
-        if (clearBtn) {
-            clearBtn.removeEventListener('click', window[`${type}ClearHandler`]);
-            window[`${type}ClearHandler`] = function () {
-                const input = document.getElementById(`${type}-files-search`);
-                if (input) {
-                    input.value = '';
-                    filterFiles(type, '');
-                    input.focus();
-                }
-            };
-            clearBtn.addEventListener('click', window[`${type}ClearHandler`]);
-        }
+        return;
     }
 
-    // Enable or disable the Export All Files button based on file count
-    const exportAllFilesBtn = document.getElementById(`${type}-export-all-files-btn`);
-    if (exportAllFilesBtn) {
-        if (files.length > 0) {
-            exportAllFilesBtn.disabled = false;
-            exportAllFilesBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        } else {
-            exportAllFilesBtn.disabled = true;
-            exportAllFilesBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-    }
+    tbody.innerHTML = files.map(f => `
+        <tr class="cursor-pointer hover:bg-gray-50 ${type}-file-row" data-file-index="${f.index}">
+            <td class="px-4 py-4 wrap-break-word text-sm font-medium text-gray-900 text-center">${f.name}</td>
+            <td class="px-4 py-4 wrap-break-word text-sm text-gray-500 text-center">${new Date(f.date_added).toLocaleString()}</td>
+            <td class="px-4 py-4 wrap-break-word text-sm text-gray-500 text-center">${f.last_updated_by || 'Unknown'}</td>
+        </tr>
+    `).join('');
+
+    // Delegate click for file rows
+    tbody.addEventListener('click', function onGenericFileClick(e) {
+        const row = e.target.closest(`tr.${type}-file-row`);
+        if (!row) return;
+
+        const fileIndex = parseInt(row.dataset.fileIndex);
+        showGenericFilePreview(record, fileIndex, type);
+    });
+
+    initFileListSearch(type);
+
+    // Remove duplicate button logic (moved to top of renderGenericFileList)
+    // Existing logic now at start of function before early return
 }
 
 /**

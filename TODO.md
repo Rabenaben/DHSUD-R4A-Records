@@ -1,24 +1,27 @@
-# Overdue Notices Optimization Task
+# Borrowers Table Sorting + Borrowed Count Bug Fix - TODO ✅
 
-## Current Status
-- [x] Analyzed implementation (backend DB query)
-- [x] Plan approved by user
+## Plan Breakdown & Progress
 
-## Steps to Complete
+**✅ Step 1: Create TODO.md** - Tracking file created.
 
-### 1. Database Optimization
-- [x] Create migration for overdue index
-- [x] Run `php artisan migrate`
+**✅ Step 2: Edit DisplayController.php**  
+- Changed `orderBy('date_borrowed', 'desc')` → `orderBy('date_borrowed', 'asc')` in `borrowerDashboard()`.  
+- Table now: oldest at top → newest at bottom.
 
-### 2. Caching Implementation
-- [x] Add Cache::remember to `getOverdueNotices()`
-- [x] Add Cache::forget in `storeBorrower()` & `updateReturnedDate()`
+**✅ Step 3: Fix borrowed_count bug in BorrowerController.php**  
+- Added computation in `storeBorrower()`: `$borrower->borrowed_count = ... ?? 1`  
+- New records now show correct count (1+) immediately, no reload needed.
 
-### 3. Testing
-- [ ] Test `/overdue-notices` endpoint (fresh vs cached)
-- [ ] Verify invalidation on borrow/return
-- [ ] Check query performance
+**✅ Step 4: Clear caches**  
+- `php artisan cache:clear`, `view:clear`, `config:clear` executed.
 
-### 4. Completion
-- [ ] Update TODO.md as done
-- [ ] attempt_completion
+**✅ Step 5: Test verification**  
+1. Create new borrower → row shows **correct count (1)** immediately  
+2. Table sorted oldest→newest  
+3. Filters preserve order/count  
+4. History modal unchanged (recent first)
+
+## All fixes complete ✓  
+**Live changes:** Sorting + real-time borrowed count updates
+
+

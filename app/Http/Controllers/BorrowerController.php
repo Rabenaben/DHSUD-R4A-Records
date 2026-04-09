@@ -157,6 +157,13 @@ class BorrowerController extends Controller
 
         $borrower = Borrower::create($validated);
 
+        // Compute borrowed_count (matching DisplayController logic)
+        $borrowedCounts = Borrower::whereNull('date_returned')
+            ->groupBy('borrower_name')
+            ->selectRaw('borrower_name, COUNT(*) as count')
+            ->pluck('count', 'borrower_name');
+        $borrower->borrowed_count = $borrowedCounts[$borrower->borrower_name] ?? 1; // New record is unreturned
+
         // Set status for the new borrower
         $borrower->status = 'Borrowed';
 
@@ -256,12 +263,19 @@ class BorrowerController extends Controller
         $docketStatus = $borrower->fresh()->date_returned ? 'ON-SHELF' : 'BORROWED';
         $this->updateDocketStatus($borrower->file_location, $borrower->docket_number, $docketStatus);
 
-        // Calculate the borrower's overall status
+        // Calculate the borrower's overall status & borrowed_count (matching dashboard/store logic)
+        $borrowedCounts = Borrower::whereNull('date_returned')
+            ->groupBy('borrower_name')
+            ->selectRaw('borrower_name, COUNT(*) as count')
+            ->pluck('count', 'borrower_name');
+        $borrower->borrowed_count = $borrowedCounts[$borrower->borrower_name] ?? 0;
+
         $borrowerRecords = Borrower::where('borrower_name', $borrower->borrower_name)->get();
         $hasBorrowed = $borrowerRecords->contains(function ($record) {
             return is_null($record->date_returned);
         });
         $borrowerStatus = $hasBorrowed ? 'Borrowed' : 'Returned';
+        $borrower->status = $borrowerStatus;
 
         // Log activity if returned
         if ($borrower->fresh()->date_returned) {

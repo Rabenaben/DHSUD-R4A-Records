@@ -1,31 +1,31 @@
 document.addEventListener('DOMContentLoaded', initBorrowerRecords);
 
 // Auto-open borrower records from notification (called from borrower.blade.php)
-window.initAutoOpenFromNotification = function() {
+window.initAutoOpenFromNotification = function () {
     const urlParams = new URLSearchParams(window.location.search);
     const borrowerName = decodeURIComponent(urlParams.get('borrower') || '');
-    
+
     if (borrowerName && window.editBorrower) {
         window.showBorrowerLoading();
         // Find matching borrower row (flexible matching)
         const selector = `tr[data-borrower-name="${borrowerName.replace(/"/g, '\\"')}"], tr[data-borrower-name*="${borrowerName.trim()}"]`;
         const borrowerRow = document.querySelector(selector);
-        
+
         if (borrowerRow) {
             const borrowerId = borrowerRow.getAttribute('data-id');
             window.editBorrower(borrowerId);
         } else {
             window.hideBorrowerLoading();
         }
-        
+
         // Clear query param from URL
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
     }
 };
 
-function formatBorrowerId(id) {
-    return String(id).padStart(3, '0');
+function formatBorrowedCount(count) {
+    return count || 0;
 }
 
 function initBorrowerRecords() {
@@ -187,6 +187,11 @@ function initBorrowerRecords() {
             const result = await response.json();
 
             if (result.success) {
+                // Add new record to main table (for both new & existing borrowers)
+                if (result.borrower) {
+                    addRecordToTable(result.borrower);
+                }
+
                 if (isHistory) {
                     // Reset history form fields
                     formElement.reset();
@@ -227,10 +232,6 @@ function initBorrowerRecords() {
                     window.editBorrower(result.borrower.id);
                 }
 
-                // Add new record to main table
-                if (result.borrower) {
-                    addRecordToTable(result.borrower);
-                }
                 // Show success toast
                 window.showToast(result.message, 'success');
             } else {
@@ -289,7 +290,12 @@ function initBorrowerRecords() {
         const existingRow = document.querySelector(`tr[data-borrower-name="${borrower.borrower_name}"]`);
 
         if (existingRow) {
-            // Update the existing row's status to 'Borrowed'
+            // Update count, status for existing row
+            const countCell = existingRow.querySelector('td:nth-child(1)');
+            if (countCell && borrower.borrowed_count !== undefined) {
+                countCell.textContent = formatBorrowedCount(borrower.borrowed_count);
+                existingRow.setAttribute('data-borrowed-count', borrower.borrowed_count);
+            }
             const statusCell = existingRow.querySelector('td:nth-child(4)');
             if (statusCell) {
                 statusCell.textContent = borrower.status || 'Borrowed';
@@ -305,13 +311,14 @@ function initBorrowerRecords() {
             const newRow = document.createElement('tr');
             newRow.setAttribute('data-id', borrower.id);
             newRow.setAttribute('data-borrower-name', borrower.borrower_name);
+            newRow.setAttribute('data-borrowed-count', borrower.borrowed_count || 0);
             newRow.setAttribute('data-division', borrower.division || '');
             newRow.setAttribute('data-status', borrower.status || 'N/A');
             newRow.className = 'cursor-pointer hover:bg-gray-50';
             newRow.onclick = () => editBorrower(borrower.id);
 
             newRow.innerHTML = `
-                <td class="px-6 py-4 text-center text-sm text-gray-500">${formatBorrowerId(borrower.id)}</td>
+                <td class="px-6 py-4 text-center text-sm text-gray-500">${formatBorrowedCount(borrower.borrowed_count || 0)}</td>
                 <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${borrower.borrower_name}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.division || 'N/A'}</td>
                 <td class="px-6 py-4 text-center text-sm text-gray-500">${borrower.status || 'Borrowed'}</td>
@@ -621,16 +628,20 @@ function initBorrowerRecords() {
             const result = await response.json();
 
             if (result.success) {
-                // Update the main borrower table status if provided
-                if (result.borrower_status) {
-                    const borrowerName = result.borrower.borrower_name;
-                    const mainTableRow = document.querySelector(`tr[data-borrower-name="${borrowerName}"]`);
-                    if (mainTableRow) {
+                const borrowerName = result.borrower.borrower_name;
+                const mainTableRow = document.querySelector(`tr[data-borrower-name="${borrowerName}"]`);
+                if (mainTableRow) {
+                    // Update borrowed count (1st column)
+                    const countCell = mainTableRow.querySelector('td:nth-child(1)');
+                    if (countCell && result.borrower.borrowed_count !== undefined) {
+                        countCell.textContent = formatBorrowedCount(result.borrower.borrowed_count);
+                        mainTableRow.setAttribute('data-borrowed-count', result.borrower.borrowed_count);
+                    }
+                    // Update status (4th column)
+                    const statusCell = mainTableRow.querySelector('td:nth-child(4)');
+                    if (statusCell && result.borrower_status) {
+                        statusCell.textContent = result.borrower_status;
                         mainTableRow.setAttribute('data-status', result.borrower_status);
-                        const mainStatusCell = mainTableRow.querySelector('td:nth-child(4)');
-                        if (mainStatusCell) {
-                            mainStatusCell.textContent = result.borrower_status;
-                        }
                     }
                 }
 

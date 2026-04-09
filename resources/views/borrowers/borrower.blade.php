@@ -52,7 +52,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="w-1/6 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
-                                    ID
+                                    # of Borrowed Records
                                 </th>
                                 <th class="w-1/3 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
                                     Borrower Name
@@ -66,7 +66,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
-                            @forelse ($borrowers as $index => $borrower)
+                            @forelse ($borrowers as $borrower)
                                 <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
                                     data-docket-number="{{ $borrower->docket_number }}"
                                     data-file-location="{{ $borrower->file_location }}"
@@ -77,7 +77,7 @@
                                     class="cursor-pointer hover:bg-gray-50"
                                     onclick="editBorrower({{ $borrower->id }})">
                                     <td class="px-6 py-4 text-center text-sm text-gray-500">
-                                        {{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
+                                        {{ $borrower->borrowed_count ?? 0 }}</td>
                                     <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">
                                         {{ $borrower->borrower_name }}</td>
                                     <td class="px-6 py-4 text-center text-sm text-gray-500">

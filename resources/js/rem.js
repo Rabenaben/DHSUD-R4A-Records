@@ -44,13 +44,13 @@ window.remShowFileList = () => window.showGenericFileList('rem');
 window.loadRemFileList = (record) => window.loadGenericFileList('rem', record);
 window.updateRemData = () => window.updateData('rem');
 
-window.showExportLoading = function(type) {
+window.showExportLoading = function (type) {
     const overlay = document.getElementById(`export-loading-${type}`);
     if (overlay) overlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 };
 
-window.hideExportLoading = function(type) {
+window.hideExportLoading = function (type) {
     const overlay = document.getElementById(`export-loading-${type}`);
     if (overlay) overlay.classList.add('hidden');
     document.body.style.overflow = '';
@@ -61,6 +61,8 @@ window.hideExportLoading = function(type) {
 // =========================================
 
 function openRemModal(record) {
+    window.previewRequestId++;
+
     openGenericModal(record, 'rem', REM_FIELD_CONFIG);
     window.currentRemRecord = record;
     window.loadProvinceMunicipalities('rem', record, 'rem-province', 'rem-municipality');
@@ -123,6 +125,19 @@ function openRemModal(record) {
                     }
                 });
             });
+        }
+
+        if (window.selectedFileIndex !== undefined) {
+            loadFilePreview(
+                record,
+                window.selectedFileIndex,
+                'rem',
+                'rem-file-label',
+                'rem-file-preview',
+                'rem-file-placeholder'
+            );
+
+            window.selectedFileIndex = undefined;
         }
 
     }, 100);

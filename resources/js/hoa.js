@@ -62,6 +62,8 @@ const HOA_REQUIRED_FIELDS = [
  * @param {Object} record - The record data.
  */
 function openHoaModal(record) {
+    window.previewRequestId++;
+
     const fieldConfig = {
         hoa_id: 'hoa-id',
         region: 'region',
@@ -165,6 +167,20 @@ function openHoaModal(record) {
                     }
                 });
             });
+        }
+
+        if (window.selectedFileIndex !== undefined) {
+            loadFilePreview(
+                record,
+                window.selectedFileIndex,
+                'hoa',
+                'hoa-file-label',
+                'hoa-file-preview',
+                'hoa-file-placeholder'
+            );
+
+            // optional cleanup
+            window.selectedFileIndex = undefined;
         }
 
     }, 100); // Small delay to ensure modal is rendered
@@ -691,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachHoaRowClickListeners();
     attachHoaPaginationListeners();
     window.initExport('hoa');
-    
+
     // Fix: Reset edit mode when HOA modal is closed (without clicking cancel)
     window.addEventListener('close-modal', (e) => {
         if (e.detail.name === 'hoa') {

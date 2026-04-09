@@ -244,12 +244,22 @@ class DisplayController extends Controller
     public function borrowerDashboard()
     {
         // Get all borrowers ordered by date, then group by borrower_name to get the most recent record for each
-        $allBorrowers = Borrower::orderBy('date_borrowed', 'desc')->get();
+        $allBorrowers = Borrower::orderBy('date_borrowed', 'asc')->get();
 
         // Group by borrower_name and get the first record (most recent) for each
         $borrowers = $allBorrowers->groupBy('borrower_name')->map(function ($group) {
             return $group->first();
         })->values();
+
+        // Compute borrowed count per borrower (active records only)
+        $borrowedCounts = Borrower::whereNull('date_returned')
+            ->groupBy('borrower_name')
+            ->selectRaw('borrower_name, COUNT(*) as count')
+            ->pluck('count', 'borrower_name');
+
+        foreach ($borrowers as $borrower) {
+            $borrower->borrowed_count = $borrowedCounts[$borrower->borrower_name] ?? 0;
+        }
 
         // Get next ID from auto-increment
         $nextId = Borrower::max('id') + 1;
