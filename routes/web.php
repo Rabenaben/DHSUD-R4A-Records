@@ -55,7 +55,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     });
 
     // Borrower routes (BorrowerController)
-    Route::controller(BorrowerController::class)->group(function () {
+    Route::controller(BorrowerController::class)->middleware('check.overdue.notifications')->group(function () {
         Route::get('/borrowers/{id}', 'showBorrower')->name('borrowers.show');
         Route::get('/borrowers/history/{borrowerName}', 'getBorrowerHistory')->name('borrowers.history');
         Route::get('/borrowers/docket/{docketNo}', 'getDocketDetails')->name('borrowers.docket.details');
@@ -63,6 +63,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::patch('/borrowers/{id}', 'updateBorrower')->name('borrowers.update');
         Route::patch('/borrowers/{id}/return', 'updateReturnedDate')->name('borrowers.update.return');
         Route::get('/overdue-notices', 'getOverdueNotices')->name('borrowers.overdue.notices');
+        Route::post('/mark-notifications-read', 'markNotificationsAsRead')->name('borrowers.notifications.read');
     });
 
 // Archive routes (ArchiveController)

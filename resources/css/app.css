@@ -28,3 +28,31 @@
     border-color: var(--color-gray-200, currentcolor);
   }
 }
+
+/* Universal Custom Scrollbar - Thin, modern, theme-aware */
+@layer components {
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+    border-radius: 3px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500;
+    border-radius: 3px;
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+
+  /* Firefox scrollbar color prefs (limited support) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.300') transparent;
+  }
+}

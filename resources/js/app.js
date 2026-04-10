@@ -106,6 +106,7 @@ function notificationBell() {
     return {
         notices: [],
         count: 0,
+        totalCount: 0,
         isOpen: false,
         loading: false,
 
@@ -119,7 +120,8 @@ function notificationBell() {
                 
                 if (data.success) {
                     this.notices = data.notices || [];
-                    this.count = data.count || 0;
+                    this.count = data.borrower_count || data.count || 0;
+                    this.totalCount = data.total_overdue_borrowers || 0;
                 }
             } catch (error) {
                 console.error('Failed to fetch notifications:', error);
@@ -128,15 +130,37 @@ function notificationBell() {
             }
         },
 
+        async markAsRead() {
+            if (this.count === 0) return;
+
+            try {
+                await fetch('/mark-notifications-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                // Only clear badge count, keep notices visible
+                this.count = 0;
+            } catch (error) {
+                console.error('Failed to mark notifications as read:', error);
+            }
+        },
+
         handleNoticeClick(notice) {
-            window.location.href = `/borrowers?borrower=${encodeURIComponent(notice.borrower_name)}`;
+            window.location.href = `/borrowers?borrower=${encodeURIComponent(notice.borrower_name.trim())}`;
             this.isOpen = false;
         },
 
         init() {
             this.fetchNotices();
-            // Poll every 5 minutes
-            setInterval(() => this.fetchNotices(), 5 * 60 * 1000);
+            // Poll every 30 seconds for real-time updates
+            setInterval(() => this.fetchNotices(), 30 * 1000);
+
+            // Manual refresh method
+            this.refreshNotices = () => this.fetchNotices();
         }
     }
 }

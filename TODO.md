@@ -1,27 +1,13 @@
-# Borrowers Table Sorting + Borrowed Count Bug Fix - TODO ✅
+# Notification Bell Fix Progress
 
-## Plan Breakdown & Progress
+## Plan Steps:
+- [x] 1. Create TODO.md ✅
+- [x] 2. Edit notification-bell.blade.php (add totalCount to summary) ✅
+- [x] 3. Edit BorrowerController.php (add total_overdue_borrowers to response) ✅
+- [x] 4. Edit app.js (add totalCount Alpine prop) ✅
+- [x] 5. Update TODO.md with test results ✅
+- [ ] 6. Run `npm run dev`
+- [ ] 7. Test dashboard notification bell
+- [ ] 8. attempt_completion
 
-**✅ Step 1: Create TODO.md** - Tracking file created.
-
-**✅ Step 2: Edit DisplayController.php**  
-- Changed `orderBy('date_borrowed', 'desc')` → `orderBy('date_borrowed', 'asc')` in `borrowerDashboard()`.  
-- Table now: oldest at top → newest at bottom.
-
-**✅ Step 3: Fix borrowed_count bug in BorrowerController.php**  
-- Added computation in `storeBorrower()`: `$borrower->borrowed_count = ... ?? 1`  
-- New records now show correct count (1+) immediately, no reload needed.
-
-**✅ Step 4: Clear caches**  
-- `php artisan cache:clear`, `view:clear`, `config:clear` executed.
-
-**✅ Step 5: Test verification**  
-1. Create new borrower → row shows **correct count (1)** immediately  
-2. Table sorted oldest→newest  
-3. Filters preserve order/count  
-4. History modal unchanged (recent first)
-
-## All fixes complete ✓  
-**Live changes:** Sorting + real-time borrowed count updates
-
-
+Current: Added sorting overdue notices newest first. Run `npm run dev` then test notification bell (newest borrowers first, summary shows total, badge unchanged).

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'prevent.back.history' => PreventBackHistory::class,
             'role' => RoleMiddleware::class,
+            'check.overdue.notifications' => \App\Http\Middleware\CheckOverdueNotifications::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

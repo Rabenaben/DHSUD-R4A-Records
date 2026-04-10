@@ -3,18 +3,25 @@ document.addEventListener('DOMContentLoaded', initBorrowerRecords);
 // Auto-open borrower records from notification (called from borrower.blade.php)
 window.initAutoOpenFromNotification = function () {
     const urlParams = new URLSearchParams(window.location.search);
-    const borrowerName = decodeURIComponent(urlParams.get('borrower') || '');
+    const borrowerName = decodeURIComponent(urlParams.get('borrower') || '').trim();
 
     if (borrowerName && window.editBorrower) {
+        const lowerBorrowerName = borrowerName.toLowerCase().trim();
+
         window.showBorrowerLoading();
-        // Find matching borrower row (flexible matching)
-        const selector = `tr[data-borrower-name="${borrowerName.replace(/"/g, '\\"')}"], tr[data-borrower-name*="${borrowerName.trim()}"]`;
-        const borrowerRow = document.querySelector(selector);
+
+        // Exact match using new data-borrower-name-lower attribute
+        const exactSelector = `tr[data-borrower-name-lower="${lowerBorrowerName.replace(/"/g, '\\\"')}"]`;
+        const candidates = document.querySelectorAll(exactSelector);
+
+        const borrowerRow = candidates[0]; // Take first exact match
 
         if (borrowerRow) {
             const borrowerId = borrowerRow.getAttribute('data-id');
             window.editBorrower(borrowerId);
         } else {
+            console.error('❌ NO EXACT MATCH for borrower:', borrowerName);
+            console.error('💡 Check: DB overdue borrowers vs table rows');
             window.hideBorrowerLoading();
         }
 
@@ -23,6 +30,7 @@ window.initAutoOpenFromNotification = function () {
         window.history.replaceState({}, document.title, cleanUrl);
     }
 };
+
 
 function formatBorrowedCount(count) {
     return count || 0;
@@ -287,7 +295,7 @@ function initBorrowerRecords() {
         if (!tableBody) return;
 
         // Check if a row for this borrower already exists
-        const existingRow = document.querySelector(`tr[data-borrower-name="${borrower.borrower_name}"]`);
+        const existingRow = document.querySelector(`tr[data-borrower-name-lower="${borrower.borrower_name.toLowerCase()}"]`);
 
         if (existingRow) {
             // Update count, status for existing row
@@ -311,6 +319,7 @@ function initBorrowerRecords() {
             const newRow = document.createElement('tr');
             newRow.setAttribute('data-id', borrower.id);
             newRow.setAttribute('data-borrower-name', borrower.borrower_name);
+            newRow.setAttribute('data-borrower-name-lower', borrower.borrower_name.toLowerCase());
             newRow.setAttribute('data-borrowed-count', borrower.borrowed_count || 0);
             newRow.setAttribute('data-division', borrower.division || '');
             newRow.setAttribute('data-status', borrower.status || 'N/A');
@@ -338,6 +347,11 @@ function initBorrowerRecords() {
 
     // Function to reset modal for adding new record
     const resetModalForAdding = (fromHistory = false, borrowerName = null, division = '') => {
+        const isHistoryInput = document.getElementById('is-history-add');
+        if (isHistoryInput) {
+            isHistoryInput.value = fromHistory ? 'true' : 'false';
+        }
+
         // Change modal title back
         const modalTitle = document.getElementById('modal-title');
         if (modalTitle) {
@@ -403,8 +417,6 @@ function initBorrowerRecords() {
         if (saveBtn) saveBtn.style.display = 'inline-block';
         if (cancelBtn) cancelBtn.textContent = 'Cancel';
     };
-
-
 
     // Function to edit borrower (now shows history)
     window.editBorrower = async (id) => {

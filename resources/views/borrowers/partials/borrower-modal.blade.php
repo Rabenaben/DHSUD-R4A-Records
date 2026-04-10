@@ -3,12 +3,14 @@
     <div class="relative p-6">
         <h2 class="mb-4 text-xl font-semibold" id="modal-title">Add New Borrower Record</h2>
         <form id="borrower-form" method="POST" action="{{ route('borrowers.store') }}">
+            <input type="hidden" id="is-history-add" name="is_history_add" value="false">
             @csrf
+
             <!-- Borrower's Name and Division -->
             <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="flex-1">
                     <x-input-label value="Borrower's Name" />
-                    <x-modal-input id="borrower-name" name="borrower_name" placeholder="Borrower's Name" required />
+                    <x-modal-input id="borrower-name" name="borrower_name" placeholder="Ex. Rizal, Jose P." required />
                 </div>
                 <div class="flex-1">
                     <x-input-label value="Division" />
@@ -42,7 +44,7 @@
                     <div>
                         <x-input-label value="Docket No." />
                         <x-modal-input id="borrower-docket-no" name="docket_number" placeholder="Docket No."
-                            list="borrower-docket-list" required />
+                            list="" required />
                         <datalist id="hoa-docket-list">
                             @foreach ($hoaDockets as $docket)
                                 <option value="{{ $docket }}">

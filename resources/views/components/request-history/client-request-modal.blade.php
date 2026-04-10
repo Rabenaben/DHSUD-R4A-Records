@@ -6,10 +6,10 @@
 
         <form class="space-y-6" id="client-request-form">
             <!-- Hidden input to store request ID for edit mode -->
-            <input type="hidden" id="client-request-id" name="id" value="">
+            <input id="client-request-id" type="hidden" name="id" value="">
 
             <!-- Mode indicator -->
-            <input type="hidden" id="client-request-mode" name="mode" value="add">
+            <input id="client-request-mode" type="hidden" name="mode" value="add">
 
             <!-- Date and Type -->
             <div>
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-<!-- Project Information -->
+            <!-- Project Information -->
             <div>
                 <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Project Information
                 </h3>
@@ -62,7 +62,8 @@
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <x-input-label value="Requested By" :required="true" />
-                        <x-text-input class="w-full" id="requested-by" name="requested_by" maxlength="100" required />
+                        <x-text-input class="w-full" id="requested-by" name="requested_by"
+                            placeholder="Ex. Rizal, Jose P." maxlength="100" required />
                     </div>
                     <div>
                         <x-input-label value="OR No." :required="true" />
@@ -82,52 +83,44 @@
                 </h3>
                 <div class="grid grid-cols-1 gap-2 md:grid-cols-2" id="requested-docs-container">
                     <!-- Documents will be dynamically rendered based on Type selection -->
-                    <p class="text-sm text-gray-500" id="select-type-message">Please select a Type to see available documents.</p>
+                    <p class="text-sm text-gray-500" id="select-type-message">Please select a Type to see available
+                        documents.</p>
                 </div>
 
                 <!-- Others input field (hidden by default) -->
-                <div id="others-input-container" class="mt-3 hidden">
+                <div class="mt-3 hidden" id="others-input-container">
                     <x-input-label value="Please specify:" />
-                    <x-text-input class="w-full" id="others-document-specify" name="others_specify"
-                        maxlength="255" placeholder="Specify the document..." />
+                    <x-text-input class="w-full" id="others-document-specify" name="others_specify" maxlength="255"
+                        placeholder="Specify the document..." />
                 </div>
 
                 <!-- View mode documents display -->
-                <div id="requested-docs-view" class="hidden">
+                <div class="hidden" id="requested-docs-view">
                     <div class="flex flex-wrap gap-2" id="requested-docs-list"></div>
                 </div>
             </div>
 
             <!-- Certified True Copy Option -->
-            <div id="certified-true-copy-section" class="hidden">
+            <div class="hidden" id="certified-true-copy-section">
                 <h3 class="mb-3 border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">Certification Option
                 </h3>
                 <div class="mt-2 flex gap-4">
                     <label class="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            id="certified-true-copy"
-                            name="certification_status"
-                            value="certified"
-                            class="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                        >
+                        <input class="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                            id="certified-true-copy" type="radio" name="certification_status" value="certified">
                         <span class="text-sm text-gray-700">Certified</span>
                     </label>
                     <label class="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            id="not-certified"
-                            name="certification_status"
-                            value="not_certified"
-                            class="rounded border-gray-300 text-red-600 focus:ring-red-500"
-                        >
+                        <input class="rounded border-gray-300 text-red-600 focus:ring-red-500" id="not-certified"
+                            type="radio" name="certification_status" value="not_certified">
                         <span class="text-sm text-gray-700">Not Certified</span>
                     </label>
                 </div>
 
                 <!-- View mode Certified/Not Certified display -->
-                <div id="certified-true-copy-view" class="mt-3 hidden">
-                    <span id="certification-badge" class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">Certified</span>
+                <div class="mt-3 hidden" id="certified-true-copy-view">
+                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800"
+                        id="certification-badge">Certified</span>
                 </div>
             </div>
 
@@ -140,16 +133,16 @@
             </div>
 
             <!-- View Mode Only: Additional Info -->
-            <div id="view-mode-info" class="hidden rounded-lg bg-gray-50 p-4">
+            <div class="hidden rounded-lg bg-gray-50 p-4" id="view-mode-info">
                 <h4 class="mb-3 text-sm font-semibold text-gray-700">Additional Information</h4>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <span class="font-medium text-gray-500">Created At:</span>
-                        <span id="created-at" class="text-gray-900"></span>
+                        <span class="text-gray-900" id="created-at"></span>
                     </div>
                     <div>
                         <span class="font-medium text-gray-500">Updated At:</span>
-                        <span id="updated-at" class="text-gray-900"></span>
+                        <span class="text-gray-900" id="updated-at"></span>
                     </div>
                 </div>
             </div>

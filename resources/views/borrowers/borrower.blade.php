@@ -46,10 +46,10 @@
             </div>
 
             <!-- Borrower Table -->
-            <div class="mt-4 overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <div class="border-b border-gray-200 bg-white p-6">
+            <div class="mt-4 max-h-[350px] overflow-auto bg-white shadow-sm sm:rounded-lg">
+                <div class="border-b border-gray-200 bg-white">
                     <table class="w-full divide-y divide-blue-400" id="borrowers-table">
-                        <thead class="bg-gray-50">
+                        <thead class="sticky top-0 z-10 bg-gray-50"> 
                             <tr>
                                 <th class="w-1/6 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-black-500">
                                     # of Borrowed Records
@@ -67,7 +67,8 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
                             @forelse ($borrowers as $borrower)
-                                <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ $borrower->borrower_name }}"
+                                <tr data-id="{{ $borrower->id }}" data-borrower-name="{{ trim($borrower->borrower_name) }}"
+                                    data-borrower-name-lower="{{ strtolower(trim($borrower->borrower_name)) }}"
                                     data-docket-number="{{ $borrower->docket_number }}"
                                     data-file-location="{{ $borrower->file_location }}"
                                     data-division="{{ $borrower->division }}"
@@ -76,6 +77,7 @@
                                     data-status="{{ $borrower->status }}"
                                     class="cursor-pointer hover:bg-gray-50"
                                     onclick="editBorrower({{ $borrower->id }})">
+
                                     <td class="px-6 py-4 text-center text-sm text-gray-500">
                                         {{ $borrower->borrowed_count ?? 0 }}</td>
                                     <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">

@@ -18,10 +18,10 @@
     </div>
 
     <!-- Table -->
-    <div class="mt-4 overflow-hidden bg-white shadow-sm sm:rounded-lg">
-        <div class="border-b border-gray-200 bg-white p-6">
+    <div class="mt-4 max-h-[350px] overflow-auto bg-white shadow-sm sm:rounded-lg">
+        <div class="border-b border-gray-200 bg-white">
             <table class="min-w-full divide-y divide-blue-400" id="accounts-table">
-                <thead class="bg-gray-50">
+                <thead class="sticky top-0 z-10 bg-gray-50"> 
                     <tr>
                         <th
                             class="text-black-500 w-auto px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
