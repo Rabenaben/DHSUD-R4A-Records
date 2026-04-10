@@ -17,8 +17,9 @@ window.exportFile = exportFile;
 window.exportAllFiles = exportAllFiles;
 window.archiveFile = archiveFile;
 
-// Export lock - prevents multiple simultaneous exports
+// Export locks - prevents multiple simultaneous exports
 window.isExporting = false;
+window.isSingleExporting = false;
 
 window.openGenericModal = openGenericModal;
 window.loadGenericFileList = loadGenericFileList;
@@ -574,9 +575,21 @@ function goBackToFileList(type) {
  * @param {string} type - The type of record ('hoa' or 'rem').
  */
 function exportFile(type) {
+    // Prevent multiple rapid calls
+    if (window.isSingleExporting) {
+        console.warn('Single file export already in progress');
+        return;
+    }
+
     if (window.currentRecord && window.currentFileIndex !== undefined) {
+        window.isSingleExporting = true;
         const url = `/${type}/${window.currentRecord.docket_no}/download/${window.currentFileIndex}`;
         window.open(url, '_blank');
+        
+        // Reset lock after delay (download starts instantly)
+        setTimeout(() => { 
+            window.isSingleExporting = false; 
+        }, 1500);
     }
 }
 
@@ -760,6 +773,21 @@ function openGenericModal(record, type, fieldConfig, recordTransformer = null) {
             exportAllFiles(type);
         });
     }
+
+    // Attach single file export onclick SAFELY (used in blade onclick="exportRemFile()")
+    const singleExportBtns = document.querySelectorAll(`#export-${type}-btn, #export-hoa-btn`);
+    singleExportBtns.forEach(btn => {
+        if (!btn.dataset.singleExportListener) {
+            btn.dataset.singleExportListener = 'attached';
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof window[`export${type.charAt(0).toUpperCase() + type.slice(1)}File`] === 'function') {
+                    window[`export${type.charAt(0).toUpperCase() + type.slice(1)}File`]();
+                }
+            });
+        }
+    });
 }
 
 /**

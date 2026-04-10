@@ -57,6 +57,30 @@ const HOA_REQUIRED_FIELDS = [
     { id: 'status', name: 'Status' }
 ];
 
+// =========================================
+// QR Code Helpers
+// =========================================
+
+function handleQrButtonClick(event) {
+    const button = event.target.closest('.qr-btn');
+    if (!button) return false;
+    event.stopPropagation();
+    const type = button.dataset.type || 'hoa';
+    const docket = button.dataset.docket || '';
+    const recordId = button.dataset.recordId || '';
+    const provinceId = button.dataset.provinceId || '';
+    const municipalityId = button.dataset.municipalityId || '';
+    if (!docket) return true;
+    const params = new URLSearchParams();
+    if (recordId) params.set('record_id', recordId);
+    if (provinceId) params.set('province_id', provinceId);
+    if (municipalityId) params.set('municipality_id', municipalityId);
+    const query = params.toString();
+    const url = `/qr/${encodeURIComponent(type)}/${encodeURIComponent(docket)}${query ? `?${query}` : ''}`;
+    window.open(url, '_blank');
+    return true;
+}
+
 /**
  * Opens the HOA modal for a specific record and loads the file list.
  * @param {Object} record - The record data.
@@ -207,6 +231,7 @@ function attachHoaRowClickListeners() {
 
     // Delegate click event for HOA rows
     tableBody.addEventListener('click', (e) => {
+        if (handleQrButtonClick(e)) return;
         const row = e.target.closest('tr.hoa-row');
         if (!row) return;
 
@@ -327,6 +352,7 @@ function initHoaRecords() {
 
     // Delegate click event for HOA rows
     tableBody.addEventListener('click', (e) => {
+        if (handleQrButtonClick(e)) return;
         const row = e.target.closest('tr.hoa-row');
         if (!row) return;
 
@@ -562,6 +588,17 @@ function createHoaTableRow(record) {
                 ${record.status}
             </span>
         </td>
+        <td class="px-6 py-4 text-center text-sm text-gray-900">
+            <button type="button"
+                class="qr-btn rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700"
+                data-type="hoa"
+                data-record-id="${record.id ?? ''}"
+                data-province-id="${record.province_id ?? ''}"
+                data-municipality-id="${record.municipality_id ?? ''}"
+                data-docket="${record.docket_no}">
+                Genrate QR Code
+            </button>
+        </td>
     `;
 
     return row;
@@ -707,6 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachHoaRowClickListeners();
     attachHoaPaginationListeners();
     window.initExport('hoa');
+    initQrAutoOpen();
 
     // Fix: Reset edit mode when HOA modal is closed (without clicking cancel)
     window.addEventListener('close-modal', (e) => {
@@ -723,3 +761,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+async function initQrAutoOpen() {
+    const params = new URLSearchParams(window.location.search);
+    const docket = params.get('qr');
+    const type = (params.get('type') || 'hoa').toLowerCase();
+    const recordId = params.get('record_id');
+    const provinceId = params.get('province_id');
+    const municipalityId = params.get('municipality_id');
+    if (!docket || type !== 'hoa') return;
+
+    try {
+        const query = new URLSearchParams();
+        if (recordId) query.set('record_id', recordId);
+        if (provinceId) query.set('province_id', provinceId);
+        if (municipalityId) query.set('municipality_id', municipalityId);
+        const url = `/qr/record/hoa/${encodeURIComponent(docket)}${query.toString() ? `?${query}` : ''}`;
+        const response = await fetch(url, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) {
+            throw new Error('Record not found');
+        }
+        const record = await response.json();
+        openHoaModal(record);
+        history.replaceState({}, document.title, window.location.pathname);
+    } catch (error) {
+        console.error(error);
+    }
+}

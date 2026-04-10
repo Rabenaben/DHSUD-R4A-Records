@@ -90,6 +90,13 @@
                 </x-nav-link>
             </li>
 
+            <li>
+                <x-nav-link :href="route('qr.scan')" :active="request()->routeIs('qr.scan')">
+                    <i class="bi bi-qr-code h-5 w-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400"></i>
+                    <span class="ms-3">QR Scanner</span>
+                </x-nav-link>
+            </li>
+
             @if (auth()->user()->role === 'Admin')
                 <li>
                     <x-nav-link :href="route('borrowers')" :active="request()->routeIs('borrowers')">

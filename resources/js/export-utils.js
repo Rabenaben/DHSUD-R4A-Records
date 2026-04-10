@@ -9,13 +9,13 @@
  * @param {string} filenameSuffix - 'xlsx', 'sql', or 'zip'
  * @param {string} successToast - Success message
  */
-window.downloadExport = async function(exportType, endpoint, filenameSuffix, successToast) {
+window.downloadExport = async function (exportType, endpoint, filenameSuffix, successToast) {
     const provinceSelect = document.getElementById(`export-${exportType}-province`);
     const municipalitySelect = document.getElementById(`export-${exportType}-municipality`);
-    
+
     const provinceId = provinceSelect?.value || '';
     const municipalityId = municipalitySelect?.value || '';
-    
+
     // Build URL with query parameters (exact existing logic)
     let url = `/${exportType}/${endpoint}?`;
     const params = new URLSearchParams();
@@ -25,18 +25,18 @@ window.downloadExport = async function(exportType, endpoint, filenameSuffix, suc
 
     // Show type-specific loading (existing)
     window.showExportLoading(exportType);
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
-        const response = await fetch(url, { 
+        const response = await fetch(url, {
             signal: controller.signal,
             credentials: 'same-origin'
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         // Files export JSON check (existing hoa.js logic)
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
             const data = await response.json();
@@ -44,14 +44,14 @@ window.downloadExport = async function(exportType, endpoint, filenameSuffix, suc
                 throw new Error(data.message || 'Export failed');
             }
         }
-        
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const blob = await response.blob();
         let filename = `${exportType}_records${filenameSuffix === 'zip' ? '_files' : ''}.${filenameSuffix}`;
-        
+
         // Content-Disposition filename extraction (existing)
         const contentDisposition = response.headers.get('Content-Disposition');
         if (contentDisposition) {
@@ -60,7 +60,7 @@ window.downloadExport = async function(exportType, endpoint, filenameSuffix, suc
                 filename = filenameMatch[1].replace(/['"]/g, '');
             }
         }
-        
+
         // Download (existing exact logic)
         const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -70,7 +70,7 @@ window.downloadExport = async function(exportType, endpoint, filenameSuffix, suc
         a.click();
         window.URL.revokeObjectURL(downloadUrl);
         document.body.removeChild(a);
-        
+
         window.showToast(successToast, 'success');
     } catch (error) {
         if (error.name === 'AbortError') {
@@ -91,7 +91,7 @@ window.downloadExport = async function(exportType, endpoint, filenameSuffix, suc
  * Generic export initializer for hoa/rem modals
  * @param {string} exportType - 'hoa' or 'rem'
  */
-window.initExport = function(exportType) {
+window.initExport = function (exportType) {
     const exportBtn = document.getElementById(`export${exportType.charAt(0).toUpperCase() + exportType.slice(1)}Btn`);
     const cancelBtn = document.getElementById(`cancel-export-${exportType}-btn`);
     const provinceSelect = document.getElementById(`export-${exportType}-province`);
@@ -99,20 +99,25 @@ window.initExport = function(exportType) {
 
     if (!exportBtn) return;
 
-    // Open export modal
-    exportBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: `export-${exportType}` } }));
-    });
+    // Prevent duplicate listeners
+    if (!exportBtn.dataset.exportListener) {
+        exportBtn.dataset.exportListener = 'attached';
+        exportBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: { name: `export-${exportType}` } }));
+        });
+    }
 
     // Cancel button
-    if (cancelBtn) {
+    if (cancelBtn && !cancelBtn.dataset.cancelListener) {
+        cancelBtn.dataset.cancelListener = 'attached';
         cancelBtn.addEventListener('click', () => {
             window.dispatchEvent(new CustomEvent('close-modal', { detail: { name: `export-${exportType}` } }));
         });
     }
 
     // Province → municipality cascading (existing exact logic)
-    if (provinceSelect) {
+    if (provinceSelect && !provinceSelect.dataset.provinceListener) {
+        provinceSelect.dataset.provinceListener = 'attached';
         provinceSelect.addEventListener('change', async () => {
             const provinceId = provinceSelect.value;
             municipalitySelect.innerHTML = '<option value="">All Municipalities</option>';
@@ -141,27 +146,77 @@ window.initExport = function(exportType) {
     const sqlBtnId = `export-${exportType}-sql-btn`;
     const filesBtnId = `export-${exportType}-files-btn`;
 
-    // Excel
+    // Excel - with debounce and listener check
     const excelBtn = document.getElementById(excelBtnId);
-    if (excelBtn) {
-        excelBtn.addEventListener('click', () => {
-            window.downloadExport(exportType, 'export', 'xlsx', `${exportType.toUpperCase()} Excel export completed!`);
+    if (excelBtn && !excelBtn.dataset.excelListener) {
+        excelBtn.dataset.excelListener = 'attached';
+        let debounceTimer;
+        excelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (debounceTimer) return;
+            debounceTimer = setTimeout(() => {
+                window.downloadExport(exportType, 'export', 'xlsx', `${exportType.toUpperCase()} Excel export completed!`);
+                debounceTimer = null;
+            }, 200);
         });
     }
 
-    // SQL  
+    // SQL - with debounce and listener check
     const sqlBtn = document.getElementById(sqlBtnId);
-    if (sqlBtn) {
-        sqlBtn.addEventListener('click', () => {
-            window.downloadExport(exportType, 'export-sql', 'sql', `${exportType.toUpperCase()} SQL export completed!`);
+    if (sqlBtn && !sqlBtn.dataset.sqlListener) {
+        sqlBtn.dataset.sqlListener = 'attached';
+        let debounceTimer;
+        sqlBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (debounceTimer) return;
+            debounceTimer = setTimeout(() => {
+                window.downloadExport(exportType, 'export-sql', 'sql', `${exportType.toUpperCase()} SQL export completed!`);
+                debounceTimer = null;
+            }, 200);
         });
     }
 
-    // Files (ZIP)
+    // Files (ZIP) - with debounce and listener check
     const filesBtn = document.getElementById(filesBtnId);
-    if (filesBtn) {
-        filesBtn.addEventListener('click', () => {
-            window.downloadExport(exportType, 'export-files', 'zip', `${exportType.toUpperCase()} files exported successfully!`);
+    if (filesBtn && !filesBtn.dataset.filesListener) {
+        filesBtn.dataset.filesListener = 'attached';
+        let debounceTimer;
+        filesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (debounceTimer) return;
+            debounceTimer = setTimeout(() => {
+                window.downloadExport(exportType, 'export-files', 'zip', `${exportType.toUpperCase()} files exported successfully!`);
+                debounceTimer = null;
+            }, 200);
         });
     }
+
+    // Cleanup listeners on modal close
+    const cleanupExportListeners = () => {
+        const selectors = [
+            `#export-${exportType}-submit-btn[data-excel-listener]`,
+            `#export-${exportType}-sql-btn[data-sql-listener]`,
+            `#export-${exportType}-files-btn[data-files-listener]`
+        ];
+        selectors.forEach(selector => {
+            const btn = document.querySelector(selector);
+            if (btn) {
+                ['excelListener', 'sqlListener', 'filesListener'].forEach(type => {
+                    if (btn.dataset[type]) {
+                        // Note: can't remove named functions, but dataset prevents re-attachment
+                        // console.log(`Export listener cleanup for ${type}`); // Removed
+                    }
+                });
+            }
+        });
+    };
+
+    window.addEventListener('close-modal', (e) => {
+        if (e.detail.name === `export-${exportType}`) {
+            cleanupExportListeners();
+        }
+    });
 };

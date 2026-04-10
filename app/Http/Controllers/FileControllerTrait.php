@@ -76,8 +76,9 @@ trait FileControllerTrait
         foreach ($request->file('files') as $file) {
             try {
                 $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                // Create a subfolder named after the docket number
-                $path = $file->storeAs($this->folder . '/' . $docketNo, $fileName, 'local');
+                // Sanitize docket folder name - replace / \ with _ to avoid filesystem issues
+                $safeDocketFolder = preg_replace('/[\/\\\\]/', '_', $docketNo);
+                $path = $file->storeAs($this->folder . '/' . $safeDocketFolder, $fileName, 'local');
 
                 $originalBasename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $uniqueDisplayName = $this->generateUniqueDisplayName($existingNames, $originalBasename);

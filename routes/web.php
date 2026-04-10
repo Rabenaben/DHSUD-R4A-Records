@@ -9,6 +9,8 @@ use App\Http\Controllers\BorrowerController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\HoaController;
 use App\Http\Controllers\RemController;
+use App\Http\Controllers\QrCodeController;
+use App\Http\Controllers\QrScanController;
 use App\Http\Controllers\ClientRequestController;
 
 // 🔹 Public route
@@ -58,7 +60,9 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     Route::controller(BorrowerController::class)->middleware('check.overdue.notifications')->group(function () {
         Route::get('/borrowers/{id}', 'showBorrower')->name('borrowers.show');
         Route::get('/borrowers/history/{borrowerName}', 'getBorrowerHistory')->name('borrowers.history');
-        Route::get('/borrowers/docket/{docketNo}', 'getDocketDetails')->name('borrowers.docket.details');
+        Route::get('/borrowers/docket/{docketNo}', 'getDocketDetails')
+            ->where('docketNo', '.*')
+            ->name('borrowers.docket.details');
         Route::post('/borrowers', 'storeBorrower')->name('borrowers.store');
         Route::patch('/borrowers/{id}', 'updateBorrower')->name('borrowers.update');
         Route::patch('/borrowers/{id}/return', 'updateReturnedDate')->name('borrowers.update.return');
@@ -66,7 +70,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::post('/mark-notifications-read', 'markNotificationsAsRead')->name('borrowers.notifications.read');
     });
 
-// Archive routes (ArchiveController)
+    // Archive routes (ArchiveController)
     Route::controller(ArchiveController::class)
         ->prefix('records')
         ->name('records.')
@@ -115,7 +119,25 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
         Route::get('folder/{province}', 'folder')->name('folder');
     });
 
-// Client Request routes (ClientRequestController)
+    // QR Scan routes
+    Route::get('/qr-scan', [QrScanController::class, 'index'])->name('qr.scan');
+    Route::get('/qr/info/{type}/{docketNo}', [QrScanController::class, 'info'])
+        ->name('qr.info')
+        ->where('docketNo', '.*');
+    Route::get('/qr/open/{type}/{docketNo}', [QrScanController::class, 'open'])
+        ->name('qr.open')
+        ->where('docketNo', '.*');
+    Route::get('/qr/record/{type}/{docketNo}', [QrScanController::class, 'record'])
+        ->name('qr.record')
+        ->where('docketNo', '.*');
+
+    // QR Code route
+    Route::get('/qr/{type}/{docketNo}', [QrCodeController::class, 'show'])
+        ->name('qr.show')
+        ->where('type', 'hoa|rem')
+        ->where('docketNo', '.*');
+
+    // Client Request routes (ClientRequestController)
     Route::controller(ClientRequestController::class)->prefix('client-requests')->name('client-requests.')->group(function () {
         Route::get('/data', 'getData')->name('data');
         Route::get('/dockets', 'getDocketNumbers')->name('dockets');
