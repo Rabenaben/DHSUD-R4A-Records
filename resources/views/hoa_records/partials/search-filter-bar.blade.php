@@ -14,6 +14,7 @@
         <option value="ON-SHELF">ON-SHELF</option>
         <option value="BORROWED">BORROWED</option>
         <option value="ARCHIVED">ARCHIVED</option>
+        <option value="UNAVAILABLE">UNAVAILABLE</option>
     </select>
 
     <!-- Province Filter -->

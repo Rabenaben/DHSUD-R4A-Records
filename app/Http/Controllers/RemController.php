@@ -72,7 +72,7 @@ class RemController extends Controller
             'location' => 'required|string',
             'province_id' => 'required|integer',
             'municipality_id' => 'required|integer',
-            'status' => 'required|in:ON-SHELF,ARCHIVED',
+            'status' => 'required|in:ON-SHELF,ARCHIVED,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);
@@ -102,7 +102,7 @@ class RemController extends Controller
             'location' => 'required|string',
             'province_id' => 'required|integer',
             'municipality_id' => 'required|integer',
-            'status' => 'required|in:ON-SHELF,ARCHIVED',
+            'status' => 'required|in:ON-SHELF,ARCHIVED,UNAVAILABLE',
             'quantity' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);

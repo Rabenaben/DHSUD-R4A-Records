@@ -128,7 +128,10 @@
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <x-input-label value="Status" />
-                        <input type="text" id="{{ $type === 'hoa' ? 'add-status' : 'add-rem-status' }}" name="status" value="ON-SHELF" readonly class="w-full rounded-lg border border-gray-300 p-2 bg-gray-100" />
+                        <select id="{{ $type === 'hoa' ? 'add-status' : 'add-rem-status' }}" name="status" class="w-full rounded-lg border border-gray-300 p-2">
+                            <option value="ON-SHELF" selected>ON-SHELF</option>
+                            <option value="UNAVAILABLE">UNAVAILABLE</option>
+                        </select>
                     </div>
                     <div>
                         <x-input-label value="Quantity" :required="true" />

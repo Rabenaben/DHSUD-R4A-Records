@@ -524,7 +524,22 @@ function initFileListSearch(type) {
  */
 function setValue(id, value) {
     const el = document.getElementById(id);
-    if (el) el.value = value ?? '';
+    if (el) {
+        // For select elements, ensure the option exists or add it
+        if (el.tagName === 'SELECT') {
+            // Check if option exists
+            const optionExists = Array.from(el.options).some(opt => opt.value === value);
+            
+            // If option doesn't exist and value is not empty, add it
+            if (!optionExists && value) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                el.appendChild(option);
+            }
+        }
+        el.value = value ?? '';
+    }
 }
 
 /**

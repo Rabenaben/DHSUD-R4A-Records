@@ -3,6 +3,7 @@
         'total' => 'from-gray-600 to-gray-900',
         'onShelf' => 'from-green-400 to-green-700',
         'archived' => 'from-red-500 to-red-800',
+        'unavailable' => 'from-gray-400 to-gray-600',
         'borrowed' => 'from-yellow-400 to-yellow-700',
     ];
 
@@ -10,6 +11,7 @@
         'total' => ['label' => 'Total Dockets', 'value' => $totalDockets, 'icon' => 'bi-folder2-open'],
         'onShelf' => ['label' => 'On-Shelf', 'value' => $onShelf, 'icon' => 'bi-archive-fill'],
         'archived' => ['label' => 'Archived', 'value' => $archived, 'icon' => 'bi-file-earmark-x-fill'],
+        'unavailable' => ['label' => 'Unavailable', 'value' => $unavailable, 'icon' => 'bi-dash-circle-fill'],
         'borrowed' => ['label' => 'Borrowed', 'value' => $borrowed, 'icon' => 'bi-arrow-left-right'],
     ];
 @endphp

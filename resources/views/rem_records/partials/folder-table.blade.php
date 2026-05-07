@@ -22,6 +22,7 @@
             <option value="ON-SHELF">ON-SHELF</option>
             <option value="BORROWED">BORROWED</option>
             <option value="ARCHIVED">ARCHIVED</option>
+            <option value="UNAVAILABLE">UNAVAILABLE</option>
         </select>
 
         <!-- Municipality Filter -->
@@ -66,10 +67,8 @@
                                 'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
                                 'bg-green-100 text-green-800' => $record->status === 'ON-SHELF',
                                 'bg-yellow-100 text-yellow-800' => $record->status === 'BORROWED',
-                                'bg-red-100 text-red-800' => !in_array($record->status, [
-                                    'ON-SHELF',
-                                    'BORROWED',
-                                ]),
+                                'bg-red-100 text-red-800' => $record->status === 'ARCHIVED',
+                                'bg-gray-100 text-gray-800' => $record->status === 'UNAVAILABLE',
                             ])>
                                 {{ $record->status }}
                             </span>

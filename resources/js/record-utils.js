@@ -201,15 +201,45 @@ function enterEditMode(prefix, editableFields, allFields) {
     window[`${prefix}OriginalValues`] = {};
     allFields.forEach(id => {
         const element = document.getElementById(id);
-        if (element) {
-            window[`${prefix}OriginalValues`][id] = element.value;
-            if (editableFields.includes(id)) {
-                if (id.includes('status') || id.includes('province') || id.includes('municipality')) {
-                    // Handle select dropdowns - remove disabled
+        if (!element) return;
+
+        window[`${prefix}OriginalValues`][id] = element.value;
+
+        // Special-case: record status dropdown edit rules (NOT HOA registration status)
+        // - HOA registration dropdown: #hoa-status (REGISTERED/etc) should follow the editableFields list
+        // - Record availability dropdown: #status (ON-SHELF/UNAVAILABLE/BORROWED/ARCHIVED) is editable only when current value is ON-SHELF or UNAVAILABLE
+        if (id.endsWith('status')) {
+            const isHoaRegistrationStatus = id === 'hoa-status';
+            const isRemRecordStatus = id === 'rem-status';
+
+            // For HOA registration status, do not apply ON-SHELF/UNAVAILABLE restriction
+            if (isHoaRegistrationStatus) {
+                if (editableFields.includes(id)) {
                     element.removeAttribute('disabled');
                 } else {
-                    element.removeAttribute('readonly');
+                    element.setAttribute('disabled', true);
                 }
+                return;
+            }
+
+            // For record status dropdowns (e.g. #status / #rem-status), restrict edits by current value
+            const statusValue = String(element.value || '').toUpperCase();
+            const isEditable = statusValue === 'ON-SHELF' || statusValue === 'UNAVAILABLE';
+
+            if (editableFields.includes(id) && isEditable) {
+                element.removeAttribute('disabled');
+            } else {
+                element.setAttribute('disabled', true);
+            }
+            return;
+        }
+
+
+        if (editableFields.includes(id)) {
+            if (id.includes('province') || id.includes('municipality')) {
+                element.removeAttribute('disabled');
+            } else {
+                element.removeAttribute('readonly');
             }
         }
     });
@@ -276,9 +306,9 @@ function cancelEdit(prefix, allFields) {
         if (element && window[`${prefix}OriginalValues`][id] !== undefined) {
             element.value = window[`${prefix}OriginalValues`][id];
             if (id.includes('status')) {
+                // Always disable status on cancel, regardless of current record status
                 element.setAttribute('disabled', true);
             } else if (id.includes('province') || id.includes('municipality')) {
-                // Handle province and municipality select dropdowns - re-disable
                 element.setAttribute('disabled', true);
             } else {
                 element.setAttribute('readonly', true);

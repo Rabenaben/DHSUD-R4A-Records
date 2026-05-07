@@ -81,8 +81,10 @@
             <div class="mb-2.5 flex gap-2.5">
                 <div class="flex-1">
                     <x-input-label for="rem-status" value="Status" />
-                    <input class="w-full rounded-lg border border-gray-300 bg-gray-100 p-2" id="rem-status"
-                        type="text" value="ON-SHELF" readonly />
+                    <select class="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-blue-600" id="rem-status" disabled>
+                        <option value="ON-SHELF">ON-SHELF</option>
+                        <option value="UNAVAILABLE">UNAVAILABLE</option>
+                    </select>
                 </div>
                 <div class="flex-1">
                     <x-input-label for="rem-quantity" value="Quantity" required :class="'required-label'" />

@@ -1,16 +1,12 @@
-# File Upload Fix - Docket Records with '/' in Name
+# TODO - Fix status dropdown/editability
 
-**Status: Completed**
-- [x] Analyzed issue: storeAs() fails when docket_no contains '/' 
-- [x] Confirmed fix location: FileControllerTrait.php::uploadFile()
-- [x] Edited FileControllerTrait.php: Added `$safeDocketFolder = preg_replace('/[\/\\\\]/', '_', $docketNo);`
-- [x] Test upload with docket containing '/' (recommend manual test)
-- [x] Existing functionality unaffected (safe replacement, no other paths changed)
+- [ ] Update `resources/js/record-utils.js`:
+  - [ ] Split editability rules for `status` vs `hoa-status`
+  - [ ] Ensure `hoa-status` is not governed by ON-SHELF/UNAVAILABLE rule intended for record status
+  - [ ] Dynamically filter record `#status` dropdown options when record is not editable (hide BORROWED/ARCHIVED when appropriate)
+- [ ] Verify HOA modal:
+  - [ ] ON-SHELF/UNAVAILABLE records allow changing `hoa-status`
+  - [ ] BORROWED/ARCHIVED records keep `hoa-status` disabled
+  - [ ] BORROWED option no longer visible in status dropdown when edits are not allowed
+- [ ] (Optional) Verify REM modal status behavior remains correct
 
-**Changes Applied:**
-```
-$safeDocketFolder = preg_replace('/[\/\\\\]/', '_', $docketNo);
-$path = $file->storeAs($this->folder . '/' . $safeDocketFolder, $fileName, 'local');
-```
-
-**Result:** Files now upload successfully to dockets with '/' in names (e.g. "NCR/HOA/123" → folder "NCR_HOA_123"). Display names unchanged.

@@ -20,6 +20,7 @@ class DisplayController extends Controller
             COUNT(*) as total,
             SUM(CASE WHEN status = 'ON-SHELF' THEN 1 ELSE 0 END) as onShelf,
             SUM(CASE WHEN status = 'ARCHIVED' THEN 1 ELSE 0 END) as archived,
+            SUM(CASE WHEN status = 'UNAVAILABLE' THEN 1 ELSE 0 END) as unavailable,
             SUM(CASE WHEN status = 'BORROWED' THEN 1 ELSE 0 END) as borrowed
         ")->first();
 
@@ -27,6 +28,7 @@ class DisplayController extends Controller
             'total' => $counts->total ?? 0,
             'onShelf' => $counts->onShelf ?? 0,
             'archived' => $counts->archived ?? 0,
+            'unavailable' => $counts->unavailable ?? 0,
             'borrowed' => $counts->borrowed ?? 0,
         ];
     }
@@ -43,6 +45,7 @@ class DisplayController extends Controller
             ['title' => 'Total HOA Dockets', 'count' => $hoa['total'], 'from' => 'orange-400', 'to' => 'orange-500', 'text' => 'text-black', 'icon' => 'bi-house-door-fill'],
             ['title' => 'On-Shelf', 'count' => $rem['onShelf'] + $hoa['onShelf'], 'from' => 'green-400', 'to' => 'green-700', 'text' => 'text-black', 'icon' => 'bi-archive-fill'],
             ['title' => 'Archived', 'count' => $rem['archived'] + $hoa['archived'], 'from' => 'red-500', 'to' => 'red-800', 'text' => 'text-black', 'icon' => 'bi-file-earmark-x-fill'],
+            ['title' => 'Unavailable', 'count' => $rem['unavailable'] + $hoa['unavailable'], 'from' => 'gray-400', 'to' => 'gray-600', 'text' => 'text-black', 'icon' => 'bi-dash-circle-fill'],
             ['title' => 'Borrowed', 'count' => $rem['borrowed'] + $hoa['borrowed'], 'from' => 'yellow-300', 'to' => 'yellow-600', 'text' => 'text-black', 'icon' => 'bi-arrow-left-right'],
         ];
 
@@ -109,6 +112,7 @@ class DisplayController extends Controller
             'totalRemDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'archived' => $data['archived'],
+            'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,
             'allProvinces' => $allProvinces,
@@ -155,6 +159,7 @@ class DisplayController extends Controller
             'totalHoaDockets' => $data['total'],
             'onShelf' => $data['onShelf'],
             'archived' => $data['archived'],
+            'unavailable' => $data['unavailable'],
             'borrowed' => $data['borrowed'],
             'provinces' => $provinces,
             'municipalities' => $municipalities,
